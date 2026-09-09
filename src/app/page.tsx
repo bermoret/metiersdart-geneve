@@ -85,8 +85,8 @@ export default function HomePage() {
             <div className="relative">
               <div className="animate-clip-reveal relative aspect-[4/3] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-mag-cream">
                 <Image
-                  src="/hero-artisan.png"
-                  alt="Artisan au travail dans son atelier"
+                  src="/artisan-hands.jpg"
+                  alt="Mains d'artisan travaillant le bois dans son atelier"
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   className="object-cover"
@@ -128,6 +128,50 @@ export default function HomePage() {
                 </div>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Section narrative — photo outils + citation ─────────── */}
+      <section className="py-20 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Photo outils */}
+            <Reveal>
+              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-xl bg-mag-cream">
+                <Image
+                  src="/artisan-tools.jpg"
+                  alt="Outils d'artisan sur un établi"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </Reveal>
+            {/* Texte */}
+            <div>
+              <Reveal>
+                <h2 className="text-3xl sm:text-4xl font-bold text-mag-dark font-serif mb-6 leading-tight">
+                  Le geste, la matière, le temps
+                </h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-lg text-mag-dark/70 leading-relaxed mb-6">
+                  Chaque artisan·e de MAG porte un savoir-faire unique, fruit
+                  d&apos;années d&apos;apprentissage, d&apos;exigence et de passion.
+                  Du geste précis à l&apos;œuvre accomplie, c&apos;est toute une histoire
+                  qui se transmet.
+                </p>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <blockquote className="border-l-4 border-mag-red pl-6 italic text-mag-dark/80 font-serif text-lg leading-relaxed">
+                  Quand vous faites travailler un·e artisan·e, vous achetez bien plus
+                  qu&apos;un service. Vous reconnaissez la maîtrise d&apos;un geste,
+                  l&apos;exigence d&apos;un savoir-faire et des centaines d&apos;heures
+                  d&apos;essais, d&apos;échecs et d&apos;expérimentations.
+                </blockquote>
+              </Reveal>
+            </div>
           </div>
         </div>
       </section>
