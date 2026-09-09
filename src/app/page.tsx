@@ -31,7 +31,7 @@ export default function HomePage() {
             href="/repertoire"
             className="mt-8 inline-flex items-center gap-2 rounded-full bg-mag-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-mag-red-dark transition-colors"
           >
-            Trouvez les professionnel·le·s des métiers d&apos;art proche de chez vous
+            En savoir plus
             <span aria-hidden>→</span>
           </Link>
         </div>
