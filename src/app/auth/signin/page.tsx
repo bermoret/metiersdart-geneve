@@ -44,29 +44,6 @@ export default function SignInPage() {
             Recevoir un lien de connexion
           </button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-mag-cream/80">
-          <p className="text-center text-xs text-mag-gray mb-4">
-            ou utilisez un passkey
-          </p>
-          <form
-            action={async () => {
-              "use server";
-              await signIn("passkey", { redirectTo: "/admin" });
-            }}
-          >
-            <button
-              type="submit"
-              className="w-full rounded-lg border border-mag-cream px-4 py-3 text-sm font-medium text-mag-dark hover:border-mag-red hover:text-mag-red transition-colors flex items-center justify-center gap-2"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" />
-                <path d="M7 11V7a5 5 0 0110 0v4" />
-              </svg>
-              Se connecter avec un passkey
-            </button>
-          </form>
-        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Resend from "next-auth/providers/resend";
-import Passkey from "next-auth/providers/passkey";
 import { db } from "@/db";
 import {
   users,
@@ -41,11 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         await sendMagicLinkEmail(identifier, url);
       },
     }),
-    Passkey({}),
   ],
-  experimental: {
-    enableWebAuthn: true,
-  },
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",
