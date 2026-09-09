@@ -21,7 +21,7 @@ const poinconImages: Record<string, string> = {
   ATELIER: "https://metiersdart-geneve.ch/images/2025/05/21/atelier.png",
   BOUTIQUE: "https://metiersdart-geneve.ch/images/2025/05/21/boutique.png",
   ENTREPRISE: "https://metiersdart-geneve.ch/images/2025/05/21/entreprise.png",
-  INSTITUTION: "https://metiersdart-geneve.ch/images/2025/05/21/institution.png",
+  INSTITUTION: "https://metiersdart-geneve.ch/images/2025/05/23/institutions.png",
 };
 
 export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: Props) {
