@@ -117,6 +117,11 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
         )
       : artisans;
 
+    // Filtrer les artisans hors canton de Genève pour le centrage
+    // Genève : lat ~46.13-46.26, lon ~6.05-6.27
+    const isInGeneva = (lat: number, lng: number) =>
+      lat >= 46.12 && lat <= 46.27 && lng >= 6.04 && lng <= 6.28;
+
     const withCoords = filtered.filter(
       (a) => a.latitude !== 0 && a.longitude !== 0 && !isNaN(a.latitude),
     );
@@ -145,7 +150,10 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
       `;
       marker.bindPopup(popupHtml);
       marker.addTo(mapRef.current!);
-      bounds.extend([lat, lng]);
+      // Ne calculer les bounds qu'avec les artisans dans le canton
+      if (isInGeneva(lat, lng)) {
+        bounds.extend([lat, lng]);
+      }
       markersRef.current.push(marker);
     });
 
