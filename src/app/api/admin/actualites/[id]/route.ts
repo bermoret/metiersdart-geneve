@@ -12,10 +12,15 @@ export async function GET(
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const { id } = await params;
-  const [row] = await db.select().from(actualites).where(eq(actualites.id, id)).limit(1);
-  if (!row) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
-  return NextResponse.json(row);
+  try {
+    const { id } = await params;
+    const [row] = await db.select().from(actualites).where(eq(actualites.id, id)).limit(1);
+    if (!row) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+    return NextResponse.json(row);
+  } catch (e) {
+    console.error("GET actualites/[id]:", e);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
 }
 
 // PATCH /api/admin/actualites/[id]
@@ -26,29 +31,34 @@ export async function PATCH(
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const { id } = await params;
-  const body = await req.json();
+  try {
+    const { id } = await params;
+    const body = await req.json();
 
-  const [updated] = await db
-    .update(actualites)
-    .set({
-      ...(body.title !== undefined && { title: body.title }),
-      ...(body.excerpt !== undefined && { excerpt: body.excerpt }),
-      ...(body.content !== undefined && { content: body.content }),
-      ...(body.category !== undefined && { category: body.category }),
-      ...(body.eventDate !== undefined && { eventDate: body.eventDate ? new Date(body.eventDate) : null }),
-      ...(body.eventEndDate !== undefined && { eventEndDate: body.eventEndDate ? new Date(body.eventEndDate) : null }),
-      ...(body.linkUrl !== undefined && { linkUrl: body.linkUrl }),
-      ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
-      ...(body.isArchived !== undefined && { isArchived: body.isArchived }),
-      ...(body.published !== undefined && { published: body.published }),
-      updatedAt: new Date(),
-    })
-    .where(eq(actualites.id, id))
-    .returning();
+    const [updated] = await db
+      .update(actualites)
+      .set({
+        ...(body.title !== undefined && { title: String(body.title) }),
+        ...(body.excerpt !== undefined && { excerpt: body.excerpt ?? null }),
+        ...(body.content !== undefined && { content: body.content ?? null }),
+        ...(body.category !== undefined && { category: body.category ? String(body.category) : null }),
+        ...(body.eventDate !== undefined && { eventDate: body.eventDate ? new Date(body.eventDate) : null }),
+        ...(body.eventEndDate !== undefined && { eventEndDate: body.eventEndDate ? new Date(body.eventEndDate) : null }),
+        ...(body.linkUrl !== undefined && { linkUrl: body.linkUrl ? String(body.linkUrl) : null }),
+        ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl ? String(body.imageUrl) : null }),
+        ...(body.isArchived !== undefined && { isArchived: Boolean(body.isArchived) }),
+        ...(body.published !== undefined && { published: Boolean(body.published) }),
+        updatedAt: new Date(),
+      })
+      .where(eq(actualites.id, id))
+      .returning();
 
-  if (!updated) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
-  return NextResponse.json(updated);
+    if (!updated) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+    return NextResponse.json(updated);
+  } catch (e) {
+    console.error("PATCH actualites/[id]:", e);
+    return NextResponse.json({ error: "Erreur lors de la modification" }, { status: 500 });
+  }
 }
 
 // DELETE /api/admin/actualites/[id]
@@ -59,8 +69,13 @@ export async function DELETE(
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const { id } = await params;
-  const [deleted] = await db.delete(actualites).where(eq(actualites.id, id)).returning();
-  if (!deleted) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
-  return NextResponse.json({ ok: true, deleted: deleted.id });
+  try {
+    const { id } = await params;
+    const [deleted] = await db.delete(actualites).where(eq(actualites.id, id)).returning();
+    if (!deleted) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+    return NextResponse.json({ ok: true, deleted: deleted.id });
+  } catch (e) {
+    console.error("DELETE actualites/[id]:", e);
+    return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 });
+  }
 }
