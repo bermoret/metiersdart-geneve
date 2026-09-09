@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { actualites, medias } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 // ─── Actualités (depuis src/app/l-actu/page.tsx) ───────────────
 
@@ -147,85 +148,140 @@ const articlesArchivesData = [
 async function main() {
   console.log("🌱 Seed actualités & médias…");
 
-  // ── Actualités ──
-  for (const a of actuData) {
-    await db.insert(actualites).values({
-      title: a.title,
-      excerpt: a.excerpt,
-      content: a.excerpt,
-      category: a.category,
-      imageUrl: a.imageUrl,
-      linkUrl: a.linkUrl,
-      published: true,
-    }).onConflictDoNothing();
-  }
-  console.log(`✓ ${actuData.length} actualités insérées`);
+  await db.transaction(async (tx) => {
+    // ── Actualités (idempotent: skip si titre existe déjà) ──
+    let actuInserted = 0;
+    for (const a of actuData) {
+      const existing = await tx
+        .select({ id: actualites.id })
+        .from(actualites)
+        .where(eq(actualites.title, a.title))
+        .limit(1);
+      if (existing.length > 0) continue;
 
-  // ── Capsules vidéo (type = "video") ──
-  let order = 0;
-  for (const c of capsuleData) {
-    const videoUrl =
-      c.platform === "vimeo"
-        ? `https://vimeo.com/${c.videoId}`
-        : `https://www.youtube.com/watch?v=${c.videoId}`;
-    await db.insert(medias).values({
-      title: c.title,
-      type: "video",
-      mediaType: c.platform,
-      videoUrl,
-      source: c.category,
-      sortOrder: order++,
-    }).onConflictDoNothing();
-  }
-  console.log(`✓ ${capsuleData.length} capsules vidéo insérées`);
+      await tx.insert(actualites).values({
+        title: a.title,
+        excerpt: a.excerpt,
+        content: a.excerpt,
+        category: a.category,
+        imageUrl: a.imageUrl,
+        linkUrl: a.linkUrl,
+        published: true,
+      });
+      actuInserted++;
+    }
+    console.log(`✓ ${actuInserted}/${actuData.length} actualités insérées`);
 
-  // ── Interview YouTube (type = "video") ──
-  await db.insert(medias).values({
-    title: "Véronique Lombard, Ex-Vice-Présidente MAG",
-    type: "video",
-    mediaType: "youtube",
-    videoUrl: "https://www.youtube.com/watch?v=una6Mnq0BBk",
-    source: "Interview CCI Geneva",
-    sortOrder: order++,
-  }).onConflictDoNothing();
+    // ── Médias (idempotent: skip si titre + type existent déjà) ──
+    let mediaInserted = 0;
+    let order = 0;
 
-  // ── Liens externes / articles (type = "article") ──
-  for (const e of externalLinksData) {
-    await db.insert(medias).values({
-      title: e.title,
-      type: "article",
-      externalUrl: e.url,
-      source: e.source,
-      sortOrder: order++,
-    }).onConflictDoNothing();
-  }
+    // Capsules vidéo
+    for (const c of capsuleData) {
+      const videoUrl =
+        c.platform === "vimeo"
+          ? `https://vimeo.com/${c.videoId}`
+          : `https://www.youtube.com/watch?v=${c.videoId}`;
+      const existing = await tx
+        .select({ id: medias.id })
+        .from(medias)
+        .where(and(eq(medias.title, c.title), eq(medias.type, "video")))
+        .limit(1);
+      if (existing.length > 0) continue;
 
-  // ── Revue de presse (type = "presse") ──
-  for (const r of revuesPresseData) {
-    await db.insert(medias).values({
-      title: `Revue de presse JEMA ${r.year}`,
-      type: "presse",
-      pdfUrl: r.url,
-      date: new Date(`${r.year}-01-01`),
-      source: "JEMA",
-      sortOrder: order++,
-    }).onConflictDoNothing();
-  }
+      await tx.insert(medias).values({
+        title: c.title,
+        type: "video",
+        mediaType: c.platform,
+        videoUrl,
+        source: c.category,
+        sortOrder: order++,
+      });
+      mediaInserted++;
+    }
 
-  // ── Articles archivés (type = "article") ──
-  for (const a of articlesArchivesData) {
-    const [dd, mm, yyyy] = a.date.split(".");
-    await db.insert(medias).values({
-      title: a.title,
-      type: "article",
-      externalUrl: a.url,
-      source: a.source,
-      date: new Date(`${yyyy}-${mm}-${dd}`),
-      sortOrder: order++,
-    }).onConflictDoNothing();
-  }
+    // Interview YouTube
+    const interviewTitle = "Véronique Lombard, Ex-Vice-Présidente MAG";
+    const existingInterview = await tx
+      .select({ id: medias.id })
+      .from(medias)
+      .where(eq(medias.title, interviewTitle))
+      .limit(1);
+    if (existingInterview.length === 0) {
+      await tx.insert(medias).values({
+        title: interviewTitle,
+        type: "video",
+        mediaType: "youtube",
+        videoUrl: "https://www.youtube.com/watch?v=una6Mnq0BBk",
+        source: "Interview CCI Geneva",
+        sortOrder: order++,
+      });
+      mediaInserted++;
+    }
 
-  console.log(`✓ Médias externes, presse et articles insérés (${externalLinksData.length + revuesPresseData.length + articlesArchivesData.length + 1})`);
+    // Liens externes / articles
+    for (const e of externalLinksData) {
+      const existing = await tx
+        .select({ id: medias.id })
+        .from(medias)
+        .where(eq(medias.externalUrl, e.url))
+        .limit(1);
+      if (existing.length > 0) continue;
+
+      await tx.insert(medias).values({
+        title: e.title,
+        type: "article",
+        externalUrl: e.url,
+        source: e.source,
+        sortOrder: order++,
+      });
+      mediaInserted++;
+    }
+
+    // Revues de presse
+    for (const r of revuesPresseData) {
+      const existing = await tx
+        .select({ id: medias.id })
+        .from(medias)
+        .where(eq(medias.pdfUrl, r.url))
+        .limit(1);
+      if (existing.length > 0) continue;
+
+      await tx.insert(medias).values({
+        title: `Revue de presse JEMA ${r.year}`,
+        type: "presse",
+        pdfUrl: r.url,
+        date: new Date(`${r.year}-01-01`),
+        source: "JEMA",
+        sortOrder: order++,
+      });
+      mediaInserted++;
+    }
+
+    // Articles archivés
+    for (const a of articlesArchivesData) {
+      const [dd, mm, yyyy] = a.date.split(".");
+      const existing = await tx
+        .select({ id: medias.id })
+        .from(medias)
+        .where(eq(medias.externalUrl, a.url))
+        .limit(1);
+      if (existing.length > 0) continue;
+
+      await tx.insert(medias).values({
+        title: a.title,
+        type: "article",
+        externalUrl: a.url,
+        source: a.source,
+        date: new Date(`${yyyy}-${mm}-${dd}`),
+        sortOrder: order++,
+      });
+      mediaInserted++;
+    }
+
+    console.log(`✓ ${mediaInserted} médias insérés (sur ${capsuleData.length + 1 + externalLinksData.length + revuesPresseData.length + articlesArchivesData.length} attendus)`);
+  });
+
   console.log("🎉 Seed terminé !");
 }
 

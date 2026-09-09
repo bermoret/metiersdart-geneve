@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type MediaData = {
   id?: string;
@@ -59,11 +59,10 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset form when modal opens / data changes
   const formKey = (media?.id as string) ?? "new";
-  const [lastFormKey, setLastFormKey] = useState("");
-
-  if (open && formKey !== lastFormKey) {
-    setLastFormKey(formKey);
+  useEffect(() => {
+    if (!open) return;
     const m = media as Record<string, unknown> | null;
     setForm(
       m
@@ -76,7 +75,7 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
         : EMPTY,
     );
     setError(null);
-  }
+  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 
@@ -99,7 +98,7 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
         date: form.date || undefined,
         source: form.source || undefined,
         description: form.description || undefined,
-        sortOrder: form.sortOrder ? Number(form.sortOrder) : 0,
+        sortOrder: Number(form.sortOrder) || 0,
       };
       const url = isNew ? "/api/admin/medias" : `/api/admin/medias/${form.id}`;
       const method = isNew ? "POST" : "PATCH";

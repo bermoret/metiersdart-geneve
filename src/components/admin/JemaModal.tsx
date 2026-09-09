@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 
 type JemaData = {
   id?: string;
@@ -38,11 +38,10 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset form when modal opens / data changes
   const formKey = (edition?.id as string) ?? "new";
-  const [lastFormKey, setLastFormKey] = useState("");
-
-  if (open && formKey !== lastFormKey) {
-    setLastFormKey(formKey);
+  useEffect(() => {
+    if (!open) return;
     const e = edition as Record<string, unknown> | null;
     setForm(
       e
@@ -56,7 +55,7 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
         : EMPTY,
     );
     setError(null);
-  }
+  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 
@@ -65,12 +64,17 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
   };
 
   const handleSave = async () => {
+    const yearNum = Number(form.year);
+    if (!form.year || isNaN(yearNum) || yearNum < 2000) {
+      setError("L'année doit être un nombre valide supérieur à 2000.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       const payload = {
-        year: Number(form.year),
-        title: form.title || `JEMA ${form.year}`,
+        year: yearNum,
+        title: form.title || `JEMA ${yearNum}`,
         startDate: form.startDate || undefined,
         endDate: form.endDate || undefined,
         isUpcoming: form.isUpcoming,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type ActuData = {
   id?: string;
@@ -44,11 +44,10 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Reset form when modal opens / data changes
   const formKey = (actu?.id as string) ?? "new";
-  const [lastFormKey, setLastFormKey] = useState("");
-
-  if (open && formKey !== lastFormKey) {
-    setLastFormKey(formKey);
+  useEffect(() => {
+    if (!open) return;
     const a = actu as Record<string, unknown> | null;
     setForm(
       a
@@ -61,7 +60,7 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
         : EMPTY,
     );
     setError(null);
-  }
+  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 

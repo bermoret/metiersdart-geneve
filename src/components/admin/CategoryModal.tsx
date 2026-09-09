@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type CategoryData = {
   id?: string;
@@ -54,12 +54,10 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when modal opens
+  // Reset form when modal opens / data changes
   const formKey = (category?.id as string) ?? "new";
-  const [lastFormKey, setLastFormKey] = useState("");
-
-  if (open && formKey !== lastFormKey) {
-    setLastFormKey(formKey);
+  useEffect(() => {
+    if (!open) return;
     const c = category as Record<string, unknown> | null;
     setForm(
       c
@@ -71,7 +69,7 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
         : EMPTY,
     );
     setError(null);
-  }
+  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 

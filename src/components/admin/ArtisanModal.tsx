@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type Category = { id: string; name: string };
 
@@ -58,12 +58,10 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
   const [geocoding, setGeocoding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset form when modal opens
+  // Reset form when modal opens / data changes
   const formKey = (artisan?.id as string) ?? "new";
-  const [lastFormKey, setLastFormKey] = useState("");
-
-  if (open && formKey !== lastFormKey) {
-    setLastFormKey(formKey);
+  useEffect(() => {
+    if (!open) return;
     const a = artisan as Record<string, unknown> | null;
     setForm(
       a
@@ -76,7 +74,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
         : EMPTY,
     );
     setError(null);
-  }
+  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 
