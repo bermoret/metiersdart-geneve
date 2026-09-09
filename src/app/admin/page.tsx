@@ -2,6 +2,8 @@ import { db } from "@/db";
 import { artisans, categories, actualites, jemaEditions, medias } from "@/db/schema";
 import { count } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
   const [artisanCount] = await db.select({ count: count() }).from(artisans);
   const [categoryCount] = await db.select({ count: count() }).from(categories);

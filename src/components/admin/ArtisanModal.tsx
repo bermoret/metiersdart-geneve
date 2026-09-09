@@ -107,14 +107,14 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
 
   // Géocoder l'adresse automatiquement
   const handleGeocode = async () => {
-    if (!form.address.trim()) {
+    if (!(form.address ?? "").trim()) {
       setError("Entrez d'abord une adresse");
       return;
     }
     setGeocoding(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/geocode?address=${encodeURIComponent(form.address)}`);
+      const res = await fetch(`/api/admin/geocode?address=${encodeURIComponent(form.address ?? "")}`);
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Adresse non trouvée");
@@ -131,7 +131,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
 
   // Auto-géocoder quand l'adresse perd le focus
   const handleAddressBlur = () => {
-    if (form.address.trim() && !form.latitude) {
+    if ((form.address ?? "").trim() && !form.latitude) {
       handleGeocode();
     }
   };
@@ -231,7 +231,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
                 <button
                   type="button"
                   onClick={handleGeocode}
-                  disabled={geocoding || !form.address.trim()}
+                  disabled={geocoding || !(form.address ?? "").trim()}
                   className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-mag-cream px-3 py-2 text-xs font-medium text-mag-dark hover:border-mag-red hover:text-mag-red transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {geocoding ? (
@@ -346,7 +346,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
             </button>
             <button
               onClick={handleSave}
-              disabled={saving || !form.name}
+              disabled={saving || !(form.name ?? "").trim()}
               className="inline-flex items-center gap-2 rounded-lg bg-mag-red px-5 py-2 text-sm font-semibold text-white hover:bg-mag-red-dark transition-colors disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
@@ -368,14 +368,14 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
 }
 
 function Field({ label, value, onChange, type = "text", placeholder, fullWidth }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; fullWidth?: boolean;
+  label: string; value: string | null; onChange: (v: string) => void; type?: string; placeholder?: string; fullWidth?: boolean;
 }) {
   return (
     <label className={fullWidth ? "col-span-2" : ""}>
       <span className="text-xs font-medium text-mag-gray mb-1 block">{label}</span>
       <input
         type={type}
-        value={value}
+        value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
@@ -402,13 +402,13 @@ function SelectField({ label, value, onChange, options, fullWidth }: {
 }
 
 function TextareaField({ label, value, onChange, rows = 3, fullWidth }: {
-  label: string; value: string; onChange: (v: string) => void; rows?: number; fullWidth?: boolean;
+  label: string; value: string | null; onChange: (v: string) => void; rows?: number; fullWidth?: boolean;
 }) {
   return (
     <label className={fullWidth ? "col-span-2" : ""}>
       <span className="text-xs font-medium text-mag-gray mb-1 block">{label}</span>
       <textarea
-        value={value}
+        value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
         className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
