@@ -43,6 +43,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     Passkey({}),
   ],
+  experimental: {
+    enableWebAuthn: true,
+  },
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",

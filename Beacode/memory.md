@@ -111,3 +111,6 @@ Maintenant je dois ajouter le handler wheel personnalisé et l'overlay hint. Je 
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet
+
+## Faits retenus
+- Resend API key configured for metiersdart-geneve project: [REDACTED], from email: contact@jooce.ch (domain verified). AUTH_SECRET also set on Vercel.
