@@ -51,7 +51,7 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`px-3 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`nav-link px-3 py-2 text-sm font-medium rounded-full transition-colors ${
                     active
                       ? "bg-mag-red text-white"
                       : "text-mag-dark/70 hover:text-mag-red hover:bg-mag-red/5"
@@ -98,7 +98,7 @@ export function Header() {
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
                   aria-current={active ? "page" : undefined}
-                  className={`px-4 py-2.5 text-sm font-medium rounded-full transition-colors ${
+                  className={`nav-link px-4 py-2.5 text-sm font-medium rounded-full transition-colors ${
                     active
                       ? "bg-mag-red text-white"
                       : "text-mag-dark/70 hover:text-mag-red hover:bg-mag-red/5"
