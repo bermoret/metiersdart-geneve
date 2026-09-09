@@ -14,6 +14,14 @@ export function RepertoireTable() {
     [],
   );
 
+  const hasFilters = search || categoryFilter || communeFilter;
+
+  const resetFilters = () => {
+    setSearch("");
+    setCategoryFilter("");
+    setCommuneFilter("");
+  };
+
   const filtered = useMemo(() => {
     return artisans.filter((a) => {
       if (search) {
@@ -79,6 +87,16 @@ export function RepertoireTable() {
 
       <p className="mb-4 text-sm text-mag-gray" aria-live="polite">
         {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
+        {hasFilters && (
+          <button
+            onClick={resetFilters}
+            className="ml-3 inline-flex items-center gap-1 text-xs font-medium text-mag-red hover:underline"
+            aria-label="Réinitialiser les filtres"
+          >
+            <i className="fas fa-times" aria-hidden />
+            Réinitialiser
+          </button>
+        )}
       </p>
 
       {/* Tableau */}
