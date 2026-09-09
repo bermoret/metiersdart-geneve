@@ -59,6 +59,18 @@ export default function AdminArtisansPage() {
     setModalOpen(true);
   };
 
+  const handleDelete = async (row: Record<string, unknown>) => {
+    const name = (row.name as string) ?? "cet artisan";
+    if (!confirm(`Supprimer "${name}" ? Cette action est irréversible.`)) return;
+    try {
+      const res = await fetch(`/api/admin/artisans/${row.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Erreur lors de la suppression");
+      loadData();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erreur inconnue");
+    }
+  };
+
   const handleAdd = () => {
     setEditing(null);
     setIsNew(true);
@@ -96,6 +108,7 @@ export default function AdminArtisansPage() {
         ]}
         rows={rows}
         onEdit={handleEdit}
+        onDelete={handleDelete}
         onAdd={handleAdd}
         addLabel="Nouvel artisan"
       />
