@@ -31,26 +31,38 @@ const parcours = [
   },
 ];
 
-const pastEditions = [
+const editions = [
   {
     year: 2026,
-    title: "Best of JEMA 2026",
-    description: "Retour en images sur les JEMA 2026 par Raphaël Haab (photographe).",
+    title: "JEMA 2026",
+    dates: "27-29 mars 2026",
+    description:
+      "Un week-end intense où 145 artisan·e·s genevois·e·s ont ouvert leurs ateliers, animé le Pavillon SICLI et partagé leurs savoir-faire à travers toute la ville. Démonstrations, ateliers d'initiation, conférences et visites guidées ont attiré un public venu nombreux à la rencontre des métiers d'art.",
+    highlight: "Best of en vidéo par Raphaël Haab",
   },
   {
     year: 2025,
     title: "JEMA 2025",
-    description: "Une édition riche en découvertes et rencontres.",
+    dates: "28-30 mars 2025",
+    description:
+      "Pour cette 14ᵉ édition, les métiers d'art genevois ont déployé leurs trois parcours habituels : ouverture d'ateliers dans la ville, Pavillon SICLI au cœur de l'événement et parcours culturel dans 12 institutions. Les visiteurs ont pu découvrir la richesse des savoir-faire locaux, du textile à l'horlogerie en passant par la sculpture sur pierre.",
+    highlight: "15ᵉ anniversaire du poinçon MAG",
   },
   {
     year: 2024,
     title: "JEMA 2024",
-    description: "Un week-end d'ouverture et de partage autour des métiers d'art.",
+    dates: "23-25 mars 2024",
+    description:
+      "La 13ᵉ édition des Journées Européennes des Métiers d'Art a mis à l'honneur le dialogue entre tradition et innovation. Pendant un week-end, ateliers, écoles et institutions culturelles ont partagé leurs gestes, leurs techniques et leurs passions avec un public toujours plus curieux de découvrir ces métiers rares.",
+    highlight: "Focus sur la transmission",
   },
   {
     year: 2023,
     title: "JEMA 2023",
-    description: "Les métiers d'art à l'honneur dans toute la ville.",
+    dates: "24-26 mars 2023",
+    description:
+      "Douzième édition consécutive pour Genève : les JEMA 2023 ont célébré le lien vivant entre les artisan·e·s et leur territoire. Démonstrations, visites guidées et expositions ont ponctué ce week-end dédié à la transmission des savoir-faire et à la rencontre entre public et professionnel·le·s.",
+    highlight: "Retour post-pandémie",
   },
 ];
 
@@ -69,10 +81,12 @@ export default function JemaPage() {
             </h1>
             <p className="mt-6 text-lg text-mag-dark/70 leading-relaxed">
               Organisées par l&apos;Association Métiers d&apos;Art Genève (MAG), les JEMA
-              sont le rendez-vous annuel des artisanes et artisans d&apos;art à Genève :
-              céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste… L&apos;objectif
-              est de promouvoir les métiers d&apos;art via démonstrations, animations et
-              échanges, faire découvrir le patrimoine genevois et susciter des vocations.
+              représentent le rendez-vous annuel des artisanes et artisans d&apos;art à
+              Genève. Céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste et
+              plein d&apos;autres encore se mobilisent pour offrir au grand public un
+              aperçu de leurs savoir-faire uniques et si précieux. L&apos;objectif est de
+              promouvoir les métiers d&apos;art via démonstrations, animations et échanges,
+              faire découvrir le patrimoine genevois et susciter des vocations.
             </p>
           </div>
         </div>
@@ -141,11 +155,19 @@ export default function JemaPage() {
               Le domaine de la pierre se mobilise
             </h2>
             <p className="text-mag-dark/70 leading-relaxed mb-4">
-              Former des apprenti·e·s, c&apos;est préserver un patrimoine vivant et des
-              compétences. Façonner la pierre, c&apos;est sculpter des escaliers, façades,
-              monuments, fontaines, plans de travail, aménagements. La formation mène au
-              CFC Tailleur de pierre / Tailleuse de pierre avec 4 orientations :
-              sculpture ; conception et marbrerie ; bâtiment et rénovation ; industrie.
+              Former des apprenti·e·s aujourd&apos;hui, c&apos;est préserver un patrimoine
+              vivant et des compétences qui ne s&apos;apprennent qu&apos;au contact des
+              artisanes et artisans. Façonner la pierre, c&apos;est transformer une matière
+              brute et millénaire en éléments durables : sculptures et éléments décoratifs,
+              escaliers, façades et monuments, fontaines, plans de travail et aménagement.
+            </p>
+            <p className="text-mag-dark/70 leading-relaxed mb-4">
+              En Suisse romande, ces savoir-faire sont portés par les tailleurs et
+              tailleuses de pierre, qui conjuguent gestes traditionnels, précision technique
+              et outils contemporains. La formation s&apos;effectue par un apprentissage de
+              quatre ans menant au CFC Tailleur de pierre / Tailleuse de pierre, avec quatre
+              orientations possibles : sculpture ; conception et marbrerie ; bâtiment et
+              rénovation ; industrie.
             </p>
             <div className="my-6 grid grid-cols-3 gap-4 text-center">
               <div>
@@ -161,10 +183,13 @@ export default function JemaPage() {
                 <p className="text-xs text-mag-gray">2025–2026</p>
               </div>
             </div>
-            <p className="text-mag-dark/70 leading-relaxed italic">
-              Baisse alarmante des apprenti·e·s, mais une légère reprise. La relève
-              reste insuffisante. Et si le prochain tailleur ou la prochaine tailleuse
-              de pierre, c&apos;était vous ?
+            <p className="text-mag-dark/70 leading-relaxed italic mb-4">
+              Aujourd&apos;hui pourtant, ces métiers sont fragilisés. Le nombre
+              d&apos;apprenti·e·s est passé de 24 en 2017–2018 et 2019–2020 à seulement 12
+              en 2023–2024. Malgré une légère reprise récente (15 apprenti·e·s en 2025–2026),
+              la relève reste insuffisante. Sans nouveaux apprenti·e·s, des techniques, des
+              gestes et une connaissance fine des matériaux risquent de disparaître. Et si
+              le prochain tailleur ou la prochaine tailleuse de pierre, c&apos;était toi ?
             </p>
 
             {/* Artisans du domaine pierre */}
@@ -190,22 +215,34 @@ export default function JemaPage() {
         </div>
       </section>
 
-      {/* Historique */}
+      {/* Éditions passées */}
       <section className="py-16 bg-mag-cream/20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif mb-8">
             Éditions passées
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pastEditions.map((ed) => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {editions.map((ed) => (
+              <Link
                 key={ed.year}
-                className="rounded-xl border border-mag-cream bg-white p-6"
+                href={`/jema/${ed.year}`}
+                className="group block rounded-xl border border-mag-cream bg-white p-6 hover:border-mag-red/30 hover:shadow-md transition-all"
               >
-                <p className="text-3xl font-black text-mag-red">{ed.year}</p>
-                <h3 className="mt-2 font-semibold text-mag-dark">{ed.title}</h3>
-                <p className="mt-2 text-sm text-mag-dark/60">{ed.description}</p>
-              </div>
+                <div className="flex items-baseline justify-between mb-3">
+                  <p className="text-3xl font-black text-mag-red">{ed.year}</p>
+                  <span className="text-xs text-mag-gray">{ed.dates}</span>
+                </div>
+                <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
+                  {ed.title}
+                </h3>
+                <p className="mt-2 text-sm text-mag-dark/60 leading-relaxed line-clamp-3">
+                  {ed.description}
+                </p>
+                <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
+                  <i className="fas fa-arrow-right" aria-hidden />
+                  {ed.highlight}
+                </p>
+              </Link>
             ))}
           </div>
         </div>
@@ -218,8 +255,8 @@ export default function JemaPage() {
             Merci à nos partenaires
           </h2>
           <p className="text-mag-dark/60 max-w-2xl mx-auto">
-            Les JEMA n&apos;auraient pas pu avoir lieu sans le soutien précieux de nos
-            partenaires institutionnels et privés.
+            Nous remercions chaleureusement nos partenaires pour leur soutien précieux
+            sans lequel l&apos;événement n&apos;aurait pu avoir lieu.
           </p>
         </div>
       </section>
