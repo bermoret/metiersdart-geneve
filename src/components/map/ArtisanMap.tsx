@@ -21,7 +21,7 @@ export default function ArtisanMap({ latitude, longitude, name, address }: Props
     const map = L.map(containerRef.current, {
       center: [latitude, longitude],
       zoom: 16,
-      scrollWheelZoom: false,
+      scrollWheelZoom: true,
       zoomControl: true,
       attributionControl: true,
     });

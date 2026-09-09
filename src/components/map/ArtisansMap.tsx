@@ -72,7 +72,7 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
     const map = L.map(containerRef.current, {
       center: [46.2044, 6.1432], // Genève
       zoom: 12,
-      scrollWheelZoom: false, // désactivé par défaut, activé avec touche modificatrice
+      scrollWheelZoom: true, // activé, mais filtré par le handler ci-dessous
       zoomControl: true,
       attributionControl: true,
     });
