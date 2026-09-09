@@ -64,18 +64,9 @@ body {
 }
 
 /* ─── Carte Leaflet — charte MAG ────────────────────────────── */
-/* Tuiles OSM désaturées et teintées crème */
+/* Tuiles Esri Light Gray déjà épurées — teinte crème légère */
 .leaflet-tile {
-  filter: grayscale(1) sepia(0.6) saturate(0.4) brightness(1.1) contrast(0.88);
-}
-/* Overlay crème par-dessus la carte pour teinte uniforme */
-.leaflet-container::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(245, 232, 213, 0.35);
-  pointer-events: none;
-  z-index: 400; /* sous les popups (z-index 700) mais sur les tuiles */
+  filter: sepia(0.3) brightness(1.05) contrast(0.95);
 }
 /* Fond du conteneur */
 .leaflet-container {

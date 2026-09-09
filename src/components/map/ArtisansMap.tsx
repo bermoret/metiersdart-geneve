@@ -77,10 +77,10 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
       attributionControl: true,
     });
 
-    // Tuiles OSM standard — teintées crème via CSS filter (globals.css)
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-      maxZoom: 19,
+    // Tuiles Esri World Light Gray — fond gris clair épuré, gratuit sans clé
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "&copy; Esri, HERE, Garmin &copy; OpenStreetMap contributors",
+      maxZoom: 16,
     }).addTo(map);
 
     // Comportement type Google Maps :
