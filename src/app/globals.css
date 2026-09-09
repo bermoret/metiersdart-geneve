@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
+/* ─── Charte graphique MAG ────────────────────────────────────
+   Couleurs extraites du site Joomla (presets/default.css) :
+   --sppb-logo-text-color: #b42c36  (rouge MAG)
+   --sppb-link-hover-color: #701618 (rouge foncé hover)
+   --sppb-bg-color:         #f5e8d5 (crème / fond header)
+   --sppb-footer-bg-color: #171717 (footer quasi-noir)
+   Boutons : border-radius 100px, bg #b42c36, text blanc
+   Body : Muli 14px
+   Titres : Frank Ruhl Libre (serif)
+── */
+
+@theme {
+  /* Palette MAG */
+  --color-mag-red: #b42c36;
+  --color-mag-red-dark: #701618;
+  --color-mag-cream: #f5e8d5;
+  --color-mag-sand: #faf6ef;
+  --color-mag-dark: #323848;
+  --color-mag-gray: #6b7280;
+  --color-mag-footer: #171717;
+
+  /* Typographies */
+  --font-sans: var(--font-muli), system-ui, sans-serif;
+  --font-serif: var(--font-frank-ruhl), Georgia, serif;
+
+  /* Rayons : pills pour boutons (100px = style Joomla) */
+  --radius-pill: 100px;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #323848;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px; /* légèrement plus grand que le 14px Joomla pour une lecture web moderne */
+  line-height: 1.6;
+}
+
+/* Scrollbar styling aux couleurs MAG */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5e8d5;
+}
+::-webkit-scrollbar-thumb {
+  background: #b42c36;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #701618;
+}
+
+/* Focus visible cohérent pour l'accessibilité */
+*:focus-visible {
+  outline: 2px solid #b42c36;
+  outline-offset: 2px;
+}
+
+/* Respect des préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
