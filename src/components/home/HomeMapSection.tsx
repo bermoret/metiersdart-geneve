@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { categories, artisans } from "@/lib/data";
 import type { MapArtisan } from "@/components/map/ArtisansMap";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 const ArtisansMap = dynamic(() => import("@/components/map/ArtisansMap"), {
   ssr: false,
@@ -60,7 +61,7 @@ export function HomeMapSection() {
                 .filter((c) => c.slug !== "partenaires")
                 .map((c) => (
                   <option key={c.id} value={c.name}>
-                    {c.icon} {c.name}
+                    <CategoryIcon icon={c.icon} /> {c.name}
                   </option>
                 ))}
             </select>

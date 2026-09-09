@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { artisans, categories, getArtisanBySlug } from "@/lib/data";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function generateStaticParams() {
   return artisans.map((a) => ({ slug: a.slug }));
@@ -77,7 +78,7 @@ export default async function ArtisanPage({
                     color: category?.color ?? "#999",
                   }}
                 >
-                  {category?.icon} {category?.name}
+                  <CategoryIcon icon={category?.icon ?? ""} /> {category?.name}
                 </span>
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-mag-cream/60 px-3 py-1 text-sm font-medium text-mag-dark/70"

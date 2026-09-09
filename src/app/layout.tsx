@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, Frank_Ruhl_Libre } from "next/font/google";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
-// Inter = remplaçant de Muli (sans-serif, lisible, moderne) — Muli est déprécée sur Google Fonts
+// Inter = remplaçant de Muli (sans-serif, lisible, moderne) — Muli est dépréciée sur Google Fonts
 const muli = Inter({
   variable: "--font-muli",
   subsets: ["latin"],

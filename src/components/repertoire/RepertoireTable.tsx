@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { artisans, categories } from "@/lib/data";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function RepertoireTable() {
   const [search, setSearch] = useState("");
@@ -116,7 +117,7 @@ export function RepertoireTable() {
                           color: cat.color ?? "#999",
                         }}
                       >
-                        {cat.icon} {a.categoryName}
+                        <CategoryIcon icon={cat.icon} /> {a.categoryName}
                       </span>
                     )}
                   </td>

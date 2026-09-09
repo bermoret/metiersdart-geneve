@@ -1,5 +1,6 @@
 import { categories, artisans } from "@/lib/data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -74,7 +75,9 @@ export default function HomePage() {
                     className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity"
                     style={{ backgroundColor: cat.color }}
                   />
-                  <div className="text-3xl mb-3" aria-hidden>{cat.icon}</div>
+                  <div className="text-3xl mb-3 text-mag-red" aria-hidden>
+                    <CategoryIcon icon={cat.icon} />
+                  </div>
                   <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
                     {cat.name}
                   </h3>

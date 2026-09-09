@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { categories, getArtisansByCategory } from "@/lib/data";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -43,7 +44,9 @@ export default async function CategoryPage({
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-5xl">{category.icon}</span>
+            <span className="text-5xl text-mag-red" aria-hidden>
+              <CategoryIcon icon={category.icon} />
+            </span>
             <div>
               <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
                 {category.name}
@@ -103,7 +106,9 @@ export default async function CategoryPage({
                 href={`/categories/${c.slug}`}
                 className="inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
               >
-                <span>{c.icon}</span> {c.name}
+                <span aria-hidden>
+                  <CategoryIcon icon={c.icon} />
+                </span> {c.name}
               </Link>
             ))}
           </div>

@@ -7,7 +7,7 @@ export type CategoryData = {
   name: string;
   slug: string;
   description?: string;
-  icon: string;
+  icon: string; // classe Font Awesome (ex: "fas fa-tshirt")
   color: string;
 };
 
@@ -25,22 +25,22 @@ export type ArtisanData = {
 };
 
 export const categories: CategoryData[] = [
-  { id: "cat-textile", name: "Art du textile", slug: "art-du-textile", icon: "🧵", color: "#a8554f", description: "Couture, feutre, broderie, tapisserie, teinture." },
-  { id: "cat-cuir", name: "Art du cuir", slug: "art-du-cuir", icon: "👞", color: "#8b4513", description: "Maroquinerie, sellerie, cordonnerie, bottier." },
-  { id: "cat-horlogerie", name: "Art de l'horlogerie et de la bijouterie", slug: "art-de-lhorlogerie-et-de-la-bijouterie", icon: "⌚", color: "#c9a227", description: "Horlogerie, bijouterie, joaillerie, sertissage, émaillage." },
-  { id: "cat-bois", name: "Art du bois", slug: "art-du-bois", icon: "🪵", color: "#8b5e34", description: "Ébénisterie, menuiserie, sculpture sur bois, encadrement." },
-  { id: "cat-papier", name: "Art du papier", slug: "art-du-papier", icon: "📜", color: "#d4a574", description: "Reliure, typographie, sérigraphie, découpage." },
-  { id: "cat-facture", name: "Art de la facture instrumentale", slug: "art-de-la-facture-instrumentale", icon: "🎻", color: "#7d6b44", description: "Lutherie, facture de pianos." },
-  { id: "cat-terre", name: "Art de la terre", slug: "art-de-la-terre", icon: "🏺", color: "#a67b5b", description: "Céramique, compositions végétales durables." },
-  { id: "cat-appliques", name: "Arts appliqués", slug: "arts-appliques", icon: "🎨", color: "#b42c36", description: "Maquettiste, calligraphie, peintre décorateur." },
-  { id: "cat-verre", name: "Art du verre", slug: "art-du-verre", icon: "🔮", color: "#5b9aa0", description: "Verrier, oculariste." },
-  { id: "cat-pierre", name: "Art de la pierre", slug: "art-de-la-pierre", icon: "🪨", color: "#787878", description: "Sculpture, taille, marbrerie, staff." },
-  { id: "cat-metal", name: "Art du métal", slug: "art-du-metal", icon: "⚒️", color: "#555555", description: "Forge, fonderie, ferblanterie, coutellerie, gravure." },
-  { id: "cat-conservation", name: "Art de la conservation et de la restauration", slug: "art-de-la-conservation-et-de-la-restauration", icon: "🔧", color: "#4a7c59", description: "Restauration d'œuvres d'art, de tableaux, de documents." },
-  { id: "cat-institutions", name: "Institutions culturelles", slug: "institutions-culturelles", icon: "🏛️", color: "#2c5f7c", description: "Musées, théâtres, conservatoires, bibliothèques." },
-  { id: "cat-ecoles", name: "Écoles formatrices", slug: "ecoles-formatrices", icon: "🎓", color: "#1a5276", description: "Centres de formation professionnelle aux métiers d'art." },
-  { id: "cat-associations", name: "Associations professionnelles", slug: "associations-professionnelles", icon: "🤝", color: "#6c757d", description: "Associations et labels des métiers d'art." },
-  { id: "cat-partenaires", name: "Partenaires", slug: "partenaires", icon: "⭐", color: "#999999", description: "Partenaires institutionnels de MAG." },
+  { id: "cat-textile", name: "Art du textile", slug: "art-du-textile", icon: "fas fa-tshirt", color: "#a8554f", description: "Couture, feutre, broderie, tapisserie, teinture." },
+  { id: "cat-cuir", name: "Art du cuir", slug: "art-du-cuir", icon: "fas fa-stamp", color: "#8b4513", description: "Maroquinerie, sellerie, cordonnerie, bottier." },
+  { id: "cat-horlogerie", name: "Art de l'horlogerie et de la bijouterie", slug: "art-de-lhorlogerie-et-de-la-bijouterie", icon: "fas fa-clock", color: "#c9a227", description: "Horlogerie, bijouterie, joaillerie, sertissage, émaillage." },
+  { id: "cat-bois", name: "Art du bois", slug: "art-du-bois", icon: "fas fa-tree", color: "#8b5e34", description: "Ébénisterie, menuiserie, sculpture sur bois, encadrement." },
+  { id: "cat-papier", name: "Art du papier", slug: "art-du-papier", icon: "fas fa-newspaper", color: "#d4a574", description: "Reliure, typographie, sérigraphie, découpage." },
+  { id: "cat-facture", name: "Art de la facture instrumentale", slug: "art-de-la-facture-instrumentale", icon: "fas fa-guitar", color: "#7d6b44", description: "Lutherie, facture de pianos." },
+  { id: "cat-terre", name: "Art de la terre", slug: "art-de-la-terre", icon: "fas fa-hands", color: "#a67b5b", description: "Céramique, compositions végétales durables." },
+  { id: "cat-appliques", name: "Arts appliqués", slug: "arts-appliques", icon: "fas fa-paint-brush", color: "#b42c36", description: "Maquettiste, calligraphie, peintre décorateur." },
+  { id: "cat-verre", name: "Art du verre", slug: "art-du-verre", icon: "fas fa-wine-glass", color: "#5b9aa0", description: "Verrier, oculariste." },
+  { id: "cat-pierre", name: "Art de la pierre", slug: "art-de-la-pierre", icon: "fas fa-gavel", color: "#787878", description: "Sculpture, taille, marbrerie, staff." },
+  { id: "cat-metal", name: "Art du métal", slug: "art-du-metal", icon: "fas fa-link", color: "#555555", description: "Forge, fonderie, ferblanterie, coutellerie, gravure." },
+  { id: "cat-conservation", name: "Art de la conservation et de la restauration", slug: "art-de-la-conservation-et-de-la-restauration", icon: "fas fa-book", color: "#4a7c59", description: "Restauration d'œuvres d'art, de tableaux, de documents." },
+  { id: "cat-institutions", name: "Institutions culturelles", slug: "institutions-culturelles", icon: "fas fa-university", color: "#2c5f7c", description: "Musées, théâtres, conservatoires, bibliothèques." },
+  { id: "cat-ecoles", name: "Écoles formatrices", slug: "ecoles-formatrices", icon: "fas fa-school", color: "#1a5276", description: "Centres de formation professionnelle aux métiers d'art." },
+  { id: "cat-associations", name: "Associations professionnelles", slug: "associations-professionnelles", icon: "fas fa-people-arrows", color: "#6c757d", description: "Associations et labels des métiers d'art." },
+  { id: "cat-partenaires", name: "Partenaires", slug: "partenaires", icon: "fas fa-handshake", color: "#999999", description: "Partenaires institutionnels de MAG." },
 ];
 
 // Coordonnées approximatives par commune genevoise
