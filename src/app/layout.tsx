@@ -38,10 +38,6 @@ export const metadata: Metadata = {
     "artisan",
     "atelier",
   ],
-  icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
-  },
   openGraph: {
     type: "website",
     locale: "fr_CH",
