@@ -40,7 +40,7 @@ export function Reveal({ children, delay = 0, y = 24, className }: RevealProps) 
 
 /**
  * Variante pour grilles : révélation en cascade (stagger).
- * Wrap chaque enfant dans un motion-item avec un délai progressif.
+ * Les enfants sont TOUJOURS rendus (pas de masquage si JS/inView échoue).
  */
 export function StaggerGroup({
   children,
@@ -56,13 +56,12 @@ export function StaggerGroup({
 
   return (
     <div ref={ref} className={className}>
-      {inView &&
-        Array.isArray(children) &&
+      {Array.isArray(children) &&
         children.map((child, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={inView ? { opacity: 1, y: 0 } : undefined}
             transition={{
               duration: 0.5,
               delay: i * stagger,
