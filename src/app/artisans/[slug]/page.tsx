@@ -236,14 +236,14 @@ export default async function ArtisanPage({
                 </dl>
 
                 {poinconType && (
-                  <div className="mt-6 rounded-lg bg-mag-cream/40 p-4 text-sm text-mag-dark/70">
-                    <p className="font-semibold text-mag-dark mb-1">
-                      Poinçon MAG
-                    </p>
-                    <p>
-                      Cet·te artisan·e détient le poinçon «&nbsp;{poinconType}&nbsp;»
-                      délivré par Métiers d&apos;Art Genève.
-                    </p>
+                  <div className="mt-6 rounded-xl bg-mag-cream/40 p-4">
+                    <p className="font-semibold text-mag-dark mb-3">Poinçon MAG</p>
+                    <PoinconBadge
+                      type={poinconType}
+                      modalText={poinconModalText ?? ""}
+                      modalLink={poinconModalLink}
+                      variant="image"
+                    />
                   </div>
                 )}
 

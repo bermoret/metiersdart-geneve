@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 type Props = {
   type: string; // "ATELIER" | "BOUTIQUE" | "ENTREPRISE" | "INSTITUTION"
   modalText: string;
   modalLink?: string;
+  variant?: "badge" | "image";
 };
 
 const poinconLabels: Record<string, string> = {
@@ -15,22 +17,57 @@ const poinconLabels: Record<string, string> = {
   INSTITUTION: "Institution",
 };
 
-export function PoinconBadge({ type, modalText, modalLink }: Props) {
+const poinconImages: Record<string, string> = {
+  ATELIER: "https://metiersdart-geneve.ch/images/2025/05/21/atelier.png",
+  BOUTIQUE: "https://metiersdart-geneve.ch/images/2025/05/21/boutique.png",
+  ENTREPRISE: "https://metiersdart-geneve.ch/images/2025/05/21/entreprise.png",
+  INSTITUTION: "https://metiersdart-geneve.ch/images/2025/05/21/institution.png",
+};
+
+export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: Props) {
   const [open, setOpen] = useState(false);
+  const label = poinconLabels[type] ?? type;
+  const imgSrc = poinconImages[type];
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-full border border-mag-red/30 bg-mag-cream/40 px-3 py-1.5 text-sm font-medium text-mag-red hover:bg-mag-red hover:text-white transition-colors"
-        aria-label={`Poinçon ${poinconLabels[type] ?? type} — cliquer pour en savoir plus`}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9 12l2 2 4-4" />
-        </svg>
-        Poinçon {poinconLabels[type] ?? type}
-      </button>
+      {variant === "badge" ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full border border-mag-red/30 bg-mag-cream/40 px-3 py-1.5 text-sm font-medium text-mag-red hover:bg-mag-red hover:text-white transition-colors"
+          aria-label={`Poinçon ${label} — cliquer pour en savoir plus`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          Poinçon {label}
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="group relative w-full overflow-hidden rounded-xl border border-mag-cream hover:border-mag-red/40 transition-colors"
+          aria-label={`Poinçon ${label} — cliquer pour en savoir plus`}
+        >
+          <div className="relative aspect-square w-full">
+            {imgSrc && (
+              <Image
+                src={imgSrc}
+                alt={`Poinçon ${label}`}
+                fill
+                sizes="200px"
+                className="object-contain p-4"
+                unoptimized
+              />
+            )}
+          </div>
+          <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-mag-dark opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+              En savoir plus
+            </span>
+          </span>
+        </button>
+      )}
 
       {open && (
         <div
@@ -38,7 +75,7 @@ export function PoinconBadge({ type, modalText, modalLink }: Props) {
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"
-          aria-label={`Poinçon ${poinconLabels[type] ?? type}`}
+          aria-label={`Poinçon ${label}`}
         >
           <div
             className="relative w-full max-w-lg rounded-2xl bg-white p-6 sm:p-8 shadow-xl"
@@ -55,14 +92,20 @@ export function PoinconBadge({ type, modalText, modalLink }: Props) {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-mag-red text-white">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
-              </span>
+              {imgSrc && (
+                <div className="relative w-14 h-14 shrink-0">
+                  <Image
+                    src={imgSrc}
+                    alt={`Poinçon ${label}`}
+                    width={56}
+                    height={56}
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
+              )}
               <h3 className="text-lg font-bold text-mag-dark font-serif">
-                Poinçon {poinconLabels[type] ?? type}
+                Poinçon {label}
               </h3>
             </div>
 
