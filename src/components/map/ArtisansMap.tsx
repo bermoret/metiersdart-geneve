@@ -40,7 +40,7 @@ function getIcon(color?: string | null): L.DivIcon {
   const anchor = color ? 8 : 9;
 
   const icon = L.divIcon({
-    className: "",
+    className: "mag-marker",
     html: `<div style="width:${size}px;height:${size}px;background:${bg};border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .15s"></div>`,
     iconSize: [size + 4, size + 4],
     iconAnchor: [anchor, anchor],

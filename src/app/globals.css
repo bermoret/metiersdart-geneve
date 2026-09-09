@@ -64,9 +64,9 @@ body {
 }
 
 /* ─── Carte Leaflet — charte MAG ────────────────────────────── */
-/* Teinte crème des tuiles OSM (desaturation + sépia chaud) */
+/* Tuiles OSM désaturées et teintées crème (style vintage chaleureux) */
 .leaflet-tile {
-  filter: sepia(0.35) saturate(0.55) brightness(1.04) contrast(0.95);
+  filter: grayscale(0.6) sepia(0.45) saturate(0.7) brightness(1.06) contrast(0.92) hue-rotate(-5deg);
 }
 /* Fond du conteneur */
 .leaflet-container {
@@ -120,6 +120,15 @@ body {
 }
 .leaflet-control-attribution a {
   color: var(--color-mag-red) !important;
+}
+
+/* Markers pulsants aux couleurs MAG */
+@keyframes mag-marker-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(180, 44, 54, 0.4); }
+  50% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(180, 44, 54, 0); }
+}
+.mag-marker {
+  animation: mag-marker-pulse 2s ease-in-out infinite;
 }
 
 /* ─── Texture grain (overlay subtil pour effet matière) ─────── */
