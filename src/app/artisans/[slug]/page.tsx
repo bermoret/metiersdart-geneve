@@ -5,6 +5,7 @@ import { artisans, categories, getArtisanBySlug } from "@/lib/data";
 import { artisanDetails } from "@/lib/artisan-details";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { PoinconBadge } from "@/components/ui/PoinconBadge";
+import ArtisanMap from "@/components/map/ArtisanMapWrapper";
 
 export function generateStaticParams() {
   return artisans.map((a) => ({ slug: a.slug }));
@@ -163,6 +164,17 @@ export default async function ArtisanPage({
                     </a>
                   </div>
                 )}
+
+                {/* Carte de localisation */}
+                <div>
+                  <h2 className="text-lg font-bold text-mag-dark mb-3">Localisation</h2>
+                  <ArtisanMap
+                    latitude={artisan.latitude}
+                    longitude={artisan.longitude}
+                    name={artisan.name}
+                    address={address}
+                  />
+                </div>
 
                 {autre && (
                   <div>

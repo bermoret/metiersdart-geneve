@@ -125,8 +125,9 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
 
     const bounds = L.latLngBounds([]);
 
-    withCoords.forEach((artisan, i) => {
-      const [lat, lng] = jitter(artisan.latitude, artisan.longitude, i);
+    withCoords.forEach((artisan) => {
+      const lat = artisan.latitude;
+      const lng = artisan.longitude;
       const icon = getIcon(artisan.category?.color);
 
       const marker = L.marker([lat, lng], { icon });
