@@ -81,14 +81,14 @@ export default function HomePage() {
               </Reveal>
             </div>
 
-            {/* Colonne image — clip reveal */}
-            <div className="relative hidden lg:block">
-              <div className="animate-clip-reveal relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-mag-cream">
+            {/* Colonne image — clip reveal (visible sur mobile, en dessous du texte) */}
+            <div className="relative">
+              <div className="animate-clip-reveal relative aspect-[4/3] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-mag-cream">
                 <Image
                   src="/hero-artisan.png"
                   alt="Artisan au travail dans son atelier"
                   fill
-                  sizes="(min-width: 1024px) 50vw, 0px"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-mag-dark/40 via-transparent to-transparent" />
