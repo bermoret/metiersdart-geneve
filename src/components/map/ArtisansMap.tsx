@@ -77,8 +77,9 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
       attributionControl: true,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
+    // Tuiles CARTO Positron (fond clair épuré) — teintées crème via CSS (globals.css)
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
       maxZoom: 19,
     }).addTo(map);
 
@@ -216,7 +217,7 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden border border-mag-cream shadow-sm"
+      className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden border border-mag-cream/60 shadow-md bg-mag-sand"
       aria-label="Carte des artisans de Genève"
       role="application"
     />

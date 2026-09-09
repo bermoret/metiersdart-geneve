@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { categories, artisans } from "@/lib/data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
@@ -82,11 +83,13 @@ export default function HomePage() {
 
             {/* Colonne image — clip reveal */}
             <div className="relative hidden lg:block">
-              <div className="animate-clip-reveal relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
-                <img
-                  src="https://metiersdart-geneve.ch/images/2026/02/03/pexels-norma-mortenson-8456147.jpg"
-                  alt="Artisanat d'art à Genève"
-                  className="w-full h-full object-cover"
+              <div className="animate-clip-reveal relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-mag-cream">
+                <Image
+                  src="/hero-artisan.png"
+                  alt="Artisan au travail dans son atelier"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 0px"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-mag-dark/40 via-transparent to-transparent" />
               </div>
@@ -154,10 +157,6 @@ export default function HomePage() {
                 >
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  <div
-                    className="absolute -top-12 -right-12 w-24 h-24 rounded-full opacity-[0.06] group-hover:scale-150 group-hover:opacity-[0.12] transition-all duration-700 ease-out"
                     style={{ backgroundColor: cat.color }}
                   />
                   <div className="relative z-10">
