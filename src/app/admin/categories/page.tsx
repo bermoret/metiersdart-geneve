@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AdminTable } from "@/components/admin/AdminTable";
+import { CategoryModal } from "@/components/admin/CategoryModal";
 
 type Category = {
   id: string;
@@ -10,20 +11,56 @@ type Category = {
   icon: string | null;
   color: string | null;
   sortOrder: number | null;
+  description: string | null;
 };
 
 export default function AdminCategoriesPage() {
   const [rows, setRows] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Category | null>(null);
+  const [isNew, setIsNew] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
     fetch("/api/admin/categories")
       .then((r) => r.json())
       .then((data) => {
         setRows(data);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleEdit = (row: Record<string, unknown>) => {
+    setEditing(row as Category);
+    setIsNew(false);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditing(null);
+    setIsNew(true);
+    setModalOpen(true);
+  };
+
+  const handleDelete = async (row: Record<string, unknown>) => {
+    const name = (row.name as string) ?? "cette catégorie";
+    if (!confirm(`Supprimer "${name}" ?`)) return;
+    try {
+      const res = await fetch(`/api/admin/categories/${row.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Erreur lors de la suppression");
+        return;
+      }
+      loadData();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erreur inconnue");
+    }
+  };
 
   if (loading) return <p className="text-mag-gray">Chargement…</p>;
 
@@ -67,9 +104,18 @@ export default function AdminCategoriesPage() {
           { key: "sortOrder", label: "Ordre" },
         ]}
         rows={rows}
-        onEdit={() => alert("Édition — à implémenter")}
-        onAdd={() => alert("Ajout — à implémenter")}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
         addLabel="Nouvelle catégorie"
+      />
+
+      <CategoryModal
+        open={modalOpen}
+        category={editing as Record<string, unknown> | null}
+        isNew={isNew}
+        onClose={() => setModalOpen(false)}
+        onSaved={() => loadData()}
       />
     </div>
   );

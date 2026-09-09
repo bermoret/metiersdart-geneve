@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { categories } from "@/db/schema";
+import { categories, artisans } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
 
+// GET /api/admin/categories — liste toutes les catégories
 export async function GET() {
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -12,6 +13,7 @@ export async function GET() {
   return NextResponse.json(all);
 }
 
+// POST /api/admin/categories — crée une catégorie
 export async function POST(req: Request) {
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
