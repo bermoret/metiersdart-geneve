@@ -239,7 +239,8 @@ export default function JemaPage() {
                   {ed.description}
                 </p>
                 <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
-                  En savoir plus
+                  <i className="fas fa-arrow-right" aria-hidden />
+                  {ed.highlight}
                 </p>
               </Link>
             ))}

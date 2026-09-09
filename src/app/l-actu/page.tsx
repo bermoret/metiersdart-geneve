@@ -27,7 +27,7 @@ const actualites: ActuCard[] = [
     source: "Métiers d'Art Genève",
     description:
       "MAG réalise une enquête afin de mieux cerner les besoins des artisan·e·s en matière de locaux d'activité. Les résultats serviront à orienter les futures actions à mener. Participez au sondage ci-dessous.",
-    linkText: "En savoir plus",
+    linkText: "Plus d'info",
     linkHref:
       "https://docs.google.com/forms/d/e/1FAIpQLSfLZO6jc-8Z_XP1cjMf1g87ZyPCztUqKBU0t3Axs9rM69WSkw/viewform?usp=dialog",
   },
@@ -39,7 +39,7 @@ const actualites: ActuCard[] = [
     source: "Métiers d'Art Genève",
     description:
       "MAG lance un nouveau projet visant à mettre en relation des artisan·e·s et avec des classes, toujours dans une démarche de partage de savoir-faire. Si vous êtes intéressé·e, merci de remplir le formulaire ci-dessous.",
-    linkText: "En savoir plus",
+    linkText: "Plus d'info",
     linkHref:
       "https://docs.google.com/forms/d/e/1FAIpQLSdRv72gXhfyU__rhqUBWLrga2OtfZiQv-_LEf_Tv7BoNmOpBQ/viewform?usp=header",
   },
@@ -51,7 +51,7 @@ const actualites: ActuCard[] = [
     source: "FER Genève",
     description:
       "Ce Petit déjeuner des PME et des start-up permettra de décrypter les enjeux, de maîtriser les risques et de découvrir des solutions concrètes pour les TPE ainsi que les cas de Management Buy Out.",
-    linkText: "En savoir plus",
+    linkText: "Plus d'info",
     linkHref: "https://www.evenements.fer-ge.ch/reprise_cession_entreprise",
   },
   {
@@ -63,7 +63,7 @@ const actualites: ActuCard[] = [
     source: "Métiers d'Art Genève",
     description:
       "Ce groupe de travail, se regroupant quatre fois par an, a pour objectif d'échanger autour des réalités du terrain et des enjeux liés aux métiers d'art. Les artisan·e·s MAG souhaitant prendre part à la prochaine séance sont invités à nous contacter.",
-    linkText: "En savoir plus",
+    linkText: "Contact",
     linkHref: "mailto:contact@metiersdart-geneve.ch",
   },
   {
@@ -74,7 +74,7 @@ const actualites: ActuCard[] = [
     subtitle: "Métiers du bois — Charpentier·ère",
     description:
       "Le Prix de l'Artisanat s'adresse à toutes les entreprises artisanales ainsi qu'aux artisan·e·s indépendants identifiés comme faisant partie des métiers répondant à la définition de l'artisanat et issus d'un secteur d'activités particulier.",
-    linkText: "En savoir plus",
+    linkText: "Plus d'info",
     linkHref: "https://www.prix-artisanat-geneve.ch/prix-de-lartisanat-concours-2027",
   },
   {
@@ -84,7 +84,7 @@ const actualites: ActuCard[] = [
     source: "Métiers d'Art Genève",
     description:
       "Réservez déjà votre week-end pour venir à la rencontre des professionnelles et des professionnels des métiers d'art à Genève.",
-    linkText: "En savoir plus",
+    linkText: "Plus d'info",
     linkHref: "/jema",
   },
 ];
