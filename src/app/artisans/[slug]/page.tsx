@@ -105,7 +105,7 @@ export default async function ArtisanPage({
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-mag-cream/60 px-3 py-1 text-sm font-medium text-mag-dark/70"
                 >
-                  <span aria-hidden>📍</span> {artisan.commune}
+                  <span aria-hidden><i className="fas fa-map-marker-alt" /></span> {artisan.commune}
                 </span>
                 {poinconType && poinconModalText && (
                   <PoinconBadge
@@ -277,7 +277,7 @@ export default async function ArtisanPage({
                     {a.name}
                   </p>
                   <p className="mt-1 text-xs text-mag-gray">{a.craft}</p>
-                  <p className="mt-1 text-xs text-mag-gray"><span aria-hidden>📍</span> {a.commune}</p>
+                  <p className="mt-1 text-xs text-mag-gray"><span aria-hidden><i className="fas fa-map-marker-alt" /></span> {a.commune}</p>
                 </Link>
               ))}
             </div>

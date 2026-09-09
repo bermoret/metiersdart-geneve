@@ -10,21 +10,21 @@ export const metadata = {
 const parcours = [
   {
     name: "Ouverture Ateliers",
-    icon: "🔨",
+    icon: "fas fa-hammer",
     description:
       "À travers la ville — 15 ateliers participants : ateliers découvertes, visites d'atelier, démonstrations.",
     stats: { ateliers: 15 },
   },
   {
     name: "Pavillon SICLI",
-    icon: "🎪",
+    icon: "fas fa-store-alt",
     description:
       "Le point central de l'événement — 31 artisan·e·s, 6 écoles formatrices, 4 ateliers d'initiation, 4 conférences, 1 salle de projection, 1 MAG Café.",
     stats: { artisans: 31, ecoles: 6, ateliers: 4, conferences: 4 },
   },
   {
     name: "Parcours Culturel",
-    icon: "🏛️",
+    icon: "fas fa-university",
     description:
       "À travers la ville — 12 institutions culturelles : visites des coulisses, visites d'ateliers, expositions, démonstrations.",
     stats: { institutions: 12 },
@@ -110,7 +110,9 @@ export default function JemaPage() {
                 key={p.name}
                 className="rounded-xl border border-mag-cream bg-white p-6"
               >
-                <div className="text-4xl mb-4">{p.icon}</div>
+                <div className="text-4xl mb-4 text-mag-red" aria-hidden>
+                  <i className={p.icon} />
+                </div>
                 <h3 className="font-bold text-mag-dark text-lg">{p.name}</h3>
                 <p className="mt-2 text-sm text-mag-dark/70 leading-relaxed">
                   {p.description}
