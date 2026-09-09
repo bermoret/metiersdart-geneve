@@ -57,7 +57,7 @@ export function AdminTable({ columns, rows, onEdit, onDelete, onAdd, addLabel = 
                       {onEdit && (
                         <button
                           onClick={() => onEdit(row)}
-                          className="text-mag-gray hover:text-mag-red transition-colors"
+                          className="text-mag-gray hover:text-mag-red transition-colors cursor-pointer"
                           aria-label="Modifier"
                         >
                           <i className="fas fa-pen" />
@@ -66,7 +66,7 @@ export function AdminTable({ columns, rows, onEdit, onDelete, onAdd, addLabel = 
                       {onDelete && (
                         <button
                           onClick={() => onDelete(row)}
-                          className="text-mag-gray hover:text-red-500 transition-colors"
+                          className="text-mag-gray hover:text-red-500 transition-colors cursor-pointer"
                           aria-label="Supprimer"
                         >
                           <i className="fas fa-trash" />
