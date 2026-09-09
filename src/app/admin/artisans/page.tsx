@@ -53,8 +53,8 @@ export default function AdminArtisansPage() {
     loadData();
   }, []);
 
-  const handleEdit = (row: Artisan) => {
-    setEditing(row);
+  const handleEdit = (row: Record<string, unknown>) => {
+    setEditing(row as Artisan);
     setIsNew(false);
     setModalOpen(true);
   };
@@ -102,7 +102,7 @@ export default function AdminArtisansPage() {
 
       <ArtisanModal
         open={modalOpen}
-        artisan={editing as Artisan & { latitude?: string; longitude?: string } | null}
+        artisan={editing as Record<string, unknown> | null}
         categories={categories}
         isNew={isNew}
         onClose={() => setModalOpen(false)}

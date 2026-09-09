@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type Category = {
   id: string;
@@ -29,7 +29,7 @@ type ArtisanData = {
 
 type Props = {
   open: boolean;
-  artisan: ArtisanData | null;
+  artisan: Record<string, unknown> | null;
   categories: Category[];
   isNew: boolean;
   onClose: () => void;
@@ -70,19 +70,25 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (artisan) {
-      setForm({
-        ...EMPTY,
-        ...artisan,
-        latitude: artisan.latitude ? String(artisan.latitude) : "",
-        longitude: artisan.longitude ? String(artisan.longitude) : "",
-      });
-    } else {
-      setForm(EMPTY);
-    }
+  // Reset form when modal opens or artisan changes
+  const formKey = (artisan?.id as string) ?? "new";
+  const [lastFormKey, setLastFormKey] = useState<string>("");
+
+  if (open && formKey !== lastFormKey) {
+    setLastFormKey(formKey);
+    const a = artisan as Record<string, unknown> | null;
+    setForm(
+      a
+        ? {
+            ...EMPTY,
+            ...a,
+            latitude: a.latitude ? String(a.latitude) : "",
+            longitude: a.longitude ? String(a.longitude) : "",
+          }
+        : EMPTY,
+    );
     setError(null);
-  }, [artisan, open]);
+  }
 
   if (!open) return null;
 

@@ -10,7 +10,7 @@ type Column = {
 
 type Props = {
   columns: Column[];
-  rows: Record<string, unknown>[];
+  rows: readonly Record<string, unknown>[];
   onEdit?: (row: Record<string, unknown>) => void;
   onDelete?: (row: Record<string, unknown>) => void;
   onAdd?: () => void;
