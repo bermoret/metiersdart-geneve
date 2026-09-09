@@ -72,7 +72,7 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
     const map = L.map(containerRef.current, {
       center: [46.2044, 6.1432], // Genève
       zoom: 12,
-      scrollWheelZoom: true,
+      scrollWheelZoom: false, // désactivé par défaut, activé avec touche modificatrice
       zoomControl: true,
       attributionControl: true,
     });
@@ -82,9 +82,61 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
       maxZoom: 19,
     }).addTo(map);
 
+    // Comportement type Google Maps : scroll = défilement page,
+    // Ctrl/Cmd + scroll = zoom sur la carte
+    const container = containerRef.current!;
+    let overlay: HTMLDivElement | null = null;
+
+    const showOverlay = () => {
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.style.cssText =
+          "position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +
+          "background:rgba(255,255,255,.95);color:#333;padding:10px 18px;" +
+          "border-radius:8px;font-size:13px;font-family:sans-serif;" +
+          "box-shadow:0 2px 8px rgba(0,0,0,.2);pointer-events:none;z-index:1000;" +
+          "white-space:nowrap;transition:opacity .2s";
+        overlay.textContent =
+          "\u2318 + molette pour zoomer";
+        container.appendChild(overlay);
+      }
+      overlay.style.opacity = "1";
+    };
+
+    const hideOverlay = () => {
+      if (overlay) overlay.style.opacity = "0";
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) {
+        // Pas de touche modificatrice : on bloque le zoom et on montre l'overlay
+        e.preventDefault();
+        showOverlay();
+        clearTimeout((container as HTMLDivElement & { _overlayTimer?: ReturnType<typeof setTimeout> })._overlayTimer);
+        (container as HTMLDivElement & { _overlayTimer?: ReturnType<typeof setTimeout> })._overlayTimer = setTimeout(hideOverlay, 1500);
+      }
+    };
+
+    const onEnter = () => {
+      map.scrollWheelZoom.enable();
+    };
+    const onLeave = () => {
+      map.scrollWheelZoom.disable();
+      hideOverlay();
+    };
+
+    container.addEventListener("wheel", onWheel, { passive: false });
+    container.addEventListener("mouseenter", onEnter);
+    container.addEventListener("mouseleave", onLeave);
+
     mapRef.current = map;
 
     return () => {
+      container.removeEventListener("wheel", onWheel);
+      container.removeEventListener("mouseenter", onEnter);
+      container.removeEventListener("mouseleave", onLeave);
+      if (overlay) overlay.remove();
+      clearTimeout((container as HTMLDivElement & { _overlayTimer?: ReturnType<typeof setTimeout> })._overlayTimer);
       map.remove();
       mapRef.current = null;
       markersRef.current = [];
