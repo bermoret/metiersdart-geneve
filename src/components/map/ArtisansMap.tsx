@@ -77,9 +77,9 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
       attributionControl: true,
     });
 
-    // Tuiles CARTO Positron (fond clair épuré) — teintées crème via CSS (globals.css)
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    // Tuiles OSM standard — teintées crème via CSS filter (globals.css)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
       maxZoom: 19,
     }).addTo(map);
 

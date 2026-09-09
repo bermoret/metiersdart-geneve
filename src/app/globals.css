@@ -64,9 +64,9 @@ body {
 }
 
 /* ─── Carte Leaflet — charte MAG ────────────────────────────── */
-/* Teinte crème des tuiles Positron */
+/* Teinte crème des tuiles OSM (desaturation + sépia chaud) */
 .leaflet-tile {
-  filter: sepia(0.18) saturate(0.85) brightness(1.02);
+  filter: sepia(0.35) saturate(0.55) brightness(1.04) contrast(0.95);
 }
 /* Fond du conteneur */
 .leaflet-container {
