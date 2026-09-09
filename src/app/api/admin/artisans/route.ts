@@ -19,6 +19,16 @@ export async function GET() {
       commune: artisans.commune,
       published: artisans.published,
       categoryName: categories.name,
+      categoryId: artisans.categoryId,
+      address: artisans.address,
+      latitude: artisans.latitude,
+      longitude: artisans.longitude,
+      phone: artisans.phone,
+      email: artisans.email,
+      website: artisans.website,
+      shortDescription: artisans.shortDescription,
+      longDescription: artisans.longDescription,
+      imageUrl: artisans.imageUrl,
     })
     .from(artisans)
     .leftJoin(categories, eq(artisans.categoryId, categories.id))
@@ -34,7 +44,6 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  // Trouver la catégorie par nom si categoryId n'est pas fourni
   let categoryId = body.categoryId;
   if (!categoryId && body.categoryName) {
     const cat = await db
@@ -55,8 +64,8 @@ export async function POST(req: Request) {
       categoryId,
       commune: body.commune,
       address: body.address,
-      latitude: body.latitude,
-      longitude: body.longitude,
+      latitude: body.latitude ? Number(body.latitude) : null,
+      longitude: body.longitude ? Number(body.longitude) : null,
       phone: body.phone,
       email: body.email,
       website: body.website,
