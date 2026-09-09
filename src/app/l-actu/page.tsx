@@ -190,17 +190,7 @@ export default function ActuPage() {
         </div>
       </section>
 
-      {/* Archives */}
-      <section className="py-12 bg-mag-cream/20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-lg font-bold text-mag-dark mb-4">
-            Archives événements MAG
-          </h2>
-          <p className="text-mag-gray text-sm">
-            Retrouvez les archives des événements MAG passés.
-          </p>
-        </div>
-      </section>
+
     </>
   );
 }
