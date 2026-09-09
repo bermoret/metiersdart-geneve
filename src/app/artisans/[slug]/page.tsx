@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { artisans, categories, getArtisanBySlug } from "@/lib/data";
+import { artisanDetails } from "@/lib/artisan-details";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { PoinconBadge } from "@/components/ui/PoinconBadge";
 
 export function generateStaticParams() {
   return artisans.map((a) => ({ slug: a.slug }));
@@ -11,9 +14,13 @@ export function generateMetadata({ params }: { params: Promise<{ slug: string }>
   return params.then((p) => {
     const artisan = getArtisanBySlug(p.slug);
     if (!artisan) return { title: "Artisan introuvable" };
+    const detail = artisanDetails[artisan.name];
     return {
       title: `${artisan.name} — MAG`,
-      description: artisan.shortDescription,
+      description: detail?.description ?? artisan.shortDescription,
+      openGraph: detail?.image
+        ? { images: [{ url: detail.image }] }
+        : undefined,
     };
   });
 }
@@ -28,6 +35,8 @@ export default async function ArtisanPage({
   if (!artisan) notFound();
 
   const category = categories.find((c) => c.name === artisan.categoryName);
+  const detail = artisanDetails[artisan.name];
+
   const relatedArtisans = artisans
     .filter(
       (a) =>
@@ -35,6 +44,19 @@ export default async function ArtisanPage({
         a.id !== artisan.id,
     )
     .slice(0, 4);
+
+  // Coordonnées depuis les données scrapées
+  const address = detail?.address;
+  const website = detail?.website;
+  const video = detail?.video;
+  const phone = detail?.phone;
+  const email = detail?.email;
+  const autre = detail?.autre;
+  const description = detail?.description;
+  const image = detail?.image;
+  const poinconType = detail?.poinconType;
+  const poinconModalText = detail?.poinconModalText;
+  const poinconModalLink = detail?.poinconModalLink;
 
   return (
     <>
@@ -85,7 +107,28 @@ export default async function ArtisanPage({
                 >
                   <span aria-hidden>📍</span> {artisan.commune}
                 </span>
+                {poinconType && poinconModalText && (
+                  <PoinconBadge
+                    type={poinconType}
+                    modalText={poinconModalText}
+                    modalLink={poinconModalLink}
+                  />
+                )}
               </div>
+
+              {/* Image principale */}
+              {image && (
+                <div className="mt-8 relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-mag-cream shadow-sm">
+                  <Image
+                    src={image}
+                    alt={artisan.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
 
               <div className="mt-8 space-y-6">
                 <div>
@@ -93,27 +136,44 @@ export default async function ArtisanPage({
                   <p className="text-mag-dark/70 leading-relaxed">{artisan.craft}</p>
                 </div>
 
-                {artisan.shortDescription && (
+                {description && (
                   <div>
                     <h2 className="text-lg font-bold text-mag-dark mb-2">
                       À propos
                     </h2>
-                    <p className="text-mag-dark/70 leading-relaxed">
-                      {artisan.shortDescription}
+                    <p className="text-mag-dark/70 leading-relaxed whitespace-pre-line">
+                      {description}
                     </p>
                   </div>
                 )}
 
-                {/* Placeholder pour galerie photos */}
-                <div className="rounded-xl border border-dashed border-mag-cream p-12 text-center">
-                  <p className="text-mag-gray text-sm">
-                    Photos de l&apos;atelier à venir
-                  </p>
-                </div>
+                {video && (
+                  <div>
+                    <h2 className="text-lg font-bold text-mag-dark mb-2">Vidéo</h2>
+                    <a
+                      href={video}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-mag-red hover:underline"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      Regarder la vidéo
+                    </a>
+                  </div>
+                )}
+
+                {autre && (
+                  <div>
+                    <h2 className="text-lg font-bold text-mag-dark mb-2">Autre</h2>
+                    <p className="text-mag-dark/70 leading-relaxed">{autre}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Sidebar */}
+            {/* Sidebar — Coordonnées */}
             <aside className="lg:col-span-1">
               <div className="rounded-xl border border-mag-cream p-6 sticky top-20">
                 <h3 className="font-bold text-mag-dark mb-4">Coordonnées</h3>
@@ -129,14 +189,65 @@ export default async function ArtisanPage({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-mag-gray">Type</dt>
-                    <dd className="text-mag-dark font-medium capitalize">
-                      {artisan.type.replace(/_/g, " ")}
-                    </dd>
+                    <dt className="text-mag-gray">Métier</dt>
+                    <dd className="text-mag-dark font-medium">{artisan.craft}</dd>
                   </div>
+                  {address && (
+                    <div>
+                      <dt className="text-mag-gray">Adresse</dt>
+                      <dd className="text-mag-dark font-medium">{address}</dd>
+                    </div>
+                  )}
+                  {phone && (
+                    <div>
+                      <dt className="text-mag-gray">Téléphone</dt>
+                      <dd className="text-mag-dark font-medium">
+                        <a href={`tel:${phone}`} className="hover:text-mag-red transition-colors">
+                          {phone}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                  {email && (
+                    <div>
+                      <dt className="text-mag-gray">E-mail</dt>
+                      <dd className="text-mag-dark font-medium">
+                        <a href={`mailto:${email}`} className="hover:text-mag-red transition-colors break-all">
+                          {email}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                  {website && (
+                    <div>
+                      <dt className="text-mag-gray">Site internet</dt>
+                      <dd className="text-mag-dark font-medium">
+                        <a
+                          href={website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-mag-red transition-colors break-all"
+                        >
+                          {website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
                 </dl>
 
-                <div className="mt-6 rounded-lg bg-mag-cream/40 p-4 text-sm text-mag-dark/70">
+                {poinconType && (
+                  <div className="mt-6 rounded-lg bg-mag-cream/40 p-4 text-sm text-mag-dark/70">
+                    <p className="font-semibold text-mag-dark mb-1">
+                      Poinçon MAG
+                    </p>
+                    <p>
+                      Cet·te artisan·e détient le poinçon «&nbsp;{poinconType}&nbsp;»
+                      délivré par Métiers d&apos;Art Genève.
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/60">
                   <p>
                     Cet·te artisan·e a participé aux Journées Européennes des
                     Métiers d&apos;Art.

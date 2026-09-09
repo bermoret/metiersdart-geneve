@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       // Vercel Blob — images des artisans, galeries JEMA, logos
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "vercel-blob.com" },
+      // Images hébergées sur le site Joomla actuel (migration progressive)
+      { protocol: "https", hostname: "metiersdart-geneve.ch" },
     ],
   },
 
