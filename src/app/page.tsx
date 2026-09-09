@@ -144,7 +144,7 @@ export default function HomePage() {
               des savoir-faire genevois.
             </p>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" stagger={0.06}>
+          <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 items-start" stagger={0.06}>
             {visibleCategories.map((cat) => {
               const count = artisans.filter(
                 (a) => a.categoryName === cat.name,
@@ -153,7 +153,7 @@ export default function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/categories/${cat.slug}`}
-                  className="group relative overflow-hidden rounded-2xl border border-mag-cream p-6 card-hover hover:border-mag-red/30 hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-2xl bg-mag-sand p-6 card-hover hover:shadow-lg hover:shadow-mag-dark/5 ring-1 ring-mag-cream/60 hover:ring-mag-red/20"
                 >
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500"
