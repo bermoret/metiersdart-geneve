@@ -143,10 +143,12 @@ body {
   50% { transform: scale(1.15); opacity: 0.7; }
 }
 
-/* Dégradé shimmer pour les boutons au hover */
+/* Shimmer du texte : le dégradé est périodique (période = 50% du fond)
+   et l'animation reste dans le range valide [0%, 100%] pour un fond de 200%,
+   sinon le texte sort du dégradé et devient transparent. */
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% { background-position: 0% center; }
+  100% { background-position: 100% center; }
 }
 
 /* Clip-path reveal pour le hero */
@@ -217,8 +219,9 @@ body {
   background: linear-gradient(
     90deg,
     var(--color-mag-red) 0%,
-    var(--color-mag-red-dark) 30%,
-    var(--color-mag-red) 60%,
+    var(--color-mag-red-dark) 25%,
+    var(--color-mag-red) 50%,
+    var(--color-mag-red-dark) 75%,
     var(--color-mag-red) 100%
   );
   background-size: 200% auto;
