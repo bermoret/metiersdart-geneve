@@ -114,15 +114,15 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
 
     const onWheel = (e: WheelEvent) => {
       if (!(e.ctrlKey || e.metaKey)) {
-        // Pas de touche modificatrice : bloquer le zoom, défiler la page
-        e.preventDefault();
+        // Pas de touche : empêcher Leaflet de zoomer (stopPropagation en capture)
+        // mais NE PAS preventDefault pour laisser la page défiler naturellement
         e.stopPropagation();
         showOverlay();
       }
-      // Avec Cmd/Ctrl : laisser passer pour que Leaflet zoome
+      // Avec Cmd/Ctrl : ne rien faire, Leaflet zoome
     };
 
-    container.addEventListener("wheel", onWheel, { passive: false });
+    container.addEventListener("wheel", onWheel, { capture: true, passive: true });
 
     mapRef.current = map;
 

@@ -61,13 +61,12 @@ export default function ArtisanMap({ latitude, longitude, name, address }: Props
 
     const onWheel = (e: WheelEvent) => {
       if (!(e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
         e.stopPropagation();
         showOverlay();
       }
     };
 
-    container.addEventListener("wheel", onWheel, { passive: false });
+    container.addEventListener("wheel", onWheel, { capture: true, passive: true });
 
     const icon = L.divIcon({
       className: "",
