@@ -66,7 +66,7 @@ body {
 /* ─── Carte Leaflet — charte MAG ────────────────────────────── */
 /* Tuiles OSM désaturées et teintées crème (style vintage chaleureux) */
 .leaflet-tile {
-  filter: grayscale(0.6) sepia(0.45) saturate(0.7) brightness(1.06) contrast(0.92) hue-rotate(-5deg);
+  filter: grayscale(0.85) sepia(0.5) saturate(0.5) brightness(1.08) contrast(0.9) hue-rotate(-8deg);
 }
 /* Fond du conteneur */
 .leaflet-container {
