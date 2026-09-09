@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AdminTable } from "@/components/admin/AdminTable";
+import { ActuModal } from "@/components/admin/ActuModal";
 
 type Actu = {
   id: string;
@@ -14,15 +15,50 @@ type Actu = {
 export default function AdminActualitesPage() {
   const [rows, setRows] = useState<Actu[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Actu | null>(null);
+  const [isNew, setIsNew] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
     fetch("/api/admin/actualites")
       .then((r) => r.json())
       .then((data) => {
         setRows(data);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleEdit = (row: Record<string, unknown>) => {
+    setEditing(row as Actu);
+    setIsNew(false);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditing(null);
+    setIsNew(true);
+    setModalOpen(true);
+  };
+
+  const handleDelete = async (row: Record<string, unknown>) => {
+    const name = (row.title as string) ?? "cette actualité";
+    if (!confirm(`Supprimer "${name}" ? Cette action est irréversible.`)) return;
+    try {
+      const res = await fetch(`/api/admin/actualites/${row.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Erreur lors de la suppression");
+        return;
+      }
+      loadData();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erreur inconnue");
+    }
+  };
 
   if (loading) return <p className="text-mag-gray">Chargement…</p>;
 
@@ -59,9 +95,18 @@ export default function AdminActualitesPage() {
           },
         ]}
         rows={rows}
-        onEdit={() => alert("Édition — à implémenter")}
-        onAdd={() => alert("Ajout — à implémenter")}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
         addLabel="Nouvelle actualité"
+      />
+
+      <ActuModal
+        open={modalOpen}
+        actu={editing as Record<string, unknown> | null}
+        isNew={isNew}
+        onClose={() => setModalOpen(false)}
+        onSaved={() => loadData()}
       />
     </div>
   );
