@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Routes protégées par authentification
-const protectedPaths = ["/admin"];
+const protectedPaths = ["/admin", "/api/admin"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

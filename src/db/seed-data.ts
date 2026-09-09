@@ -17,8 +17,8 @@ export const seedData = {
     type: a.type,
     craft: a.craft,
     commune: a.commune,
-    latitude: Math.round(a.latitude * 1e6),
-    longitude: Math.round(a.longitude * 1e6),
+    latitude: a.latitude,
+    longitude: a.longitude,
     shortDescription: a.shortDescription ?? null,
   })),
   partenaires: [

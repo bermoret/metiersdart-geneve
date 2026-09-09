@@ -8,6 +8,7 @@ import {
   integer,
   boolean,
   jsonb,
+  doublePrecision,
   index,
 } from "drizzle-orm/pg-core";
 
@@ -50,8 +51,8 @@ export const artisans = pgTable(
     categoryId: uuid("category_id").references(() => categories.id),
     commune: varchar("commune", { length: 255 }),
     address: varchar("address", { length: 500 }),
-    latitude: integer("latitude"), // microdegrés (*1e6)
-    longitude: integer("longitude"), // microdegrés (*1e6)
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
     phone: varchar("phone", { length: 100 }),
     email: varchar("email", { length: 255 }),
     website: varchar("website", { length: 500 }),
