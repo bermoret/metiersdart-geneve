@@ -58,10 +58,10 @@ const editionsData: Record<string, EditionData> = {
     description:
       "Pour cette 14ᵉ édition, les métiers d'art genevois ont déployé leurs trois parcours habituels : ouverture d'ateliers dans la ville, Pavillon SICLI au cœur de l'événement et parcours culturel dans les institutions. Les visiteurs ont pu découvrir la richesse des savoir-faire locaux, du textile à l'horlogerie en passant par la sculpture sur pierre. Le poinçon MAG, créé en 2010, fêtait son 15ᵉ anniversaire : l'occasion de souligner l'engagement de l'association envers les artisan·e·s genevois·e·s et la qualité de leur travail.",
     stats: [
-      { label: "Artisan·e·s", value: 140 },
-      { label: "Ateliers ouverts", value: 14 },
-      { label: "Institutions", value: 11 },
-      { label: "Écoles formatrices", value: 6 },
+      { label: "Artisan·e·s", value: "—" },
+      { label: "Ateliers ouverts", value: "—" },
+      { label: "Institutions", value: "—" },
+      { label: "Écoles formatrices", value: "—" },
     ],
   },
   "2024": {
@@ -73,10 +73,10 @@ const editionsData: Record<string, EditionData> = {
     description:
       "Pendant un week-end, ateliers, écoles et institutions culturelles ont partagé leurs gestes, leurs techniques et leurs passions avec un public toujours plus curieux de découvrir ces métiers rares. Démonstrations, visites guidées et expositions ont ponctué ces trois jours dédiés à la transmission des savoir-faire et à la rencontre entre public et professionnel·le·s. Le focus était mis sur la transmission : comment les gestes acquis au fil des générations se transmettent aujourd'hui aux nouvelles générations d'apprenti·e·s.",
     stats: [
-      { label: "Artisan·e·s", value: 135 },
-      { label: "Ateliers ouverts", value: 13 },
-      { label: "Institutions", value: 10 },
-      { label: "Écoles formatrices", value: 5 },
+      { label: "Artisan·e·s", value: "—" },
+      { label: "Ateliers ouverts", value: "—" },
+      { label: "Institutions", value: "—" },
+      { label: "Écoles formatrices", value: "—" },
     ],
   },
   "2023": {
@@ -88,10 +88,10 @@ const editionsData: Record<string, EditionData> = {
     description:
       "Les JEMA 2023 ont marqué le retour en grand des métiers d'art genevois après les éditions perturbées par la pandémie. Démonstrations, visites guidées et expositions ont ponctué ce week-end dédié à la transmission des savoir-faire et à la rencontre entre public et professionnel·le·s. L'édition a permis de renouer le lien entre les artisan·e·s et leur public, après des années où les rencontres physiques avaient été limitées. Une célébration de la résilience et de la vitalité des métiers d'art à Genève.",
     stats: [
-      { label: "Artisan·e·s", value: 120 },
-      { label: "Ateliers ouverts", value: 12 },
-      { label: "Institutions", value: 9 },
-      { label: "Écoles formatrices", value: 5 },
+      { label: "Artisan·e·s", value: "—" },
+      { label: "Ateliers ouverts", value: "—" },
+      { label: "Institutions", value: "—" },
+      { label: "Écoles formatrices", value: "—" },
     ],
   },
 };
