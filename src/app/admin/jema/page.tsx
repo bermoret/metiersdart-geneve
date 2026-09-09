@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AdminTable } from "@/components/admin/AdminTable";
+import { JemaModal } from "@/components/admin/JemaModal";
 
 type Jema = {
   id: string;
@@ -14,15 +15,50 @@ type Jema = {
 export default function AdminJemaPage() {
   const [rows, setRows] = useState<Jema[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Jema | null>(null);
+  const [isNew, setIsNew] = useState(false);
 
-  useEffect(() => {
+  const loadData = () => {
     fetch("/api/admin/jema")
       .then((r) => r.json())
       .then((data) => {
         setRows(data);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleEdit = (row: Record<string, unknown>) => {
+    setEditing(row as Jema);
+    setIsNew(false);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditing(null);
+    setIsNew(true);
+    setModalOpen(true);
+  };
+
+  const handleDelete = async (row: Record<string, unknown>) => {
+    const year = (row.year as number) ?? "cette édition";
+    if (!confirm(`Supprimer l'édition ${year} ? Cette action est irréversible.`)) return;
+    try {
+      const res = await fetch(`/api/admin/jema/${row.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Erreur lors de la suppression");
+        return;
+      }
+      loadData();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erreur inconnue");
+    }
+  };
 
   if (loading) return <p className="text-mag-gray">Chargement…</p>;
 
@@ -61,9 +97,18 @@ export default function AdminJemaPage() {
           },
         ]}
         rows={rows}
-        onEdit={() => alert("Édition — à implémenter")}
-        onAdd={() => alert("Ajout — à implémenter")}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAdd={handleAdd}
         addLabel="Nouvelle édition"
+      />
+
+      <JemaModal
+        open={modalOpen}
+        edition={editing as Record<string, unknown> | null}
+        isNew={isNew}
+        onClose={() => setModalOpen(false)}
+        onSaved={() => loadData()}
       />
     </div>
   );

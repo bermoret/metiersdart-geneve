@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/artisans", label: "Artisans", icon: "fas fa-hammer" },
     { href: "/admin/categories", label: "Catégories", icon: "fas fa-tags" },
     { href: "/admin/actualites", label: "Actualités", icon: "fas fa-newspaper" },
-    { href: "/admin/jema", label: "JEMA", icon: "fas fa-calendar-star" },
+    { href: "/admin/jema", label: "JEMA", icon: "fas fa-award" },
     { href: "/admin/medias", label: "Médias", icon: "fas fa-video" },
   ];
 
