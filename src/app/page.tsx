@@ -2,7 +2,7 @@ import Image from "next/image";
 import { categories, artisans } from "@/lib/data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
-import { Reveal, StaggerGroup } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui/Reveal";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { Marquee } from "@/components/ui/Marquee";
 import Link from "next/link";
@@ -117,16 +117,18 @@ export default function HomePage() {
               MAG en chiffres
             </h2>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-2 lg:grid-cols-4 gap-4" stagger={0.15}>
-            {stats.map((s) => (
-              <div key={s.label} className="bg-mag-red rounded-2xl p-8 text-center text-white card-hover shadow-lg shadow-mag-red/10">
-                <p className="text-4xl sm:text-5xl font-black font-serif">
-                  <AnimatedCounter value={s.value} />
-                </p>
-                <p className="mt-2 text-sm text-white/80 leading-snug">{s.label}</p>
-              </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((s, i) => (
+              <Reveal key={s.label} delay={i * 0.12}>
+                <div className="bg-mag-red rounded-2xl p-8 text-center text-white card-hover shadow-lg shadow-mag-red/10">
+                  <p className="text-4xl sm:text-5xl font-black font-serif">
+                    <AnimatedCounter value={s.value} />
+                  </p>
+                  <p className="mt-2 text-sm text-white/80 leading-snug">{s.label}</p>
+                </div>
+              </Reveal>
             ))}
-          </StaggerGroup>
+          </div>
         </div>
       </section>
 
@@ -144,23 +146,18 @@ export default function HomePage() {
               des savoir-faire genevois.
             </p>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 items-start" stagger={0.06}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {visibleCategories.map((cat) => {
               const count = artisans.filter(
                 (a) => a.categoryName === cat.name,
               ).length;
               return (
-                <Link
-                  key={cat.id}
-                  href={`/categories/${cat.slug}`}
-                  className="group relative overflow-hidden rounded-2xl bg-mag-sand p-6 card-hover hover:shadow-lg hover:shadow-mag-dark/5 ring-1 ring-mag-cream/60 hover:ring-mag-red/20"
-                >
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  <div className="relative z-10">
-                    <div className="text-3xl mb-3 text-mag-red transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5" aria-hidden>
+                <Reveal key={cat.id} delay={0.04 * (visibleCategories.indexOf(cat))}>
+                  <Link
+                    href={`/categories/${cat.slug}`}
+                    className="group block rounded-2xl bg-mag-sand p-6 card-hover hover:shadow-lg hover:shadow-mag-dark/5 ring-1 ring-mag-cream/60 hover:ring-mag-red/20"
+                  >
+                    <div className="text-3xl mb-3 text-mag-red transition-transform duration-300 group-hover:scale-110" aria-hidden>
                       <CategoryIcon icon={cat.icon} />
                     </div>
                     <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors leading-snug">
@@ -169,13 +166,13 @@ export default function HomePage() {
                     <p className="mt-1 text-xs text-mag-gray flex items-center gap-1">
                       <span>{count}</span>
                       <span>artisan·e·s</span>
-                      <span className="ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 transition-all duration-300 text-mag-red">→</span>
+                      <span className="ml-auto opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-mag-red">→</span>
                     </p>
-                  </div>
-                </Link>
+                  </Link>
+                </Reveal>
               );
             })}
-          </StaggerGroup>
+          </div>
         </div>
       </section>
 
@@ -192,19 +189,21 @@ export default function HomePage() {
               Trois axes fondamentaux guident l&apos;action de MAG au quotidien.
             </p>
           </Reveal>
-          <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-8" stagger={0.15}>
-            {pillars.map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-8 border border-mag-cream card-hover hover:shadow-lg">
-                <div className="w-14 h-14 rounded-full bg-mag-red/10 flex items-center justify-center mb-5">
-                  <i className={`${item.icon} text-2xl text-mag-red`} aria-hidden />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pillars.map((item, i) => (
+              <Reveal key={item.title} delay={i * 0.15}>
+                <div className="bg-white rounded-2xl p-8 border border-mag-cream card-hover hover:shadow-lg h-full">
+                  <div className="w-14 h-14 rounded-full bg-mag-red/10 flex items-center justify-center mb-5">
+                    <i className={`${item.icon} text-2xl text-mag-red`} aria-hidden />
+                  </div>
+                  <h3 className="text-xl font-bold text-mag-red font-serif mb-3">
+                    {item.title}
+                  </h3>
+                  <p className="text-mag-dark/70 leading-relaxed text-sm">{item.body}</p>
                 </div>
-                <h3 className="text-xl font-bold text-mag-red font-serif mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-mag-dark/70 leading-relaxed text-sm">{item.body}</p>
-              </div>
+              </Reveal>
             ))}
-          </StaggerGroup>
+          </div>
         </div>
       </section>
 
