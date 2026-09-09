@@ -15,7 +15,7 @@ export default async function AdminDashboard() {
     { label: "Artisans", value: artisanCount.count, href: "/admin/artisans", icon: "fas fa-hammer", color: "text-mag-red" },
     { label: "Catégories", value: categoryCount.count, href: "/admin/categories", icon: "fas fa-tags", color: "text-mag-red" },
     { label: "Actualités", value: actuCount.count, href: "/admin/actualites", icon: "fas fa-newspaper", color: "text-mag-red" },
-    { label: "Éditions JEMA", value: jemaCount.count, href: "/admin/jema", icon: "fas fa-calendar-star", color: "text-mag-red" },
+    { label: "Éditions JEMA", value: jemaCount.count, href: "/admin/jema", icon: "fas fa-award", color: "text-mag-red" },
     { label: "Médias", value: mediaCount.count, href: "/admin/medias", icon: "fas fa-video", color: "text-mag-red" },
   ];
 
