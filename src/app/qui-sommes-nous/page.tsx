@@ -1,8 +1,56 @@
+import dynamic from "next/dynamic";
+import { communesList } from "@/lib/data";
+import { Reveal } from "@/components/ui/Reveal";
+import type { MapCommune } from "@/components/map/CommunesSoutiensMap";
+
+const CommunesSoutiensMap = dynamic(
+  () => import("@/components/map/CommunesSoutiensMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] sm:h-[500px] rounded-xl bg-mag-cream/40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <span className="inline-block w-8 h-8 border-2 border-mag-red/30 border-t-mag-red rounded-full animate-spin" />
+          <p className="text-mag-gray text-sm">Chargement de la carte…</p>
+        </div>
+      </div>
+    ),
+  },
+);
+
 export const metadata = {
   title: "Qui sommes-nous",
   description:
     "MAG est une association tripartite apolitique, sans but lucratif, à l'interface de l'artisanat, de la culture, du patrimoine et de l'art.",
 };
+
+// Lecture des communes depuis la base, avec fallback sur les données statiques.
+// Permet à MAG de mettre à jour les soutiens depuis l'admin sans redéployer.
+async function getCommunesForMap(): Promise<MapCommune[]> {
+  try {
+    const { db } = await import("@/db");
+    const { communes } = await import("@/db/schema");
+    const rows = await db.select().from(communes).orderBy(communes.name);
+    if (rows.length > 0) {
+      return rows.map((c) => ({
+        id: c.id,
+        name: c.name,
+        latitude: c.latitude ?? 0,
+        longitude: c.longitude ?? 0,
+        soutientMag: c.soutientMag ?? false,
+      }));
+    }
+  } catch {
+    // Base indisponible (build statique, pas de DATABASE_URL) → fallback statique
+  }
+  return communesList.map((c) => ({
+    id: c.id,
+    name: c.name,
+    latitude: c.latitude,
+    longitude: c.longitude,
+    soutientMag: c.soutientMag,
+  }));
+}
 
 const valeurs = [
   {
@@ -70,7 +118,8 @@ const secrétariat = [
   "Steeves Emmenegger",
 ];
 
-export default function QuiSommesNousPage() {
+export default async function QuiSommesNousPage() {
+  const mapCommunes = await getCommunesForMap();
   return (
     <>
       <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
@@ -159,6 +208,44 @@ export default function QuiSommesNousPage() {
                 contact@metiersdart-geneve.ch
               </a>
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Communes qui soutiennent MAG */}
+      <section className="py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <h2 className="text-xl font-bold text-mag-red mb-4">
+              Communes qui soutiennent MAG
+            </h2>
+            <p className="text-mag-dark/70 leading-relaxed mb-6 max-w-3xl">
+              MAG travaille en étroite collaboration avec les communes du canton de Genève.
+              Les communes marquées en rouge soutiennent activement l&apos;association et
+              contribuent à la promotion des métiers d&apos;art sur leur territoire.
+              Votre commune ne figure pas encore parmi nos soutiens&nbsp;?{" "}
+              <a href="mailto:contact@metiersdart-geneve.ch" className="text-mag-red hover:underline">
+                Contactez-nous pour rejoindre le dispositif
+              </a>.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="rounded-2xl overflow-hidden shadow-lg shadow-mag-dark/5 card-hover">
+              <CommunesSoutiensMap communes={mapCommunes} />
+            </div>
+          </Reveal>
+
+          {/* Légende */}
+          <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-mag-gray">
+            <span className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-full bg-mag-red" />
+              Commune qui soutient MAG
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-full bg-gray-300" />
+              Commune non-soutien
+            </span>
           </div>
         </div>
       </section>

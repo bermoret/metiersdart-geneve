@@ -6,6 +6,7 @@ import {
   manufactoEditions,
   partenaires,
   comiteMembers,
+  communes,
 } from "@/db/schema";
 import { seedData } from "./seed-data";
 
@@ -83,6 +84,19 @@ async function main() {
     }).onConflictDoNothing();
   }
   console.log("✓ Manufacto inséré");
+
+  // Communes
+  for (const c of seedData.communes) {
+    await db.insert(communes).values({
+      name: c.name,
+      slug: c.slug,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      soutientMag: c.soutientMag,
+      sortOrder: c.sortOrder ?? 0,
+    }).onConflictDoNothing({ target: communes.slug });
+  }
+  console.log(`✓ ${seedData.communes.length} communes insérées`);
 
   console.log("🎉 Seed terminé !");
 }

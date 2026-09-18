@@ -301,3 +301,76 @@ export function getArtisansByCategory(categorySlug: string): ArtisanData[] {
 export function getArtisanBySlug(slugStr: string): ArtisanData | undefined {
   return artisans.find((a) => a.slug === slugStr);
 }
+
+// ─── Communes du canton de Genève ──────────────────────────────
+// 45 communes avec coordonnées approximatives.
+// Le champ soutientMag sera mis à jour par MAG depuis l'admin.
+// Par défaut, aucune commune ne soutient (à confirmer par MAG).
+
+export type CommuneData = {
+  id: string;
+  name: string;
+  slug: string;
+  latitude: number;
+  longitude: number;
+  soutientMag: boolean;
+};
+
+const rawCommunes: { name: string; lat: number; lon: number }[] = [
+  { name: "Aire-la-Ville", lat: 46.1667, lon: 6.0667 },
+  { name: "Anières", lat: 46.2608, lon: 6.2219 },
+  { name: "Avully", lat: 46.1753, lon: 6.0358 },
+  { name: "Avusy", lat: 46.1653, lon: 6.0247 },
+  { name: "Bardonnex", lat: 46.1319, lon: 6.0806 },
+  { name: "Bellevue", lat: 46.2417, lon: 6.15 },
+  { name: "Bernex", lat: 46.1744, lon: 6.0758 },
+  { name: "Carouge", lat: 46.1947, lon: 6.1376 },
+  { name: "Chêne-Bougeries", lat: 46.1958, lon: 6.2019 },
+  { name: "Chêne-Bourg", lat: 46.2497, lon: 6.1969 },
+  { name: "Choulex", lat: 46.2506, lon: 6.2186 },
+  { name: "Collex-Bossy", lat: 46.2458, lon: 6.1256 },
+  { name: "Collonge-Bellerive", lat: 46.2406, lon: 6.1856 },
+  { name: "Cologny", lat: 46.2153, lon: 6.1769 },
+  { name: "Confignon", lat: 46.1742, lon: 6.0531 },
+  { name: "Corsier", lat: 46.2439, lon: 6.1931 },
+  { name: "Dardagny", lat: 46.1833, lon: 6.05 },
+  { name: "Genève", lat: 46.2044, lon: 6.1432 },
+  { name: "Genthod", lat: 46.2439, lon: 6.155 },
+  { name: "Grand-Saconnex", lat: 46.2253, lon: 6.135 },
+  { name: "Gy", lat: 46.2608, lon: 6.2833 },
+  { name: "Hermance", lat: 46.2647, lon: 6.2472 },
+  { name: "Jussy", lat: 46.25, lon: 6.2667 },
+  { name: "Laconnex", lat: 46.1589, lon: 6.0439 },
+  { name: "Lancy", lat: 46.1865, lon: 6.1218 },
+  { name: "Meinier", lat: 46.2336, lon: 6.2186 },
+  { name: "Meyrin", lat: 46.2247, lon: 6.0833 },
+  { name: "Onex", lat: 46.1758, lon: 6.1056 },
+  { name: "Perly-Certoux", lat: 46.1597, lon: 6.0833 },
+  { name: "Plan-les-Ouates", lat: 46.1736, lon: 6.1089 },
+  { name: "Pregny-Chambésy", lat: 46.2403, lon: 6.1419 },
+  { name: "Presinge", lat: 46.2417, lon: 6.225 },
+  { name: "Puplinge", lat: 46.2453, lon: 6.22 },
+  { name: "Russin", lat: 46.1711, lon: 6.0367 },
+  { name: "Satigny", lat: 46.2053, lon: 6.0458 },
+  { name: "Soral", lat: 46.1514, lon: 6.0317 },
+  { name: "Thônex", lat: 46.2486, lon: 6.19 },
+  { name: "Troinex", lat: 46.1611, lon: 6.115 },
+  { name: "Vandoeuvres", lat: 46.2472, lon: 6.2014 },
+  { name: "Vernier", lat: 46.2214, lon: 6.0931 },
+  { name: "Versoix", lat: 46.2733, lon: 6.0833 },
+  { name: "Veyrier", lat: 46.1656, lon: 6.175 },
+];
+
+export const communesList: CommuneData[] = rawCommunes.map((c, i) => ({
+  id: `com-${i + 1}`,
+  name: c.name,
+  slug: slug(c.name),
+  latitude: c.lat,
+  longitude: c.lon,
+  soutientMag: false,
+}));
+
+/** Communes présentes dans le répertoire (ayant au moins une entité). */
+export const communesInRepertoire: string[] = [
+  ...new Set(artisans.map((a) => a.commune)),
+].sort();

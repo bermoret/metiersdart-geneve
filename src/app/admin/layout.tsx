@@ -11,6 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/actualites", label: "Actualités", icon: "fas fa-newspaper" },
     { href: "/admin/jema", label: "JEMA", icon: "fas fa-award" },
     { href: "/admin/medias", label: "Médias", icon: "fas fa-video" },
+    { href: "/admin/communes", label: "Communes", icon: "fas fa-map-marker-alt" },
   ];
 
   return (

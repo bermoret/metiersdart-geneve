@@ -1,6 +1,6 @@
 // Données de seed pour PostgreSQL Neon.
 // Réutilise les données statiques de src/lib/data.ts
-import { categories as cats, artisans as arts } from "@/lib/data";
+import { categories as cats, artisans as arts, communesList } from "@/lib/data";
 
 export const seedData = {
   categories: cats.map((c, i) => ({
@@ -20,6 +20,14 @@ export const seedData = {
     latitude: a.latitude,
     longitude: a.longitude,
     shortDescription: a.shortDescription ?? null,
+  })),
+  communes: communesList.map((c, i) => ({
+    name: c.name,
+    slug: c.slug,
+    latitude: c.latitude,
+    longitude: c.longitude,
+    soutientMag: c.soutientMag,
+    sortOrder: i,
   })),
   partenaires: [
     { name: "UFGVV", abbreviation: "UFGVV", description: "Union des fabricants d'horlogerie de Genève, Vaud et Valais", website: "https://ufgvv.ch", sortOrder: 0 },

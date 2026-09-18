@@ -197,6 +197,23 @@ export const staticPages = pgTable("static_pages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// ─── Communes du canton de Genève ──────────────────────────────
+// Liste des 45 communes genevoises avec coordonnées géographiques.
+// Le champ soutient_mag indique si la commune soutient financièrement
+// ou institutionnellement MAG (affiché sur la carte dédiée).
+
+export const communes = pgTable("communes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  soutientMag: boolean("soutient_mag").default(false),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ─── Paramètres du site (singleton) ───────────────────────────
 // Table à une seule ligne (id = 'default') pour les valeurs
 // saisies manuellement par MAG, non calculées depuis la base.
