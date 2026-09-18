@@ -228,5 +228,34 @@ export const communes = pgTable("communes", {
 export const siteSettings = pgTable("site_settings", {
   id: varchar("id", { length: 50 }).primaryKey(), // toujours "default"
   eventsCount: integer("events_count").default(0),
+  communautePassword: varchar("communaute_password", { length: 255 }), // mot de passe commun espace Communauté
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// ─── Annonces de l'Espace Communauté ───────────────────────────
+// Petites annonces entre artisans, validées par MAG avant publication.
+// File de modération : pending → published | rejected.
+
+export const annonceStatusEnum = pgEnum("annonce_status", [
+  "pending",
+  "published",
+  "rejected",
+]);
+
+export const annonces = pgTable(
+  "annonces",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 500 }).notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    authorName: varchar("author_name", { length: 255 }).notNull(),
+    authorEmail: varchar("author_email", { length: 255 }),
+    content: text("content").notNull(),
+    status: annonceStatusEnum("status").default("pending"),
+    publishedAt: timestamp("published_at"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [index("annonces_status_idx").on(table.status)],
+);

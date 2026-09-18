@@ -32,20 +32,27 @@ export async function PUT(req: Request) {
   const body = await req.json();
 
   // Validation : eventsCount doit être un entier >= 0
-  const raw = Number(body.eventsCount);
+  const rawEvents = Number(body.eventsCount);
   const eventsCount =
-    Number.isFinite(raw) && raw >= 0 ? Math.floor(raw) : 0;
+    Number.isFinite(rawEvents) && rawEvents >= 0 ? Math.floor(rawEvents) : 0;
+
+  const communautePassword =
+    typeof body.communautePassword === "string" && body.communautePassword.trim()
+      ? body.communautePassword.trim().slice(0, 255)
+      : undefined;
 
   const [row] = await db
     .insert(siteSettings)
     .values({
       id: DEFAULT_ID,
       eventsCount,
+      ...(communautePassword !== undefined ? { communautePassword } : {}),
     })
     .onConflictDoUpdate({
       target: siteSettings.id,
       set: {
         eventsCount,
+        ...(communautePassword !== undefined ? { communautePassword } : {}),
         updatedAt: sql`now()`,
       },
     })

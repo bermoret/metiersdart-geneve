@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/medias", label: "Médias" },
   { href: "/metiers-et-formations", label: "Métiers et formations" },
   { href: "/manufacto", label: "Manufacto" },
+  { href: "/communaute", label: "Espace Communauté" },
 ];
 
 const socialLinks = [
