@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { artisans, categories, actualites, jemaEditions, medias } from "@/db/schema";
 import { count } from "drizzle-orm";
+import { EventsCountEditor } from "@/components/admin/EventsCountEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,11 @@ export default async function AdminDashboard() {
             <p className="mt-1 text-sm text-mag-gray">{s.label}</p>
           </a>
         ))}
+      </div>
+
+      {/* Compteur manuel : événements / projets MAG */}
+      <div className="mt-6 max-w-md">
+        <EventsCountEditor />
       </div>
     </div>
   );

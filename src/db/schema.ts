@@ -196,3 +196,14 @@ export const staticPages = pgTable("static_pages", {
   content: jsonb("content"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// ─── Paramètres du site (singleton) ───────────────────────────
+// Table à une seule ligne (id = 'default') pour les valeurs
+// saisies manuellement par MAG, non calculées depuis la base.
+// Extensible : ajouter des colonnes au fur et à mesure des besoins.
+
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id", { length: 50 }).primaryKey(), // toujours "default"
+  eventsCount: integer("events_count").default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

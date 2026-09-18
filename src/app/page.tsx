@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { artisanCategories, artisansOnly } from "@/lib/data";
+import { artisanCategories, artisansOnly, artisans as allArtisans } from "@/lib/data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -11,7 +11,7 @@ export default function HomePage() {
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
     { value: new Set(artisansOnly.map((a) => a.craft)).size, label: "Métiers MAG" },
-    { value: new Set(artisansOnly.map((a) => a.commune)).size, label: "Communes MAG" },
+    { value: new Set(allArtisans.map((a) => a.commune)).size, label: "Communes MAG" },
     { value: artisanCategories.length, label: "Domaines d'art" },
   ];
 
