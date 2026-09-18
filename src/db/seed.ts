@@ -7,6 +7,7 @@ import {
   partenaires,
   comiteMembers,
   communes,
+  siteSettings,
 } from "@/db/schema";
 import { seedData } from "./seed-data";
 
@@ -97,6 +98,14 @@ async function main() {
     }).onConflictDoNothing({ target: communes.slug });
   }
   console.log(`✓ ${seedData.communes.length} communes insérées`);
+
+  // Paramètres du site — mot de passe Communauté par défaut
+  await db.insert(siteSettings).values({
+    id: "default",
+    eventsCount: 0,
+    communautePassword: "MAG 2026",
+  }).onConflictDoNothing({ target: siteSettings.id });
+  console.log("✓ Paramètres du site initialisés (mot de passe Communauté : MAG 2026)");
 
   console.log("🎉 Seed terminé !");
 }
