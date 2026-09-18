@@ -9,7 +9,6 @@ const navLinks = [
   { href: "/medias", label: "Médias" },
   { href: "/metiers-et-formations", label: "Métiers et formations" },
   { href: "/manufacto", label: "Manufacto" },
-  { href: "/communaute", label: "Espace Communauté" },
 ];
 
 const socialLinks = [
@@ -137,6 +136,21 @@ export function Footer() {
                 </a>
               ))}
             </div>
+
+            {/* Espace Communauté — bouton dédié sous les réseaux sociaux */}
+            <Link
+              href="/communaute"
+              className="group mt-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/80 transition-all hover:border-mag-red/50 hover:bg-mag-red/10 hover:text-mag-red"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                <path d="M16 3.13a4 4 0 010 7.75" />
+              </svg>
+              Espace Communauté
+              <span className="opacity-40 transition-transform group-hover:translate-x-0.5">→</span>
+            </Link>
           </div>
         </div>
 
