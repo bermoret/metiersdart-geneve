@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
 
 const DEFAULT_ID = "default";
@@ -11,15 +11,22 @@ export async function GET() {
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  // Upsert automatique : crée la ligne par défaut si elle n'existe pas
+  // SELECT simple : si la ligne n'existe pas (seed pas encore lancé),
+  // on retourne des valeurs par défaut sans l'upserter — sinon le seed
+  // avec onConflictDoNothing ne pourrait plus écrire communautePassword.
   const [row] = await db
-    .insert(siteSettings)
-    .values({ id: DEFAULT_ID, eventsCount: 0 })
-    .onConflictDoUpdate({
-      target: siteSettings.id,
-      set: { updatedAt: sql`now()` },
-    })
-    .returning();
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.id, DEFAULT_ID))
+    .limit(1);
+
+  if (!row) {
+    return NextResponse.json({
+      id: DEFAULT_ID,
+      eventsCount: 0,
+      communautePassword: null,
+    });
+  }
 
   return NextResponse.json(row);
 }
