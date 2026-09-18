@@ -17,13 +17,13 @@ export type RedirectRule = {
   has?: { type: "query"; key: string; value?: string }[];
 };
 
-// Pages statiques Joomla → routes Next.js
+// Pages statiques Joomla → routes Next.js.
+// ORDRE CRITIQUE : les règles spécifiques (avec `has`) doivent venir
+// AVANT le catch-all `/index.php` → `/`, car Next.js applique la
+// première règle qui matche et une règle sans `has` matche toutes
+// les variantes d'URL.
+
 export const staticRedirects: RedirectRule[] = [
-  // Page d'accueil Joomla → nouvelle racine
-  {
-    source: "/index.php",
-    destination: "/",
-  },
   // Répertoire (id=1 = formulaire répertoire)
   {
     source: "/index.php",
@@ -50,6 +50,11 @@ export const staticRedirects: RedirectRule[] = [
       { type: "query", key: "view", value: "page" },
       { type: "query", key: "id", value: "3" },
     ],
+  },
+  // Catch-all EN DERNIER : toute autre URL /index.php → racine
+  {
+    source: "/index.php",
+    destination: "/",
   },
 ];
 
