@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { artisans, categories } from "@/lib/data";
+import { artisansOnly, artisanCategories } from "@/lib/data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function RepertoireTable() {
@@ -10,7 +10,7 @@ export function RepertoireTable() {
   const [communeFilter, setCommuneFilter] = useState("");
 
   const communes = useMemo(
-    () => [...new Set(artisans.map((a) => a.commune))].sort(),
+    () => [...new Set(artisansOnly.map((a) => a.commune))].sort(),
     [],
   );
 
@@ -23,7 +23,7 @@ export function RepertoireTable() {
   };
 
   const filtered = useMemo(() => {
-    return artisans.filter((a) => {
+    return artisansOnly.filter((a) => {
       if (search) {
         const q = search.toLowerCase();
         if (
@@ -61,7 +61,7 @@ export function RepertoireTable() {
             className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
           >
             <option value="">Tous les domaines</option>
-            {categories.map((c) => (
+            {artisanCategories.map((c) => (
               <option key={c.id} value={c.name}>
                 {c.name}
               </option>
@@ -112,7 +112,7 @@ export function RepertoireTable() {
           </thead>
           <tbody className="divide-y divide-mag-cream/60">
             {filtered.map((a) => {
-              const cat = categories.find((c) => c.name === a.categoryName);
+              const cat = artisanCategories.find((c) => c.name === a.categoryName);
               return (
                 <tr key={a.id} className="hover:bg-mag-cream/20 transition-colors">
                   <td className="px-4 py-3 font-medium text-mag-dark">

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { categories, artisans } from "@/lib/data";
+import { artisanCategories, artisansOnly } from "@/lib/data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://metiersdart-geneve.ch";
@@ -16,14 +16,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/manufacto`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
   ];
 
-  const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
+  const categoryRoutes: MetadataRoute.Sitemap = artisanCategories.map((c) => ({
     url: `${baseUrl}/categories/${c.slug}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  const artisanRoutes: MetadataRoute.Sitemap = artisans.map((a) => ({
+  const artisanRoutes: MetadataRoute.Sitemap = artisansOnly.map((a) => ({
     url: `${baseUrl}/artisans/${a.slug}`,
     lastModified: now,
     changeFrequency: "yearly",

@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { categories, getArtisansByCategory } from "@/lib/data";
+import { artisanCategories, getArtisansByCategory } from "@/lib/data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function generateStaticParams() {
-  return categories.map((c) => ({ slug: c.slug }));
+  return artisanCategories.map((c) => ({ slug: c.slug }));
 }
 
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   return params.then((p) => {
-    const cat = categories.find((c) => c.slug === p.slug);
+    const cat = artisanCategories.find((c) => c.slug === p.slug);
     return {
       title: cat ? `${cat.name} — MAG` : "Catégorie introuvable",
       description: cat?.description,
@@ -23,14 +23,14 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const category = categories.find((c) => c.slug === slug);
+  const category = artisanCategories.find((c) => c.slug === slug);
   if (!category) notFound();
 
   const list = getArtisansByCategory(slug);
 
   // Autres catégories pour navigation
-  const otherCats = categories.filter(
-    (c) => c.slug !== slug && c.slug !== "partenaires",
+  const otherCats = artisanCategories.filter(
+    (c) => c.slug !== slug,
   );
 
   return (

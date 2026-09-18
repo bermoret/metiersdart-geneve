@@ -262,11 +262,40 @@ export const artisans: ArtisanData[] = rawArtisans.map((r, i) => {
   };
 });
 
+// ─── Filtres métier : exclure écoles, associations, institutions, partenaires ───
+
+const EXCLUDED_TYPES: ArtisanData["type"][] = [
+  "institution_culturelle",
+  "ecole_formatrice",
+  "association_professionnelle",
+  "partenaire",
+];
+
+const EXCLUDED_CATEGORY_SLUGS = [
+  "institutions-culturelles",
+  "ecoles-formatrices",
+  "associations-professionnelles",
+  "partenaires",
+];
+
+/** Artisans réels uniquement (exclut écoles, associations, institutions, partenaires). */
+export const artisansOnly: ArtisanData[] = artisans.filter(
+  (a) => !EXCLUDED_TYPES.includes(a.type),
+);
+
+/** Catégories de domaines d'art uniquement (exclut écoles, associations, institutions, partenaires). */
+export const artisanCategories: CategoryData[] = categories.filter(
+  (c) => !EXCLUDED_CATEGORY_SLUGS.includes(c.slug),
+);
+
 export function getArtisansByCategory(categorySlug: string): ArtisanData[] {
-  return artisans.filter((a) => {
-    const cat = categories.find((c) => c.slug === categorySlug);
-    return cat && a.categoryName === cat.name;
-  });
+  // Si on demande une catégorie exclue, on ne renvoie rien
+  if (EXCLUDED_CATEGORY_SLUGS.includes(categorySlug)) return [];
+  const cat = categories.find((c) => c.slug === categorySlug);
+  if (!cat) return [];
+  return artisans.filter(
+    (a) => a.categoryName === cat.name && !EXCLUDED_TYPES.includes(a.type),
+  );
 }
 
 export function getArtisanBySlug(slugStr: string): ArtisanData | undefined {

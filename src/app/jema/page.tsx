@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { artisans } from "@/lib/data";
+import { artisansOnly } from "@/lib/data";
 
 export const metadata = {
   title: "JEMA — Journées Européennes des Métiers d'Art",
@@ -198,7 +198,7 @@ export default function JemaPage() {
                 Artisan·e·s présents (domaine de la pierre)
               </h3>
               <div className="flex flex-wrap gap-2">
-                {artisans
+                {artisansOnly
                   .filter((a) => a.categoryName === "Art de la pierre")
                   .map((a) => (
                     <Link

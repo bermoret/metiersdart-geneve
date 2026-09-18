@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { categories, artisans } from "@/lib/data";
+import { artisanCategories, artisansOnly } from "@/lib/data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -9,16 +9,16 @@ import Link from "next/link";
 
 export default function HomePage() {
   const stats = [
-    { value: artisans.length, label: "Artisanes et artisans MAG" },
-    { value: new Set(artisans.map((a) => a.craft)).size, label: "Métiers MAG" },
-    { value: new Set(artisans.map((a) => a.commune)).size, label: "Communes MAG" },
-    { value: categories.filter((c) => c.slug !== "partenaires").length, label: "Domaines d'art" },
+    { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
+    { value: new Set(artisansOnly.map((a) => a.craft)).size, label: "Métiers MAG" },
+    { value: new Set(artisansOnly.map((a) => a.commune)).size, label: "Communes MAG" },
+    { value: artisanCategories.length, label: "Domaines d'art" },
   ];
 
-  const visibleCategories = categories.filter((c) => c.slug !== "partenaires");
+  const visibleCategories = artisanCategories;
 
   // Métiers uniques pour le marquee
-  const uniqueCrafts = [...new Set(artisans.map((a) => a.craft))].slice(0, 24);
+  const uniqueCrafts = [...new Set(artisansOnly.map((a) => a.craft))].slice(0, 24);
 
   const pillars = [
     {
@@ -95,7 +95,7 @@ export default function HomePage() {
               </div>
               {/* Badge flottant */}
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5 border border-mag-cream">
-                <p className="font-serif text-3xl font-black text-mag-red">{artisans.length}+</p>
+                <p className="font-serif text-3xl font-black text-mag-red">{artisansOnly.length}+</p>
                 <p className="text-xs text-mag-gray mt-1">artisans référencés</p>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function HomePage() {
           </Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {visibleCategories.map((cat) => {
-              const count = artisans.filter(
+              const count = artisansOnly.filter(
                 (a) => a.categoryName === cat.name,
               ).length;
               return (

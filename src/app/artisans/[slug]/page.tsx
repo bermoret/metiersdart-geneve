@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { artisans, categories, getArtisanBySlug } from "@/lib/data";
+import { artisansOnly, artisanCategories, getArtisanBySlug } from "@/lib/data";
 import { artisanDetails } from "@/lib/artisan-details";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { PoinconBadge } from "@/components/ui/PoinconBadge";
 import ArtisanMap from "@/components/map/ArtisanMapWrapper";
 
 export function generateStaticParams() {
-  return artisans.map((a) => ({ slug: a.slug }));
+  return artisansOnly.map((a) => ({ slug: a.slug }));
 }
 
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -35,10 +35,10 @@ export default async function ArtisanPage({
   const artisan = getArtisanBySlug(slug);
   if (!artisan) notFound();
 
-  const category = categories.find((c) => c.name === artisan.categoryName);
+  const category = artisanCategories.find((c) => c.name === artisan.categoryName);
   const detail = artisanDetails[artisan.name];
 
-  const relatedArtisans = artisans
+  const relatedArtisans = artisansOnly
     .filter(
       (a) =>
         a.categoryName === artisan.categoryName &&
