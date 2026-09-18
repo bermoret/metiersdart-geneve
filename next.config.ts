@@ -21,7 +21,8 @@ const nextConfig: NextConfig = {
     return allRedirects.map((r) => ({
       source: r.source,
       destination: r.destination,
-      permanent: true, // 301
+      permanent: true,
+      ...(r.has ? { has: r.has } : {}),
     }));
   },
 
