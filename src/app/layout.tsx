@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Frank_Ruhl_Libre } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
@@ -63,6 +64,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );

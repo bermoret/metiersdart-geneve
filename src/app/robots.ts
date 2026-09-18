@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/auth/"],
+      disallow: ["/api/", "/auth/", "/admin/", "/communaute"],
     },
     sitemap: "https://metiersdart-geneve.ch/sitemap.xml",
     host: "https://metiersdart-geneve.ch",

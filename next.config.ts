@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { allRedirects } from "./src/lib/redirects";
 
 const nextConfig: NextConfig = {
   // Marque pg comme package externe côté serveur pour éviter
@@ -13,6 +14,15 @@ const nextConfig: NextConfig = {
       // Images hébergées sur le site Joomla actuel (migration progressive)
       { protocol: "https", hostname: "metiersdart-geneve.ch" },
     ],
+  },
+
+  // Redirections 301 depuis l'ancien site Joomla
+  async redirects() {
+    return allRedirects.map((r) => ({
+      source: r.source,
+      destination: r.destination,
+      permanent: true, // 301
+    }));
   },
 
   // Silencer le warning pg-native en build de production (webpack)

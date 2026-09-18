@@ -10,9 +10,18 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   return params.then((p) => {
     const cat = artisanCategories.find((c) => c.slug === p.slug);
+    if (!cat) return { title: "Catégorie introuvable" };
     return {
-      title: cat ? `${cat.name} — MAG` : "Catégorie introuvable",
-      description: cat?.description,
+      title: `${cat.name} — MAG`,
+      description: cat.description ?? `${cat.name} — métiers d'art à Genève`,
+      openGraph: {
+        title: `${cat.name} — Métiers d'Art Genève`,
+        description: cat.description ?? `${cat.name} — métiers d'art à Genève`,
+        type: "website",
+      },
+      alternates: {
+        canonical: `/categories/${p.slug}`,
+      },
     };
   });
 }
