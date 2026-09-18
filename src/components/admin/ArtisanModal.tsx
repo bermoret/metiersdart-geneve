@@ -21,6 +21,11 @@ type ArtisanData = {
   shortDescription: string;
   longDescription: string;
   imageUrl: string;
+  video: string;
+  autre: string;
+  poinconType: string;
+  poinconModalText: string;
+  poinconModalLink: string;
   published: boolean;
 };
 
@@ -43,11 +48,21 @@ const ARTISAN_TYPES = [
   { value: "partenaire", label: "Partenaire" },
 ];
 
+const POINCON_TYPES = [
+  { value: "", label: "— Aucun —" },
+  { value: "ATELIER", label: "Atelier" },
+  { value: "BOUTIQUE", label: "Boutique" },
+  { value: "ENTREPRISE", label: "Entreprise" },
+  { value: "INSTITUTION", label: "Institution" },
+];
+
 const EMPTY: ArtisanData = {
   name: "", slug: "", type: "artisan", craft: "", commune: "",
   categoryId: "", address: "", latitude: "", longitude: "",
   phone: "", email: "", website: "", shortDescription: "",
-  longDescription: "", imageUrl: "", published: true,
+  longDescription: "", imageUrl: "", video: "", autre: "",
+  poinconType: "", poinconModalText: "", poinconModalLink: "",
+  published: true,
 };
 
 export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSaved }: Props) {
@@ -313,6 +328,31 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
 
           <TextareaField label="Description courte" value={form.shortDescription} onChange={(v) => update("shortDescription", v)} rows={2} fullWidth />
           <TextareaField label="Description longue" value={form.longDescription} onChange={(v) => update("longDescription", v)} rows={5} fullWidth />
+
+          {/* Champs enrichis (fiche publique) */}
+          <Field label="Vidéo (URL Vimeo/YouTube)" value={form.video} onChange={(v) => update("video", v)} fullWidth />
+          <TextareaField label="Autre (infos complémentaires)" value={form.autre} onChange={(v) => update("autre", v)} rows={2} fullWidth />
+
+          {/* Poinçon MAG */}
+          <div className="col-span-2 border-t border-mag-cream pt-4 mt-2">
+            <p className="text-xs font-semibold text-mag-dark uppercase tracking-wide mb-3">Poinçon MAG</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <SelectField
+                label="Type de poinçon"
+                value={form.poinconType}
+                onChange={(v) => update("poinconType", v)}
+                options={POINCON_TYPES}
+              />
+              <Field label="Lien du poinçon" value={form.poinconModalLink} onChange={(v) => update("poinconModalLink", v)} />
+            </div>
+            <TextareaField
+              label="Texte explicatif du poinçon"
+              value={form.poinconModalText}
+              onChange={(v) => update("poinconModalText", v)}
+              rows={3}
+              fullWidth
+            />
+          </div>
 
           <label className="flex items-center gap-2 col-span-2">
             <input

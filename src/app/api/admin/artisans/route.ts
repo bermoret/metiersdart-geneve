@@ -29,6 +29,11 @@ export async function GET() {
       shortDescription: artisans.shortDescription,
       longDescription: artisans.longDescription,
       imageUrl: artisans.imageUrl,
+      video: artisans.video,
+      autre: artisans.autre,
+      poinconType: artisans.poinconType,
+      poinconModalText: artisans.poinconModalText,
+      poinconModalLink: artisans.poinconModalLink,
     })
     .from(artisans)
     .leftJoin(categories, eq(artisans.categoryId, categories.id))
@@ -74,6 +79,11 @@ export async function POST(req: Request) {
       imageUrl: body.imageUrl,
       published: body.published ?? true,
       jemaParticipant: body.jemaParticipant ?? true,
+      video: body.video || null,
+      autre: body.autre || null,
+      poinconType: body.poinconType || null,
+      poinconModalText: body.poinconModalText || null,
+      poinconModalLink: body.poinconModalLink || null,
     })
     .returning();
 

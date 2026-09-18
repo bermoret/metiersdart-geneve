@@ -63,6 +63,12 @@ export const artisans = pgTable(
     socialLinks: jsonb("social_links").$type<Record<string, string>>(),
     jemaParticipant: boolean("jema_participant").default(false),
     published: boolean("published").default(true),
+    // Champs enrichis issus du scraping (fiches détaillées)
+    video: varchar("video", { length: 500 }),
+    autre: text("autre"),
+    poinconType: varchar("poincon_type", { length: 50 }), // "ATELIER" | "BOUTIQUE" | "ENTREPRISE" | "INSTITUTION"
+    poinconModalText: text("poincon_modal_text"),
+    poinconModalLink: varchar("poincon_modal_link", { length: 500 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

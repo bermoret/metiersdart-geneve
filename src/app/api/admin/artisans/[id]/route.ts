@@ -33,6 +33,11 @@ export async function GET(
       shortDescription: artisans.shortDescription,
       longDescription: artisans.longDescription,
       imageUrl: artisans.imageUrl,
+      video: artisans.video,
+      autre: artisans.autre,
+      poinconType: artisans.poinconType,
+      poinconModalText: artisans.poinconModalText,
+      poinconModalLink: artisans.poinconModalLink,
     })
     .from(artisans)
     .leftJoin(categories, eq(artisans.categoryId, categories.id))
@@ -82,6 +87,11 @@ export async function PATCH(
       ...(body.shortDescription !== undefined && { shortDescription: body.shortDescription }),
       ...(body.longDescription !== undefined && { longDescription: body.longDescription }),
       ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
+      ...(body.video !== undefined && { video: body.video || null }),
+      ...(body.autre !== undefined && { autre: body.autre || null }),
+      ...(body.poinconType !== undefined && { poinconType: body.poinconType || null }),
+      ...(body.poinconModalText !== undefined && { poinconModalText: body.poinconModalText || null }),
+      ...(body.poinconModalLink !== undefined && { poinconModalLink: body.poinconModalLink || null }),
       ...(body.published !== undefined && { published: body.published }),
       updatedAt: new Date(),
     })
