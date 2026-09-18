@@ -109,7 +109,7 @@ export default function ArtisanMap({ latitude, longitude, name, address }: Props
   return (
     <div
       ref={containerRef}
-      className="w-full h-[300px] sm:h-[350px] rounded-xl overflow-hidden border border-mag-cream shadow-sm"
+      className="w-full h-[300px] sm:h-[350px] rounded-xl overflow-hidden isolate border border-mag-cream shadow-sm"
       aria-label="Carte de localisation de l'artisan"
       role="application"
     />

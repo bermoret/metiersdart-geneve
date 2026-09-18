@@ -217,7 +217,7 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden border border-mag-cream/60 shadow-md bg-mag-sand"
+      className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden isolate border border-mag-cream/60 shadow-md bg-mag-sand"
       aria-label="Carte des artisans de Genève"
       role="application"
     />
