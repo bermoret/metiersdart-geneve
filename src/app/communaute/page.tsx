@@ -48,7 +48,11 @@ export default function CommunautePage() {
     fetch("/api/annonces")
       .then((r) => r.json())
       .then((data) => {
-        setAnnonces(data);
+        setAnnonces(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setAnnonces([]);
         setLoading(false);
       });
   }, [authed]);
@@ -152,15 +156,25 @@ export default function CommunautePage() {
     <>
       <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            Espace Communauté
-          </h1>
-          <p className="mt-3 text-mag-dark/70 leading-relaxed max-w-2xl">
-            Petites annonces entre artisan·e·s de MAG : ventes de matériel,
-            recherche d&apos;un artisan pour un marché, opportunités
-            professionnelles, collaborations, événements, expositions, conseils,
-            entraide. Toute annonce est validée par MAG avant publication.
-          </p>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
+                Espace Communauté
+              </h1>
+              <p className="mt-3 text-mag-dark/70 leading-relaxed max-w-2xl">
+                Petites annonces entre artisan·e·s de MAG : ventes de matériel,
+                recherche d&apos;un artisan pour un marché, opportunités
+                professionnelles, collaborations, événements, expositions, conseils,
+                entraide. Toute annonce est validée par MAG avant publication.
+              </p>
+            </div>
+            <button
+              onClick={() => setAuthed(false)}
+              className="shrink-0 inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors cursor-pointer"
+            >
+              <i className="fas fa-sign-out-alt" /> Quitter
+            </button>
+          </div>
         </div>
       </section>
 

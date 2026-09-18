@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { annonces, siteSettings } from "@/db/schema";
-import { eq, sql, desc } from "drizzle-orm";
+import { annonces } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { Resend } from "resend";
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 // GET /api/annonces — liste les annonces publiées (public)
 export async function GET() {
@@ -51,15 +59,15 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "contact@jooce.ch",
       to: "contact@metiersdart-geneve.ch",
-      subject: `[MAG Communauté] Nouvelle annonce à modérer : ${body.title}`,
+      subject: `[MAG Communauté] Nouvelle annonce à modérer : ${body.title.slice(0, 80)}`,
       html: `
         <h2>Nouvelle annonce soumise</h2>
-        <p><strong>Titre :</strong> ${body.title}</p>
-        <p><strong>Catégorie :</strong> ${body.category}</p>
-        <p><strong>Auteur :</strong> ${body.authorName}</p>
-        ${body.authorEmail ? `<p><strong>Email :</strong> ${body.authorEmail}</p>` : ""}
+        <p><strong>Titre :</strong> ${escapeHtml(body.title)}</p>
+        <p><strong>Catégorie :</strong> ${escapeHtml(body.category)}</p>
+        <p><strong>Auteur :</strong> ${escapeHtml(body.authorName)}</p>
+        ${body.authorEmail ? `<p><strong>Email :</strong> ${escapeHtml(body.authorEmail)}</p>` : ""}
         <p><strong>Contenu :</strong></p>
-        <pre>${body.content}</pre>
+        <pre>${escapeHtml(body.content)}</pre>
         <p style="margin-top:20px;color:#888;font-size:13px">
           Connectez-vous à l'administration MAG pour valider ou refuser cette annonce.
         </p>

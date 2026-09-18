@@ -29,7 +29,11 @@ export default function AdminAnnoncesPage() {
     fetch(`/api/admin/annonces?status=${filter}`)
       .then((r) => r.json())
       .then((data) => {
-        setRows(data);
+        setRows(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setRows([]);
         setLoading(false);
       });
   };
