@@ -9,6 +9,8 @@ import {
   communes,
   siteSettings,
 } from "@/db/schema";
+import { users } from "@/db/auth-schema";
+import { eq } from "drizzle-orm";
 import { seedData } from "./seed-data";
 
 async function main() {
@@ -106,6 +108,28 @@ async function main() {
     communautePassword: "MAG 2026",
   }).onConflictDoNothing({ target: siteSettings.id });
   console.log("✓ Paramètres du site initialisés (mot de passe Communauté : MAG 2026)");
+
+  // Utilisateur administrateur
+  const adminEmail = "bernard.moret@jooce.ch";
+  const [existingAdmin] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, adminEmail))
+    .limit(1);
+
+  if (!existingAdmin) {
+    await db.insert(users).values({
+      email: adminEmail,
+      name: "Bernard Moret",
+      role: "admin",
+    });
+    console.log(`✓ Utilisateur admin créé : ${adminEmail}`);
+  } else if (existingAdmin.role !== "admin") {
+    await db.update(users).set({ role: "admin" }).where(eq(users.email, adminEmail));
+    console.log(`✓ Rôle admin attribué à : ${adminEmail}`);
+  } else {
+    console.log(`✓ Utilisateur admin déjà présent : ${adminEmail}`);
+  }
 
   console.log("🎉 Seed terminé !");
 }
