@@ -20,7 +20,7 @@ import {
   categories as allStaticCategories,
   communesList as staticCommunes,
 } from "./data";
-import { artisanDetails } from "./artisan-details";
+import { getArtisanDetail } from "./artisan-details";
 
 // ─── Types publics ──────────────────────────────────────────────
 
@@ -103,7 +103,7 @@ const EXCLUDED_CATEGORY_SLUGS = [
 function staticToPublicArtisans(): PublicArtisan[] {
   return staticArtisans.map((a, i) => {
     const cat = allStaticCategories.find((c) => c.name === a.categoryName);
-    const detail = artisanDetails[a.name];
+    const detail = getArtisanDetail(a.name);
     return {
       id: `static-${i + 1}`,
       name: a.name,

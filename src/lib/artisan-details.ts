@@ -243,7 +243,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ENTREPRISE – distingue des structures constituées de plusieurs employé·e·s, dont un ou plusieurs secteurs sont dédiés à un métier d’art. Accessibles sur rendez-vous, ou après un contact préalable. Cliquez ici pour en savoir plus.",
     poinconModalLink: "https://metiersdart-geneve.ch/index.php?option=com_sppagebuilder&view=page&id=630",
   },
-  "Baxter Sériegraphie": {
+  "Baxter Sérigraphie": {
     image: "https://metiersdart-geneve.ch/images/2025/10/09/baxter.png",
     description: "Atelier de sérigraphie orienté marquage textile, Baxter imprime principalement avec des encres à base d'eau pour un touché et une précision incomparables. Le soin accordé à la concordance des couleurs ou la précision des impressions est parfois à la limite de la névrose. Baxter sérigraphie, des malades de la qualité ! Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
     address: "Rue Vallin 12, 1201 Genève",
@@ -1136,3 +1136,54 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
     poinconModalLink: "https://metiersdart-geneve.ch/index.php?option=com_sppagebuilder&view=page&id=630",
   },
 };
+
+// ─── Résolution tolérante des détails ────────────────────────────
+// Les clés ci-dessus sont parfois tronquées par rapport aux noms du
+// répertoire ("Sellerie Kühnen" vs "Sellerie Kühnen, Fabienne Panelati"),
+// parfois abrégées ("ASMEBI"). Une jointure par nom exact faisait perdre
+// 49 fiches (poinçon, adresse, vidéo, photo). On résout par mots-clés.
+
+/** Minuscules, sans accents ni ponctuation. */
+function normalizeName(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+// Index trié par nombre de mots décroissant : la clé la plus spécifique
+// est testée en premier, ce qui évite qu'une clé courte capture un nom long.
+const detailIndex = Object.keys(artisanDetails)
+  .map((key) => ({
+    key,
+    tokens: normalizeName(key).split(" ").filter(Boolean),
+  }))
+  .sort((a, b) => b.tokens.length - a.tokens.length);
+
+/**
+ * Retrouve les détails d'un artisan malgré les écarts de nommage entre
+ * le répertoire (src/lib/data.ts) et le fichier scrapé.
+ *
+ * 1. correspondance exacte ;
+ * 2. sinon, tous les mots de la clé sont présents dans le nom.
+ */
+export function getArtisanDetail(name: string): ArtisanDetail | undefined {
+  if (artisanDetails[name]) return artisanDetails[name];
+
+  const nameTokens = new Set(
+    normalizeName(name).split(" ").filter(Boolean),
+  );
+
+  for (const entry of detailIndex) {
+    if (
+      entry.tokens.length > 0 &&
+      entry.tokens.every((t) => nameTokens.has(t))
+    ) {
+      return artisanDetails[entry.key];
+    }
+  }
+
+  return undefined;
+}

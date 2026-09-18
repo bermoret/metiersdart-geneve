@@ -266,6 +266,7 @@ export default async function ArtisanPage({
                       type={poinconType}
                       modalText={poinconModalText ?? ""}
                       modalLink={poinconModalLink ?? undefined}
+                      variant="image"
                     />
                   </div>
                 )}

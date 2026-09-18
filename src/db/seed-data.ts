@@ -1,7 +1,7 @@
 // Données de seed pour PostgreSQL Neon.
 // Réutilise les données statiques de src/lib/data.ts et src/lib/artisan-details.ts
 import { categories as cats, artisans as arts, communesList } from "@/lib/data";
-import { artisanDetails } from "@/lib/artisan-details";
+import { getArtisanDetail } from "@/lib/artisan-details";
 
 export const seedData = {
   categories: cats.map((c, i) => ({
@@ -13,8 +13,10 @@ export const seedData = {
     sortOrder: i,
   })),
   artisans: arts.map((a) => {
-    // Fusionne les données de base avec les détails scrapés (fiche publique)
-    const detail = artisanDetails[a.name];
+    // Fusionne les données de base avec les détails scrapés (fiche publique).
+    // Résolution tolérante : les clés du fichier scrapé sont parfois
+    // tronquées ou abrégées par rapport aux noms du répertoire.
+    const detail = getArtisanDetail(a.name);
     return {
       name: a.name,
       slug: a.slug,
