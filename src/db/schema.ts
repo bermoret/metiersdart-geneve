@@ -90,6 +90,7 @@ export const jemaEditions = pgTable("jema_editions", {
   isUpcoming: boolean("is_upcoming").default(false),
   isPast: boolean("is_past").default(false),
   description: text("description"),
+  highlight: varchar("highlight", { length: 255 }),
   programUrl: varchar("program_url", { length: 500 }),
   galleryImages: jsonb("gallery_images").$type<string[]>(),
   stats: jsonb("stats").$type<Record<string, number>>(),

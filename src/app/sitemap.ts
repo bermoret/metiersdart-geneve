@@ -1,9 +1,18 @@
 import type { MetadataRoute } from "next";
-import { artisanCategories, artisansOnly } from "@/lib/data";
+import { getArtisanCategories, getArtisansOnly, getJemaEditions } from "@/lib/db-data";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// ISR : le sitemap suit les modifications de l'admin (nouvelles fiches incluses).
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://metiersdart-geneve.ch";
   const now = new Date();
+
+  const [artisanCategories, artisansOnly, editions] = await Promise.all([
+    getArtisanCategories(),
+    getArtisansOnly(),
+    getJemaEditions(),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
@@ -30,5 +39,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...artisanRoutes];
+  const jemaRoutes: MetadataRoute.Sitemap = editions.map((e) => ({
+    url: `${baseUrl}/jema/${e.year}`,
+    lastModified: now,
+    changeFrequency: "yearly",
+    priority: 0.5,
+  }));
+
+  return [...staticRoutes, ...categoryRoutes, ...artisanRoutes, ...jemaRoutes];
 }

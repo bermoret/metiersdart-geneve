@@ -1,7 +1,6 @@
-import { communesList } from "@/lib/data";
+import { getCommunesForMap } from "@/lib/db-data";
 import { Reveal } from "@/components/ui/Reveal";
 import { CommunesMapSection } from "@/components/qui-sommes-nous/CommunesMapSection";
-import type { MapCommune } from "@/components/map/CommunesSoutiensMap";
 
 export const metadata = {
   title: "Qui sommes-nous",
@@ -9,33 +8,8 @@ export const metadata = {
     "MAG est une association tripartite apolitique, sans but lucratif, à l'interface de l'artisanat, de la culture, du patrimoine et de l'art.",
 };
 
-// Lecture des communes depuis la base, avec fallback sur les données statiques.
-// Permet à MAG de mettre à jour les soutiens depuis l'admin sans redéployer.
-async function getCommunesForMap(): Promise<MapCommune[]> {
-  try {
-    const { db } = await import("@/db");
-    const { communes } = await import("@/db/schema");
-    const rows = await db.select().from(communes).orderBy(communes.name);
-    if (rows.length > 0) {
-      return rows.map((c) => ({
-        id: c.id,
-        name: c.name,
-        latitude: c.latitude ?? 0,
-        longitude: c.longitude ?? 0,
-        soutientMag: c.soutientMag ?? false,
-      }));
-    }
-  } catch {
-    // Base indisponible (build statique, pas de DATABASE_URL) → fallback statique
-  }
-  return communesList.map((c) => ({
-    id: c.id,
-    name: c.name,
-    latitude: c.latitude,
-    longitude: c.longitude,
-    soutientMag: c.soutientMag,
-  }));
-}
+// ISR : la carte des communes soutiens suit les modifications de l'admin.
+export const revalidate = 60;
 
 const valeurs = [
   {

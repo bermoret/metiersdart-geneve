@@ -1,6 +1,7 @@
 // Données de seed pour PostgreSQL Neon.
-// Réutilise les données statiques de src/lib/data.ts
+// Réutilise les données statiques de src/lib/data.ts et src/lib/artisan-details.ts
 import { categories as cats, artisans as arts, communesList } from "@/lib/data";
+import { artisanDetails } from "@/lib/artisan-details";
 
 export const seedData = {
   categories: cats.map((c, i) => ({
@@ -11,16 +12,35 @@ export const seedData = {
     color: c.color,
     sortOrder: i,
   })),
-  artisans: arts.map((a) => ({
-    name: a.name,
-    slug: a.slug,
-    type: a.type,
-    craft: a.craft,
-    commune: a.commune,
-    latitude: a.latitude,
-    longitude: a.longitude,
-    shortDescription: a.shortDescription ?? null,
-  })),
+  artisans: arts.map((a) => {
+    // Fusionne les données de base avec les détails scrapés (fiche publique)
+    const detail = artisanDetails[a.name];
+    return {
+      name: a.name,
+      slug: a.slug,
+      type: a.type,
+      craft: a.craft,
+      // Nom de la catégorie — résolu en categoryId au moment du seed
+      categoryName: a.categoryName,
+      commune: a.commune,
+      // Coordonnées brutes (degrés décimaux) — NE PAS multiplier par 1e6
+      latitude: a.latitude,
+      longitude: a.longitude,
+      shortDescription: a.shortDescription ?? null,
+      // Champs enrichis issus du scraping
+      imageUrl: detail?.image ?? null,
+      longDescription: detail?.description ?? null,
+      address: detail?.address ?? null,
+      website: detail?.website ?? null,
+      video: detail?.video ?? null,
+      phone: detail?.phone ?? null,
+      email: detail?.email ?? null,
+      autre: detail?.autre ?? null,
+      poinconType: detail?.poinconType ?? null,
+      poinconModalText: detail?.poinconModalText ?? null,
+      poinconModalLink: detail?.poinconModalLink ?? null,
+    };
+  }),
   communes: communesList.map((c, i) => ({
     name: c.name,
     slug: c.slug,

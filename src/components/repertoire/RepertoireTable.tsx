@@ -1,17 +1,40 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { artisansOnly, artisanCategories } from "@/lib/data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
-export function RepertoireTable() {
+// Types minimaux attendus — compatibles avec PublicArtisan (DB) et ArtisanData (statique)
+export type RepertoireItem = {
+  id: string;
+  name: string;
+  slug: string;
+  craft: string | null;
+  categoryName: string | null;
+  commune: string | null;
+};
+
+export type RepertoireCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+  color: string | null;
+};
+
+type Props = {
+  artisans: RepertoireItem[];
+  categories: RepertoireCategory[];
+};
+
+export function RepertoireTable({ artisans, categories }: Props) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [communeFilter, setCommuneFilter] = useState("");
 
   const communes = useMemo(
-    () => [...new Set(artisansOnly.map((a) => a.commune))].sort(),
-    [],
+    () =>
+      [...new Set(artisans.map((a) => a.commune).filter(Boolean))].sort() as string[],
+    [artisans],
   );
 
   const hasFilters = search || categoryFilter || communeFilter;
@@ -23,13 +46,13 @@ export function RepertoireTable() {
   };
 
   const filtered = useMemo(() => {
-    return artisansOnly.filter((a) => {
+    return artisans.filter((a) => {
       if (search) {
         const q = search.toLowerCase();
         if (
           !a.name.toLowerCase().includes(q) &&
-          !a.craft.toLowerCase().includes(q) &&
-          !a.commune.toLowerCase().includes(q)
+          !(a.craft ?? "").toLowerCase().includes(q) &&
+          !(a.commune ?? "").toLowerCase().includes(q)
         )
           return false;
       }
@@ -37,7 +60,7 @@ export function RepertoireTable() {
       if (communeFilter && a.commune !== communeFilter) return false;
       return true;
     });
-  }, [search, categoryFilter, communeFilter]);
+  }, [artisans, search, categoryFilter, communeFilter]);
 
   return (
     <>
@@ -61,7 +84,7 @@ export function RepertoireTable() {
             className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
           >
             <option value="">Tous les domaines</option>
-            {artisanCategories.map((c) => (
+            {categories.map((c) => (
               <option key={c.id} value={c.name}>
                 {c.name}
               </option>
@@ -112,7 +135,7 @@ export function RepertoireTable() {
           </thead>
           <tbody className="divide-y divide-mag-cream/60">
             {filtered.map((a) => {
-              const cat = artisanCategories.find((c) => c.name === a.categoryName);
+              const cat = categories.find((c) => c.name === a.categoryName);
               return (
                 <tr key={a.id} className="hover:bg-mag-cream/20 transition-colors">
                   <td className="px-4 py-3 font-medium text-mag-dark">
@@ -135,7 +158,7 @@ export function RepertoireTable() {
                           color: cat.color ?? "#999",
                         }}
                       >
-                        <CategoryIcon icon={cat.icon} /> {a.categoryName}
+                        <CategoryIcon icon={cat.icon ?? ""} /> {a.categoryName}
                       </span>
                     )}
                   </td>

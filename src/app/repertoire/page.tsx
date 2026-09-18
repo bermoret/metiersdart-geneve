@@ -1,4 +1,5 @@
 import { RepertoireTable } from "@/components/repertoire/RepertoireTable";
+import { getArtisansOnly, getArtisanCategories } from "@/lib/db-data";
 
 export const metadata = {
   title: "Répertoire",
@@ -6,7 +7,12 @@ export const metadata = {
     "Le répertoire complet des artisanes et artisans, ateliers, institutions et écoles des métiers d'art du canton de Genève.",
 };
 
-export default function RepertoirePage() {
+export default async function RepertoirePage() {
+  const [list, categories] = await Promise.all([
+    getArtisansOnly(),
+    getArtisanCategories(),
+  ]);
+
   return (
     <>
       <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
@@ -26,7 +32,7 @@ export default function RepertoirePage() {
 
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <RepertoireTable />
+          <RepertoireTable artisans={list} categories={categories} />
         </div>
       </section>
     </>

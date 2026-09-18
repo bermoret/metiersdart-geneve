@@ -1,5 +1,9 @@
 import Image from "next/image";
-import { artisanCategories, artisansOnly, artisans as allArtisans } from "@/lib/data";
+import {
+  getArtisansOnly,
+  getPublishedArtisans,
+  getArtisanCategories,
+} from "@/lib/db-data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -7,18 +11,37 @@ import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { Marquee } from "@/components/ui/Marquee";
 import Link from "next/link";
 
-export default function HomePage() {
+// ISR : les pages se rafraîchissent au plus toutes les 60 s après une
+// modification dans l'admin, tout en restant servies depuis le cache.
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const [artisansOnly, allEntities, artisanCategories] = await Promise.all([
+    getArtisansOnly(),
+    getPublishedArtisans(),
+    getArtisanCategories(),
+  ]);
+
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
-    { value: new Set(artisansOnly.map((a) => a.craft)).size, label: "Métiers MAG" },
-    { value: new Set(allArtisans.map((a) => a.commune)).size, label: "Communes MAG" },
+    {
+      value: new Set(artisansOnly.map((a) => a.craft).filter(Boolean)).size,
+      label: "Métiers MAG",
+    },
+    {
+      // Règle LOT 1 : toutes entités confondues (écoles, institutions comprises)
+      value: new Set(allEntities.map((a) => a.commune).filter(Boolean)).size,
+      label: "Communes MAG",
+    },
     { value: artisanCategories.length, label: "Domaines d'art" },
   ];
 
   const visibleCategories = artisanCategories;
 
   // Métiers uniques pour le marquee
-  const uniqueCrafts = [...new Set(artisansOnly.map((a) => a.craft))].slice(0, 24);
+  const uniqueCrafts = [
+    ...new Set(artisansOnly.map((a) => a.craft).filter((c): c is string => !!c)),
+  ].slice(0, 24);
 
   const pillars = [
     {
@@ -107,7 +130,23 @@ export default function HomePage() {
       <Marquee items={uniqueCrafts} className="py-6 border-y border-mag-cream bg-mag-sand/50" />
 
       {/* ─── Carte interactive ──────────────────────────────────── */}
-      <HomeMapSection />
+      <HomeMapSection
+        artisans={artisansOnly.map((a) => ({
+          id: a.id,
+          name: a.name,
+          slug: a.slug,
+          craft: a.craft,
+          commune: a.commune,
+          latitude: a.latitude ?? 0,
+          longitude: a.longitude ?? 0,
+          category: { name: a.categoryName ?? "", color: null },
+        }))}
+        categories={artisanCategories.map((c) => ({
+          id: c.id,
+          name: c.name,
+          color: c.color,
+        }))}
+      />
 
       {/* ─── Stats avec compteurs animés ────────────────────────── */}
       <section className="py-16 bg-mag-cream/30 grain-overlay">
@@ -202,7 +241,7 @@ export default function HomePage() {
                     className="group block rounded-2xl bg-mag-sand p-6 card-hover hover:shadow-lg hover:shadow-mag-dark/5 ring-1 ring-mag-cream/60 hover:ring-mag-red/20"
                   >
                     <div className="text-3xl mb-3 text-mag-red transition-transform duration-300 group-hover:scale-110" aria-hidden>
-                      <CategoryIcon icon={cat.icon} />
+                      <CategoryIcon icon={cat.icon ?? ""} />
                     </div>
                     <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors leading-snug">
                       {cat.name}

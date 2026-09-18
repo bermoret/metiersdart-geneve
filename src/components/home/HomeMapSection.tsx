@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { artisanCategories, artisansOnly } from "@/lib/data";
 import type { MapArtisan } from "@/components/map/ArtisansMap";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -18,25 +17,33 @@ const ArtisansMap = dynamic(() => import("@/components/map/ArtisansMap"), {
   ),
 });
 
-export function HomeMapSection() {
+export type MapSectionCategory = {
+  id: string;
+  name: string;
+  color: string | null;
+};
+
+type Props = {
+  artisans: MapArtisan[];
+  categories: MapSectionCategory[];
+};
+
+export function HomeMapSection({ artisans, categories }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const mapArtisans: MapArtisan[] = useMemo(
     () =>
-      artisansOnly.map((a) => ({
-        id: a.id,
-        name: a.name,
-        slug: a.slug,
-        craft: a.craft,
-        commune: a.commune,
-        latitude: a.latitude,
-        longitude: a.longitude,
+      artisans.map((a) => ({
+        ...a,
         category: {
-          name: a.categoryName,
-          color: artisanCategories.find((c) => c.name === a.categoryName)?.color ?? null,
+          name: a.category?.name ?? "",
+          color:
+            a.category?.color ??
+            categories.find((c) => c.name === a.category?.name)?.color ??
+            null,
         },
       })),
-    [],
+    [artisans, categories],
   );
 
   return (
@@ -60,12 +67,11 @@ export function HomeMapSection() {
               className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm font-medium text-mag-dark focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20 transition-colors hover:border-mag-red/40"
             >
               <option value="">Tous les domaines</option>
-              {artisanCategories
-                .map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
+              {categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
             </select>
           </label>
         </div>

@@ -1,29 +1,41 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { artisansOnly, artisanCategories, getArtisanBySlug } from "@/lib/data";
-import { artisanDetails } from "@/lib/artisan-details";
+import {
+  getArtisanBySlugDb,
+  getArtisansByCategoryDb,
+  getAllCategories,
+  getPublishedArtisans,
+} from "@/lib/db-data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { PoinconBadge } from "@/components/ui/PoinconBadge";
 import ArtisanMap from "@/components/map/ArtisanMapWrapper";
 
-export function generateStaticParams() {
-  return artisansOnly.map((a) => ({ slug: a.slug }));
+// ISR : contenu rafraîchi au plus toutes les 60 s ; les nouvelles fiches
+// créées dans l'admin sont rendues à la demande (dynamicParams par défaut).
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const list = await getPublishedArtisans();
+  return list.map((a) => ({ slug: a.slug }));
 }
 
-export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  return params.then((p) => {
-    const artisan = getArtisanBySlug(p.slug);
-    if (!artisan) return { title: "Artisan introuvable" };
-    const detail = artisanDetails[artisan.name];
-    return {
-      title: `${artisan.name} — MAG`,
-      description: detail?.description ?? artisan.shortDescription,
-      openGraph: detail?.image
-        ? { images: [{ url: detail.image }] }
-        : undefined,
-    };
-  });
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const artisan = await getArtisanBySlugDb(slug);
+  if (!artisan) return { title: "Artisan introuvable" };
+  return {
+    title: `${artisan.name} — MAG`,
+    description: artisan.longDescription ?? artisan.shortDescription ?? undefined,
+    openGraph: artisan.imageUrl
+      ? { images: [{ url: artisan.imageUrl }] }
+      : undefined,
+    alternates: { canonical: `/artisans/${artisan.slug}` },
+  };
 }
 
 export default async function ArtisanPage({
@@ -32,32 +44,32 @@ export default async function ArtisanPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const artisan = getArtisanBySlug(slug);
+  const artisan = await getArtisanBySlugDb(slug);
   if (!artisan) notFound();
 
-  const category = artisanCategories.find((c) => c.name === artisan.categoryName);
-  const detail = artisanDetails[artisan.name];
+  const categories = await getAllCategories();
+  const category = categories.find((c) => c.name === artisan.categoryName);
 
-  const relatedArtisans = artisansOnly
-    .filter(
-      (a) =>
-        a.categoryName === artisan.categoryName &&
-        a.id !== artisan.id,
-    )
-    .slice(0, 4);
+  // Artisans du même domaine (bloc « artisans du même domaine » — validé en séance)
+  const relatedArtisans = category
+    ? (await getArtisansByCategoryDb(category.slug))
+        .filter((a) => a.id !== artisan.id)
+        .slice(0, 4)
+    : [];
 
-  // Coordonnées depuis les données scrapées
-  const address = detail?.address;
-  const website = detail?.website;
-  const video = detail?.video;
-  const phone = detail?.phone;
-  const email = detail?.email;
-  const autre = detail?.autre;
-  const description = detail?.description;
-  const image = detail?.image;
-  const poinconType = detail?.poinconType;
-  const poinconModalText = detail?.poinconModalText;
-  const poinconModalLink = detail?.poinconModalLink;
+  const {
+    address,
+    website,
+    video,
+    phone,
+    email,
+    autre,
+    longDescription: description,
+    imageUrl: image,
+    poinconType,
+    poinconModalText,
+    poinconModalLink,
+  } = artisan;
 
   return (
     <>
@@ -112,7 +124,7 @@ export default async function ArtisanPage({
                   <PoinconBadge
                     type={poinconType}
                     modalText={poinconModalText}
-                    modalLink={poinconModalLink}
+                    modalLink={poinconModalLink ?? undefined}
                   />
                 )}
               </div>
@@ -169,10 +181,10 @@ export default async function ArtisanPage({
                 <div>
                   <h2 className="text-lg font-bold text-mag-dark mb-3">Localisation</h2>
                   <ArtisanMap
-                    latitude={artisan.latitude}
-                    longitude={artisan.longitude}
+                    latitude={artisan.latitude ?? 0}
+                    longitude={artisan.longitude ?? 0}
                     name={artisan.name}
-                    address={address}
+                    address={address ?? undefined}
                   />
                 </div>
 
@@ -253,18 +265,19 @@ export default async function ArtisanPage({
                     <PoinconBadge
                       type={poinconType}
                       modalText={poinconModalText ?? ""}
-                      modalLink={poinconModalLink}
-                      variant="image"
+                      modalLink={poinconModalLink ?? undefined}
                     />
                   </div>
                 )}
 
-                <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/60">
-                  <p>
-                    Cet·te artisan·e a participé aux Journées Européennes des
-                    Métiers d&apos;Art.
-                  </p>
-                </div>
+                {artisan.jemaParticipant && (
+                  <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/60">
+                    <p>
+                      Cet·te artisan·e a participé aux Journées Européennes des
+                      Métiers d&apos;Art.
+                    </p>
+                  </div>
+                )}
               </div>
             </aside>
           </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { artisansOnly } from "@/lib/data";
+import { getJemaEditions, getArtisansOnly, getAllCategories } from "@/lib/db-data";
 
 export const metadata = {
   title: "JEMA — Journées Européennes des Métiers d'Art",
@@ -7,6 +7,10 @@ export const metadata = {
     "Les JEMA à Genève : rendez-vous annuel des artisanes et artisans d'art. Prochaine édition, programme, historique des éditions passées.",
 };
 
+// ISR : les éditions se rafraîchissent au plus toutes les 60 s après édition admin.
+export const revalidate = 60;
+
+// Les parcours sont du contenu éditorial stable, non géré par l'admin à ce stade.
 const parcours = [
   {
     name: "Ouverture Ateliers",
@@ -31,42 +35,43 @@ const parcours = [
   },
 ];
 
-const editions = [
-  {
-    year: 2026,
-    title: "JEMA 2026",
-    dates: "27-29 mars 2026",
-    description:
-      "Un week-end intense où 145 artisan·e·s genevois·e·s ont ouvert leurs ateliers, animé le Pavillon SICLI et partagé leurs savoir-faire à travers toute la ville. Démonstrations, ateliers d'initiation, conférences et visites guidées ont attiré un public venu nombreux à la rencontre des métiers d'art.",
-    highlight: "Best of en vidéo par Raphaël Haab",
-  },
-  {
-    year: 2025,
-    title: "JEMA 2025",
-    dates: "28-30 mars 2025",
-    description:
-      "Pour cette 14ᵉ édition, les métiers d'art genevois ont déployé leurs trois parcours habituels : ouverture d'ateliers dans la ville, Pavillon SICLI au cœur de l'événement et parcours culturel dans 12 institutions. Les visiteurs ont pu découvrir la richesse des savoir-faire locaux, du textile à l'horlogerie en passant par la sculpture sur pierre.",
-    highlight: "15ᵉ anniversaire du poinçon MAG",
-  },
-  {
-    year: 2024,
-    title: "JEMA 2024",
-    dates: "23-25 mars 2024",
-    description:
-      "La 13ᵉ édition des Journées Européennes des Métiers d'Art a mis à l'honneur le dialogue entre tradition et innovation. Pendant un week-end, ateliers, écoles et institutions culturelles ont partagé leurs gestes, leurs techniques et leurs passions avec un public toujours plus curieux de découvrir ces métiers rares.",
-    highlight: "Focus sur la transmission",
-  },
-  {
-    year: 2023,
-    title: "JEMA 2023",
-    dates: "24-26 mars 2023",
-    description:
-      "Douzième édition consécutive pour Genève : les JEMA 2023 ont célébré le lien vivant entre les artisan·e·s et leur territoire. Démonstrations, visites guidées et expositions ont ponctué ce week-end dédié à la transmission des savoir-faire et à la rencontre entre public et professionnel·le·s.",
-    highlight: "Retour post-pandémie",
-  },
-];
+/** Formate une plage de dates en français : « du 19 au 21 mars 2027 ». */
+function formatDateRange(start: Date | null, end: Date | null): string {
+  if (!start) return "";
+  const fmtDay = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric" });
+  const fmtFull = (d: Date) =>
+    d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  if (!end) return fmtFull(start);
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `du ${fmtDay(start)} au ${fmtFull(end)}`;
+  }
+  return `du ${fmtFull(start)} au ${fmtFull(end)}`;
+}
 
-export default function JemaPage() {
+/** Formate une plage courte pour les cartes : « 27-29 mars 2026 ». */
+function formatShortRange(start: Date | null, end: Date | null): string {
+  if (!start) return "";
+  const month = start.toLocaleDateString("fr-FR", { month: "long" });
+  if (!end) return `${start.getDate()} ${month} ${start.getFullYear()}`;
+  return `${start.getDate()}-${end.getDate()} ${month} ${end.getFullYear()}`;
+}
+
+export default async function JemaPage() {
+  const [allEditions, artisanList, categories] = await Promise.all([
+    getJemaEditions(),
+    getArtisansOnly(),
+    getAllCategories(),
+  ]);
+
+  const upcoming = allEditions.find((e) => e.isUpcoming) ?? null;
+  const pastEditions = allEditions.filter((e) => !e.isUpcoming);
+
+  // Artisans du domaine de la pierre (section focus)
+  const pierreCategory = categories.find((c) => c.name === "Art de la pierre");
+  const pierreArtisans = pierreCategory
+    ? artisanList.filter((a) => a.categoryName === pierreCategory.name)
+    : [];
+
   return (
     <>
       {/* Hero */}
@@ -92,25 +97,41 @@ export default function JemaPage() {
         </div>
       </section>
 
-      {/* Prochaine édition */}
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl bg-mag-red text-white p-8 sm:p-12 text-center">
-            <p className="text-white/80 uppercase tracking-wide text-sm font-semibold">
-              Prochaine édition — 16ᵉ
-            </p>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-black">JEMA 2027</h2>
-            <p className="mt-4 text-xl text-white/90">
-              Du 19 au 21 mars 2027
-            </p>
-            <p className="mt-4 max-w-xl mx-auto text-white/80 leading-relaxed">
-              Réservez votre week-end pour rencontrer les professionnel·le·s des
-              métiers d&apos;art à Genève. Démonstrations, visites d&apos;ateliers,
-              expositions et plus encore.
-            </p>
+      {/* Prochaine édition — lue depuis la base (éditable dans l'admin) */}
+      {upcoming && (
+        <section className="py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-2xl bg-mag-red text-white p-8 sm:p-12 text-center">
+              <p className="text-white/80 uppercase tracking-wide text-sm font-semibold">
+                Prochaine édition
+              </p>
+              <h2 className="mt-2 text-3xl sm:text-4xl font-black">
+                {upcoming.title}
+              </h2>
+              {upcoming.startDate && (
+                <p className="mt-4 text-xl text-white/90">
+                  {formatDateRange(upcoming.startDate, upcoming.endDate)}
+                </p>
+              )}
+              {upcoming.description && (
+                <p className="mt-4 max-w-xl mx-auto text-white/80 leading-relaxed">
+                  {upcoming.description}
+                </p>
+              )}
+              {upcoming.programUrl && (
+                <a
+                  href={upcoming.programUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-mag-red hover:bg-white/90 transition-colors"
+                >
+                  Voir le programme
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Parcours */}
       <section className="py-12 bg-mag-sand">
@@ -192,15 +213,14 @@ export default function JemaPage() {
               le prochain tailleur ou la prochaine tailleuse de pierre, c&apos;était toi ?
             </p>
 
-            {/* Artisans du domaine pierre */}
-            <div className="mt-8">
-              <h3 className="font-semibold text-mag-dark mb-3">
-                Artisan·e·s présents (domaine de la pierre)
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {artisansOnly
-                  .filter((a) => a.categoryName === "Art de la pierre")
-                  .map((a) => (
+            {/* Artisans du domaine pierre — lus depuis la base */}
+            {pierreArtisans.length > 0 && (
+              <div className="mt-8">
+                <h3 className="font-semibold text-mag-dark mb-3">
+                  Artisan·e·s présents (domaine de la pierre)
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {pierreArtisans.map((a) => (
                     <Link
                       key={a.id}
                       href={`/artisans/${a.slug}`}
@@ -209,43 +229,55 @@ export default function JemaPage() {
                       {a.name}
                     </Link>
                   ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Éditions passées */}
-      <section className="py-16 bg-mag-cream/20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif mb-8">
-            Éditions passées
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {editions.map((ed) => (
-              <Link
-                key={ed.year}
-                href={`/jema/${ed.year}`}
-                className="group block rounded-xl border border-mag-cream bg-white p-6 hover:border-mag-red/30 hover:shadow-md transition-all"
-              >
-                <div className="flex items-baseline justify-between mb-3">
-                  <p className="text-3xl font-black text-mag-red">{ed.year}</p>
-                  <span className="text-xs text-mag-gray">{ed.dates}</span>
-                </div>
-                <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
-                  {ed.title}
-                </h3>
-                <p className="mt-2 text-sm text-mag-dark/60 leading-relaxed line-clamp-3">
-                  {ed.description}
-                </p>
-                <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
-                  En savoir plus
-                </p>
-              </Link>
-            ))}
+      {/* Éditions passées — lues depuis la base (éditables dans l'admin) */}
+      {pastEditions.length > 0 && (
+        <section className="py-16 bg-mag-cream/20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif mb-8">
+              Éditions passées
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {pastEditions.map((ed) => (
+                <Link
+                  key={ed.id}
+                  href={`/jema/${ed.year}`}
+                  className="group block rounded-xl border border-mag-cream bg-white p-6 hover:border-mag-red/30 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-baseline justify-between mb-3">
+                    <p className="text-3xl font-black text-mag-red">{ed.year}</p>
+                    <span className="text-xs text-mag-gray">
+                      {formatShortRange(ed.startDate, ed.endDate)}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
+                    {ed.title}
+                  </h3>
+                  {ed.description && (
+                    <p className="mt-2 text-sm text-mag-dark/60 leading-relaxed line-clamp-3">
+                      {ed.description}
+                    </p>
+                  )}
+                  {ed.highlight && (
+                    <p className="mt-2 text-xs font-medium text-mag-red/80 italic">
+                      {ed.highlight}
+                    </p>
+                  )}
+                  <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
+                    En savoir plus
+                  </p>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Merci partenaires */}
       <section className="py-12">

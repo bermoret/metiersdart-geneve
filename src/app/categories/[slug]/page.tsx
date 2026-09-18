@@ -1,29 +1,38 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { artisanCategories, getArtisansByCategory } from "@/lib/data";
+import { getArtisansByCategoryDb, getArtisanCategories } from "@/lib/db-data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
-export function generateStaticParams() {
-  return artisanCategories.map((c) => ({ slug: c.slug }));
+// ISR : contenu rafraîchi au plus toutes les 60 s après une modification admin.
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const cats = await getArtisanCategories();
+  return cats.map((c) => ({ slug: c.slug }));
 }
 
-export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  return params.then((p) => {
-    const cat = artisanCategories.find((c) => c.slug === p.slug);
-    if (!cat) return { title: "Catégorie introuvable" };
-    return {
-      title: `${cat.name} — MAG`,
-      description: cat.description ?? `${cat.name} — métiers d'art à Genève`,
-      openGraph: {
-        title: `${cat.name} — Métiers d'Art Genève`,
-        description: cat.description ?? `${cat.name} — métiers d'art à Genève`,
-        type: "website",
-      },
-      alternates: {
-        canonical: `/categories/${p.slug}`,
-      },
-    };
-  });
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const cats = await getArtisanCategories();
+  const cat = cats.find((c) => c.slug === slug);
+  if (!cat) return { title: "Catégorie introuvable" };
+  const description = cat.description ?? `${cat.name} — métiers d'art à Genève`;
+  return {
+    title: `${cat.name} — MAG`,
+    description,
+    openGraph: {
+      title: `${cat.name} — Métiers d'Art Genève`,
+      description,
+      type: "website",
+    },
+    alternates: {
+      canonical: `/categories/${slug}`,
+    },
+  };
 }
 
 export default async function CategoryPage({
@@ -32,15 +41,16 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const category = artisanCategories.find((c) => c.slug === slug);
+  const [cats, list] = await Promise.all([
+    getArtisanCategories(),
+    getArtisansByCategoryDb(slug),
+  ]);
+
+  const category = cats.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  const list = getArtisansByCategory(slug);
-
   // Autres catégories pour navigation
-  const otherCats = artisanCategories.filter(
-    (c) => c.slug !== slug,
-  );
+  const otherCats = cats.filter((c) => c.slug !== slug);
 
   return (
     <>
@@ -54,7 +64,7 @@ export default async function CategoryPage({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
             <span className="text-5xl text-mag-red" aria-hidden>
-              <CategoryIcon icon={category.icon} />
+              <CategoryIcon icon={category.icon ?? ""} />
             </span>
             <div>
               <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
@@ -116,7 +126,7 @@ export default async function CategoryPage({
                 className="inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
               >
                 <span aria-hidden>
-                  <CategoryIcon icon={c.icon} />
+                  <CategoryIcon icon={c.icon ?? ""} />
                 </span> {c.name}
               </Link>
             ))}
