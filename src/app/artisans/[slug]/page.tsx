@@ -199,7 +199,7 @@ export default async function ArtisanPage({
 
             {/* Sidebar — Coordonnées */}
             <aside className="lg:col-span-1">
-              <div className="rounded-xl border border-mag-cream p-6 sticky top-20">
+              <div className="rounded-xl border border-mag-cream p-6 sticky top-24">
                 <h3 className="font-bold text-mag-dark mb-4">Coordonnées</h3>
                 <dl className="space-y-3 text-sm">
                   <div>
