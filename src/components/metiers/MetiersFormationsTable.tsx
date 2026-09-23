@@ -2,10 +2,13 @@
 
 import { useState, useMemo } from "react";
 
+/** Une formation : libellé seul, ou avec sa fiche orientation.ch. */
+export type Formation = string | { label: string; url: string };
+
 export type MetierFormation = {
   metier: string;
   definition: string;
-  formations: string[];
+  formations: Formation[];
   category?: string;
 };
 
@@ -103,7 +106,22 @@ export function MetiersFormationsTable({
                         className="text-xs text-mag-dark/80 flex items-start gap-1.5"
                       >
                         <span className="text-mag-red mt-0.5" aria-hidden>▸</span>
-                        <span>{f}</span>
+                        {typeof f === "string" ? (
+                          <span>{f}</span>
+                        ) : (
+                          <a
+                            href={f.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline decoration-mag-red/40 underline-offset-2 hover:text-mag-red hover:decoration-mag-red transition-colors"
+                          >
+                            {f.label}
+                            <span aria-hidden> ↗</span>
+                            <span className="sr-only">
+                              {` (${new URL(f.url).hostname.replace(/^www\./, "")}, nouvel onglet)`}
+                            </span>
+                          </a>
+                        )}
                       </li>
                     ))}
                   </ul>

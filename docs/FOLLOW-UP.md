@@ -2,6 +2,30 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Retours d'Elsa (mail du 19.09) : sur-titre (MAG) + liens orientation.ch
+
+### Fait
+
+- Accueil : le sur-titre « Association genevoise des métiers d'art » devient
+  « Métiers d'Art Genève (MAG) » (la pastille de sa capture n'existait plus depuis la refonte).
+- /metiers-et-formations : 62 formations sur 68 renvoient à leur fiche orientation.ch (nouvel
+  onglet). URLs reprises des liens de l'ancien site, résolues vers leur adresse actuelle ;
+  les 41 URLs uniques vérifiées (vraie page, pas la page « n'existe pas » d'orientation.ch).
+
+### À vérifier / décider (avec MAG)
+
+- 6 formations sans lien, orientation.ch n'ayant plus de fiche : Couturier·ère d'intérieur AFP,
+  Opérateur·trice de/en médias imprimés CFC (3 variantes de libellé), Diplôme de Modiste,
+  Peintre en décor du patrimoine. Remplacer par une formation actuelle ou laisser sans lien.
+- Liens approchés : « Designer HES en design mode » → filière générique Design ;
+  « Costumier·ère de théâtre » → fiche de l'École de couture de Fribourg ;
+  « Menuisier CFC : ébénisterie » → fiche Menuisier·ère CFC.
+- Coquilles de libellés antérieures : « Courtepointière » sans CFC, « Artisane du cuir et
+  textile » (→ « et du textile »), variantes « de / en médias imprimés ».
+- Mention « Page mise à jour le 8 janvier 2026 » au bas du tableau : à actualiser ?
+- Pied de page : les liens réseaux sociaux pointent vers les accueils génériques
+  (linkedin.com, instagram.com, facebook.com, vimeo.com) — URLs des comptes MAG à obtenir.
+
 ## 2026-09-23 — Carte des communes : territoires au lieu de points (/qui-sommes-nous)
 
 ### Fait

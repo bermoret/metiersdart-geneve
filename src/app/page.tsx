@@ -137,7 +137,7 @@ export default async function HomePage() {
         <div className="lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:min-h-[calc(100vh-5rem)]">
           <div className="flex flex-col px-4 sm:px-6 lg:px-8 lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-16 pt-16 pb-12 sm:pt-24 lg:pt-28 lg:pb-14">
             <Reveal>
-              <Eyebrow>✦&nbsp;&nbsp;Association genevoise des métiers d&apos;art</Eyebrow>
+              <Eyebrow>✦&nbsp;&nbsp;Métiers d&apos;Art Genève (MAG)</Eyebrow>
             </Reveal>
             <Reveal delay={0.1}>
               <h1 className="mt-8 font-serif font-black text-mag-dark tracking-[-0.02em] leading-[0.92] text-6xl sm:text-8xl lg:text-[6.25rem] xl:text-[7.25rem] 2xl:text-[8.5rem]">
