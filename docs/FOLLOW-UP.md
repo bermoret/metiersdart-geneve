@@ -48,8 +48,6 @@ Données préparées, non appliquées :
   par le même compte que les autres programmes) — à confirmer.
 - Textes des éditions contredits par les nouveaux chiffres : 2026 (« 145 artisan·e·s »,
   « 15 ateliers participants » vs 68 participants), 2025 (12 institutions vs 6).
-- Capsules : le site en liste 38 (dont « Le domaine de la pierre se mobilise ! »), MAG annonce
-  « 37 Capsules vidéo » — le titre affiche le nombre réel ; laquelle retirer ?
 - 🚩 Photos fournies (Manufacto : élèves ; Métiers et formations : adolescent) : droit à
   l'image des mineur·e·s à confirmer par MAG.
 - 43 descriptions déjà en base finissent par le texte du poinçon et « Cliquez ici pour en
