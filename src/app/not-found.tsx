@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <p className="text-8xl font-black text-mag-red font-serif mb-4">404</p>
-        <h1 className="text-2xl font-bold text-mag-dark mb-3 font-serif">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 bg-mag-sand grain-overlay">
+      <div className="text-center max-w-lg py-20">
+        <p className="text-[9rem] sm:text-[12rem] leading-none font-black tracking-tight text-mag-red font-serif mb-6">404</p>
+        <h1 className="text-4xl font-black text-mag-dark mb-4 font-serif">
           Page introuvable
         </h1>
         <p className="text-mag-dark/70 mb-8 leading-relaxed">

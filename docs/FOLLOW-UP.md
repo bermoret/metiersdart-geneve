@@ -2,6 +2,29 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Refonte éditoriale du front public (branche `refonte-editoriale`)
+
+Direction « magazine » validée par Bernard sur la maquette Design : grands titres serif Black,
+photos d'artisan·e·s à fond perdu, aplats sable / quasi-noir / rouge, sur-titres en capitales.
+Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `SectionHeader`,
+`Eyebrow`) et la classe `.h-section` (globals.css). Admin non touché.
+
+### Point de restauration
+
+- Tag `restore/avant-refonte-2026-09-23` + branche `archive/avant-refonte` = `main` au
+  commit `1002b44`, créés en local. **À pousser** : `git push origin restore/avant-refonte-2026-09-23 archive/avant-refonte`.
+- Revenir à l'ancienne version : `git revert` du merge de `refonte-editoriale`, ou redéployer
+  le tag dans Vercel (Deployments → deployment du commit `1002b44` → Promote).
+
+### À vérifier / décider
+
+- Accroche « Genève, à la main. » : proposition, à valider avec le client.
+- Artisan·e·s mis·es en avant sur l'accueil codé·e·s en dur par nom dans `src/app/page.tsx`
+  (`HERO_ARTISAN`, `PORTRAITS`…) ; introuvable = ignoré. Piste : un champ « mis en avant » dans l'admin.
+- Photos des fiches encore servies depuis metiersdart-geneve.ch (Joomla) : à migrer vers Blob
+  avant l'arrêt de l'ancien site. `canOptimizeImage()` passe en `unoptimized` tout hôte non déclaré.
+- Écart assumé au design system : photos à coins quasi francs (4px) au lieu de 24px.
+
 ## 2026-09-23 — Sécurité : XSS stockée via `categories.color`
 
 Corrigé en code : la couleur n'entre plus brute ni dans le HTML des marqueurs Leaflet

@@ -3,6 +3,7 @@ import {
   MetiersFormationsTable,
   type MetierFormation,
 } from "@/components/metiers/MetiersFormationsTable";
+import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata: Metadata = {
   title: "Métiers et formations",
@@ -387,22 +388,26 @@ const metiersFormations: MetierFormation[] = [
 export default function MetiersFormationsPage() {
   return (
     <>
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            Métiers et formations
-          </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
+      <PageHero
+        eyebrow={<>Répertoire des savoir-faire</>}
+        title={<>Métiers et formations</>}
+        image="https://metiersdart-geneve.ch/images/2021/10/20/haller_carre.jpg"
+        imageAlt="Violons en cours de fabrication sur l'établi d'un atelier de lutherie"
+        caption={<p className="font-serif text-xl sm:text-2xl font-bold">Atelier de lutherie<span className="block mt-1 font-sans text-xs font-semibold uppercase tracking-[0.14em] text-mag-cream">Béatrice de Haller · Carouge</span></p>}
+        lead={
+          <>
+            <p className="max-w-3xl text-mag-dark/80 leading-relaxed">
             Cette page répertorie tous les métiers d&apos;art exercés par les
             professionnel.le.s enregistré.e.s au répertoire MAG. Les définitions,
             non exhaustives, sont tirées du site de notre homologue français,
             l&apos;Institut National des Métiers d&apos;Art (INMA). Lorsqu&apos;une
             formation est disponible en Suisse, elle est indiquée par son titre.
           </p>
-        </div>
-      </section>
+          </>
+        }
+      />
 
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <MetiersFormationsTable data={metiersFormations} />
         </div>

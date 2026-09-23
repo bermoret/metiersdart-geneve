@@ -20,7 +20,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-mag-cream border-b border-mag-red/10">
+    <header className="sticky top-0 z-50 bg-mag-sand/95 backdrop-blur supports-[backdrop-filter]:bg-mag-sand/85 border-b border-mag-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo MAG */}
@@ -51,10 +51,10 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`nav-link px-3 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`nav-link px-3 py-2 text-sm font-medium transition-colors ${
                     active
-                      ? "bg-mag-red text-white"
-                      : "text-mag-dark/80 hover:text-mag-red hover:bg-mag-red/5"
+                      ? "text-mag-red"
+                      : "text-mag-dark/80 hover:text-mag-red"
                   }`}
                 >
                   {item.label}
@@ -87,7 +87,7 @@ export function Header() {
         {/* Mobile nav */}
         {mobileOpen && (
           <nav
-            className="lg:hidden pb-4 flex flex-col gap-1"
+            className="lg:hidden pb-6 flex flex-col"
             aria-label="Navigation mobile"
           >
             {navItems.map((item) => {
@@ -98,10 +98,10 @@ export function Header() {
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
                   aria-current={active ? "page" : undefined}
-                  className={`nav-link px-4 py-2.5 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-1 py-3 font-serif text-2xl border-b border-mag-cream transition-colors ${
                     active
-                      ? "bg-mag-red text-white"
-                      : "text-mag-dark/80 hover:text-mag-red hover:bg-mag-red/5"
+                      ? "text-mag-red"
+                      : "text-mag-dark hover:text-mag-red"
                   }`}
                 >
                   {item.label}

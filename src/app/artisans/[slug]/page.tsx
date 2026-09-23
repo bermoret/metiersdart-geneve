@@ -10,7 +10,7 @@ import {
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { PoinconBadge } from "@/components/ui/PoinconBadge";
 import ArtisanMap from "@/components/map/ArtisanMapWrapper";
-import { chipColors } from "@/lib/utils";
+import { chipColors, canOptimizeImage } from "@/lib/utils";
 
 // ISR : contenu rafraîchi au plus toutes les 60 s ; les nouvelles fiches
 // créées dans l'admin sont rendues à la demande (dynamicParams par défaut).
@@ -109,12 +109,17 @@ export default async function ArtisanPage({
       </div>
 
       {/* Fiche artisan */}
-      <section className="py-8 sm:py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section className="py-10 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
             {/* Colonne principale */}
             <div className="lg:col-span-2">
-              <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
+              {artisan.craft && (
+                <p className="mb-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-mag-red">
+                  {artisan.craft}
+                </p>
+              )}
+              <h1 className="font-serif font-black text-mag-dark tracking-tight leading-[0.98] text-4xl sm:text-6xl">
                 {artisan.name}
               </h1>
 
@@ -141,27 +146,28 @@ export default async function ArtisanPage({
 
               {/* Image principale */}
               {image && (
-                <div className="mt-8 relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-mag-cream shadow-sm">
+                <div className="mt-10 relative aspect-[4/3] w-full overflow-hidden rounded bg-mag-cream">
                   <Image
                     src={image}
                     alt={artisan.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
                     className="object-cover"
-                    unoptimized
+                    priority
+                    unoptimized={!canOptimizeImage(image)}
                   />
                 </div>
               )}
 
-              <div className="mt-8 space-y-6">
+              <div className="mt-12 space-y-10">
                 <div>
-                  <h2 className="text-lg font-bold text-mag-dark mb-2">Métier</h2>
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Métier</h2>
                   <p className="text-mag-dark/70 leading-relaxed">{artisan.craft}</p>
                 </div>
 
                 {description && (
                   <div>
-                    <h2 className="text-lg font-bold text-mag-dark mb-2">
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">
                       À propos
                     </h2>
                     <p className="text-mag-dark/70 leading-relaxed whitespace-pre-line">
@@ -172,7 +178,7 @@ export default async function ArtisanPage({
 
                 {video && (
                   <div>
-                    <h2 className="text-lg font-bold text-mag-dark mb-2">Vidéo</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Vidéo</h2>
                     <a
                       href={video}
                       target="_blank"
@@ -190,7 +196,7 @@ export default async function ArtisanPage({
                 {/* Carte de localisation — masquée sans coordonnées (sinon (0,0)) */}
                 {coords && (
                   <div>
-                    <h2 className="text-lg font-bold text-mag-dark mb-3">Localisation</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Localisation</h2>
                     <ArtisanMap
                       latitude={coords.latitude}
                       longitude={coords.longitude}
@@ -202,7 +208,7 @@ export default async function ArtisanPage({
 
                 {autre && (
                   <div>
-                    <h2 className="text-lg font-bold text-mag-dark mb-2">Autre</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Autre</h2>
                     <p className="text-mag-dark/70 leading-relaxed">{autre}</p>
                   </div>
                 )}
@@ -211,8 +217,8 @@ export default async function ArtisanPage({
 
             {/* Sidebar — Coordonnées */}
             <aside className="lg:col-span-1">
-              <div className="rounded-xl border border-mag-cream p-6 sticky top-24">
-                <h3 className="font-bold text-mag-dark mb-4">Coordonnées</h3>
+              <div className="rounded-2xl bg-mag-sand border border-mag-cream p-7 sticky top-24">
+                <h3 className="font-serif text-2xl font-bold text-mag-dark mb-5">Coordonnées</h3>
                 <dl className="space-y-3 text-sm">
                   <div>
                     <dt className="text-mag-gray">Commune</dt>
@@ -272,7 +278,7 @@ export default async function ArtisanPage({
                 </dl>
 
                 {poinconType && (
-                  <div className="mt-6 rounded-xl bg-mag-cream/40 p-4">
+                  <div className="mt-6 rounded-xl bg-white p-4">
                     <p className="font-semibold text-mag-dark mb-3">Poinçon MAG</p>
                     <PoinconBadge
                       type={poinconType}
@@ -284,7 +290,7 @@ export default async function ArtisanPage({
                 )}
 
                 {artisan.jemaParticipant && (
-                  <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/70">
+                  <div className="mt-4 rounded-lg bg-white p-4 text-xs text-mag-dark/70">
                     <p>
                       Cet·te artisan·e a participé aux Journées Européennes des
                       Métiers d&apos;Art.
@@ -299,23 +305,40 @@ export default async function ArtisanPage({
 
       {/* Artisans liés */}
       {relatedArtisans.length > 0 && (
-        <section className="py-12 bg-mag-cream/20">
+        <section className="py-16 sm:py-20 bg-mag-sand">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-xl font-bold text-mag-dark mb-6">
-              Autres artisan·e·s dans le même domaine
+            <h2 className="h-section mb-10">
+              Dans le même domaine
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
               {relatedArtisans.map((a) => (
                 <Link
                   key={a.id}
                   href={`/artisans/${a.slug}`}
-                  className="group block rounded-xl border border-mag-cream bg-white p-5 hover:border-mag-red/30 hover:shadow-md transition-all"
+                  className="group block"
                 >
-                  <p className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors text-sm">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded bg-mag-cream">
+                    {a.imageUrl ? (
+                      <Image
+                        src={a.imageUrl}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 100vw"
+                        unoptimized={!canOptimizeImage(a.imageUrl)}
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <span className="absolute inset-0 flex items-center justify-center text-4xl text-mag-red/40" aria-hidden>
+                        <CategoryIcon icon={category?.icon ?? ""} />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-mag-red">
+                    {[a.craft?.split(" • ")[0], a.commune].filter(Boolean).join(" · ")}
+                  </p>
+                  <p className="mt-1 font-serif text-xl font-bold leading-tight text-mag-dark group-hover:text-mag-red transition-colors">
                     {a.name}
                   </p>
-                  <p className="mt-1 text-xs text-mag-gray">{a.craft}</p>
-                  <p className="mt-1 text-xs text-mag-gray"><span aria-hidden><i className="fas fa-map-marker-alt" /></span> {a.commune}</p>
                 </Link>
               ))}
             </div>

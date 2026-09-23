@@ -263,3 +263,19 @@ footer *:focus-visible,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─── Refonte éditoriale (2026-09) ─────────────────────────────
+   Titre de section : serif Black, grand, encre mag-dark. Classe hors
+   layer : les utilitaires de marge (mb-*) restent applicables. */
+.h-section {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
+  color: var(--color-mag-dark);
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+}
+/* Variante sur fond sombre */
+.h-section-inverse {
+  color: #ffffff;
+}

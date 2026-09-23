@@ -116,10 +116,10 @@ export default function CommunautePage() {
   // ─── Écran de connexion ─────────────────────────────────────
   if (!authed) {
     return (
-      <section className="py-20 bg-gradient-to-b from-mag-cream/60 to-white min-h-[60vh] flex items-center">
+      <section className="py-20 bg-mag-sand grain-overlay min-h-[60vh] flex items-center">
         <div className="mx-auto max-w-md w-full px-4">
           <div className="rounded-2xl border border-mag-cream bg-white p-8 shadow-lg">
-            <h1 className="text-2xl font-black text-mag-dark font-serif mb-2 text-center">
+            <h1 className="text-4xl font-black tracking-tight text-mag-dark font-serif mb-3 text-center">
               Espace Communauté
             </h1>
             <p className="text-sm text-mag-gray mb-6 text-center">
@@ -154,14 +154,17 @@ export default function CommunautePage() {
   // ─── Espace connecté ────────────────────────────────────────
   return (
     <>
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
+      <section className="bg-mag-sand grain-overlay border-b border-mag-cream py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
+              <p className="mb-5 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-mag-red">
+                ✦&nbsp;&nbsp;Réservé aux membres
+              </p>
+              <h1 className="font-serif font-black tracking-tight leading-[0.95] text-mag-dark text-5xl sm:text-6xl lg:text-7xl">
                 Espace Communauté
               </h1>
-              <p className="mt-3 text-mag-dark/80 leading-relaxed max-w-2xl">
+              <p className="mt-8 text-lg text-mag-dark/80 leading-relaxed max-w-2xl">
                 Petites annonces entre artisan·e·s de MAG : ventes de matériel,
                 recherche d&apos;un artisan pour un marché, opportunités
                 professionnelles, collaborations, événements, expositions, conseils,
@@ -170,7 +173,7 @@ export default function CommunautePage() {
             </div>
             <button
               onClick={() => setAuthed(false)}
-              className="shrink-0 inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors cursor-pointer"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full border border-mag-cream bg-white px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors cursor-pointer"
             >
               <i className="fas fa-sign-out-alt" /> Quitter
             </button>
@@ -179,10 +182,10 @@ export default function CommunautePage() {
       </section>
 
       {/* Annonces */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-mag-dark font-serif">
+            <h2 className="h-section">
               Annonces ({loading ? "…" : annonces.length})
             </h2>
             <button

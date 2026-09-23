@@ -1,6 +1,7 @@
 import { getCommunesForMap } from "@/lib/db-data";
 import { Reveal } from "@/components/ui/Reveal";
 import { CommunesMapSection } from "@/components/qui-sommes-nous/CommunesMapSection";
+import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata = {
   title: "Qui sommes-nous",
@@ -81,19 +82,13 @@ export default async function QuiSommesNousPage() {
   const mapCommunes = await getCommunesForMap();
   return (
     <>
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            Qui sommes-nous
-          </h1>
-        </div>
-      </section>
-
-      {/* Mission */}
-      <section className="py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-4">Mission</h2>
-          <p className="text-mag-dark/70 leading-relaxed text-lg">
+      <PageHero
+        eyebrow={<>L&apos;association · Mission</>}
+        title={<>Qui sommes-nous</>}
+        image="/artisan-hands.jpg"
+        imageAlt="Mains d'artisan travaillant le bois dans son atelier"
+        lead={
+          <p>
             MAG est une association tripartite apolitique, sans but lucratif.
             Elle se situe à l&apos;interface de l&apos;artisanat, de la culture,
             du patrimoine et de l&apos;art. MAG fédère, promeut, représente et
@@ -101,17 +96,20 @@ export default async function QuiSommesNousPage() {
             au niveau local et régional. Elle favorise la pérennité et la
             transmission des savoir-faire.
           </p>
-        </div>
-      </section>
+        }
+      />
 
       {/* Valeurs */}
-      <section className="py-12 bg-mag-sand">
+      <section className="py-16 sm:py-24 bg-mag-sand">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-8">Valeurs</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {valeurs.map((v) => (
-              <div key={v.title}>
-                <h3 className="font-bold text-mag-dark text-lg mb-2">{v.title}</h3>
+          <h2 className="h-section mb-12">Valeurs</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {valeurs.map((v, i) => (
+              <div key={v.title} className="pt-6 border-t border-mag-red/30">
+                <span className="font-serif text-lg font-bold text-mag-red">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-2 mb-3 font-serif font-bold text-mag-dark text-3xl">{v.title}</h3>
                 <p className="text-mag-dark/70 leading-relaxed">{v.description}</p>
               </div>
             ))}
@@ -120,9 +118,9 @@ export default async function QuiSommesNousPage() {
       </section>
 
       {/* Comité */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-2">Comité</h2>
+          <h2 className="h-section mb-8">Comité</h2>
           <p className="text-sm text-mag-gray mb-6">au 04.06.25</p>
           <div className="overflow-x-auto rounded-xl border border-mag-cream shadow-sm">
             <table className="w-full text-left text-sm">
@@ -172,10 +170,10 @@ export default async function QuiSommesNousPage() {
       </section>
 
       {/* Communes qui soutiennent MAG */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <h2 className="text-xl font-bold text-mag-red mb-4">
+            <h2 className="h-section mb-8">
               Communes qui soutiennent MAG
             </h2>
             <p className="text-mag-dark/70 leading-relaxed mb-6 max-w-3xl">
@@ -194,9 +192,9 @@ export default async function QuiSommesNousPage() {
       </section>
 
       {/* Partenaires */}
-      <section className="py-12 bg-mag-cream/20">
+      <section className="py-16 sm:py-24 bg-mag-sand">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-8">Partenaires</h2>
+          <h2 className="h-section mb-12">Partenaires</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {partenaires.map((p) => (
               <div key={p.name} className="rounded-xl border border-mag-cream bg-white p-6">
