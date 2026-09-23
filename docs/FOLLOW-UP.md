@@ -30,13 +30,19 @@ puces domaine lisibles via `chipColors()`.
 - **Chapô du hero d'accueil** en `mag-dark/70` sur le dégradé crème : ≈ 4.6:1 à sa hauteur,
   gardé (passe, sans marge).
 
+### Fait
+
+- **Design system « Métiers d'Art Genève »** (artifact, version 6) : `mag-gray` #626978,
+  `mag-field` #868a93, `focus-ring-inverse` / `.focus-ring-white`, `red-700` ; `red-600`,
+  `green-600` et `mag-dark-60` retirés ; texte des puces domaine calculé comme `chipColors()`.
+- **URL de prod** : `metiersdart-geneve.vercel.app` (alias de production Vercel). `mag.vercel.app`,
+  cité dans `Beacode/memory.md`, n'est pas ce projet.
+
 ### À vérifier
 
 - **Rendu en prod** : liens du header plus sombres, survol blanc souligné dans le footer,
   bordure des champs visible (connexion, répertoire, Espace Communauté, admin), puces domaine
   papier / horlogerie / verre assombries.
-- **Design system « Métiers d'Art Genève »** (artifact) : y reporter `mag-gray` #626978,
-  `mag-field` #868a93, `.focus-ring-white` et vider la section « paires sous le seuil ».
 
 ## 2026-09-23 — Suivi : GTM / Stape / CookieScript / GA4 repris de l'ancien site
 
