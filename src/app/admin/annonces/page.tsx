@@ -109,7 +109,7 @@ export default function AdminAnnoncesPage() {
                     <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_LABELS[a.status]?.color ?? ""}`}>
                       {STATUS_LABELS[a.status]?.label ?? a.status}
                     </span>
-                    <span className="inline-block rounded-full bg-mag-cream/60 px-2.5 py-0.5 text-xs text-mag-dark/70">
+                    <span className="inline-block rounded-full bg-mag-cream/60 px-2.5 py-0.5 text-xs text-mag-dark/80">
                       {a.category}
                     </span>
                   </div>
@@ -135,14 +135,14 @@ export default function AdminAnnoncesPage() {
                   {a.status !== "rejected" && (
                     <button
                       onClick={() => handleAction(a.id, "rejected")}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
                     >
                       <i className="fas fa-times" /> Refuser
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(a.id)}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-mag-gray hover:text-red-600 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-mag-gray hover:text-red-700 transition-colors cursor-pointer"
                   >
                     <i className="fas fa-trash" /> Supprimer
                   </button>

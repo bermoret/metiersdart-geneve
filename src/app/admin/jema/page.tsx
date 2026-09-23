@@ -76,7 +76,7 @@ export default function AdminJemaPage() {
             label: "À venir",
             render: (row) =>
               row.isUpcoming ? (
-                <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                <span className="inline-flex items-center gap-1 text-xs text-green-700">
                   <i className="fas fa-check-circle" /> Oui
                 </span>
               ) : (
@@ -88,7 +88,7 @@ export default function AdminJemaPage() {
             label: "Passée",
             render: (row) =>
               row.isPast ? (
-                <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                <span className="inline-flex items-center gap-1 text-xs text-green-700">
                   <i className="fas fa-check-circle" /> Oui
                 </span>
               ) : (

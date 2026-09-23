@@ -70,11 +70,11 @@ export default async function CategoryPage({
               <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
                 {category.name}
               </h1>
-              <p className="mt-2 text-mag-dark/60">{list.length} artisan·e·s</p>
+              <p className="mt-2 text-mag-dark/80">{list.length} artisan·e·s</p>
             </div>
           </div>
           {category.description && (
-            <p className="max-w-2xl text-lg text-mag-dark/70 leading-relaxed mt-4">
+            <p className="max-w-2xl text-lg text-mag-dark/80 leading-relaxed mt-4">
               {category.description}
             </p>
           )}

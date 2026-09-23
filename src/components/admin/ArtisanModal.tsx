@@ -239,7 +239,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
                   onChange={(e) => update("address", e.target.value)}
                   onBlur={handleAddressBlur}
                   placeholder="Rue et numéro, NPA commune"
-                  className="flex-1 rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+                  className="flex-1 rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                 />
                 <button
                   type="button"
@@ -304,7 +304,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
                   <button
                     type="button"
                     onClick={() => update("imageUrl", "")}
-                    className="text-xs text-mag-gray hover:text-red-500 transition-colors"
+                    className="text-xs text-mag-gray hover:text-red-700 transition-colors"
                   >
                     Retirer la photo
                   </button>
@@ -316,7 +316,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
                 type="text"
                 value={form.imageUrl}
                 onChange={(e) => update("imageUrl", e.target.value)}
-                className="mt-2 w-full rounded-lg border border-mag-cream bg-white px-3 py-1.5 text-xs text-mag-gray focus:border-mag-red focus:outline-none"
+                className="mt-2 w-full rounded-lg border border-mag-field bg-white px-3 py-1.5 text-xs text-mag-gray focus:border-mag-red focus:outline-none"
                 placeholder="URL de l'image"
               />
             )}
@@ -365,7 +365,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
           </label>
         </div>
 
-        {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
         {/* Actions */}
         <div className="mt-6 flex items-center justify-between gap-3">
@@ -373,7 +373,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
             <button
               onClick={handleDelete}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               <i className="fas fa-trash" /> Supprimer
             </button>
@@ -416,7 +416,7 @@ function Field({ label, value, onChange, type = "text", placeholder, fullWidth }
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
     </label>
   );
@@ -431,7 +431,7 @@ function SelectField({ label, value, onChange, options, fullWidth }: {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
       >
         {options.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
       </select>
@@ -449,7 +449,7 @@ function TextareaField({ label, value, onChange, rows = 3, fullWidth }: {
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
     </label>
   );

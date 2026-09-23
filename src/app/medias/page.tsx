@@ -111,7 +111,7 @@ export default function MediasPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
             Médias
           </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/70 leading-relaxed">
+          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
             Capsules vidéo, revue de presse et articles sur les métiers d&apos;art
             genevois.
           </p>

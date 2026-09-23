@@ -8,7 +8,7 @@ export default function NotFound() {
         <h1 className="text-2xl font-bold text-mag-dark mb-3 font-serif">
           Page introuvable
         </h1>
-        <p className="text-mag-dark/60 mb-8 leading-relaxed">
+        <p className="text-mag-dark/70 mb-8 leading-relaxed">
           La page que vous recherchez n&apos;existe pas ou a été déplacée.
         </p>
         <Link

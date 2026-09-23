@@ -54,7 +54,7 @@ export function HomeMapSection({ artisans, categories }: Props) {
             <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif">
               Trouvez votre artisan·e
             </h2>
-            <p className="mt-2 text-mag-dark/60">
+            <p className="mt-2 text-mag-dark/70">
               Un point pour chaque artisan·e. Cliquez pour découvrir sa fiche.
             </p>
           </Reveal>
@@ -64,7 +64,7 @@ export function HomeMapSection({ artisans, categories }: Props) {
             <select
               value={selectedCategory ?? ""}
               onChange={(e) => setSelectedCategory(e.target.value || null)}
-              className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm font-medium text-mag-dark focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20 transition-colors hover:border-mag-red/40"
+              className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm font-medium text-mag-dark focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20 transition-colors hover:border-mag-red/70"
             >
               <option value="">Tous les domaines</option>
               {categories.map((c) => (

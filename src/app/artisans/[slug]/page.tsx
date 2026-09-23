@@ -10,6 +10,7 @@ import {
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { PoinconBadge } from "@/components/ui/PoinconBadge";
 import ArtisanMap from "@/components/map/ArtisanMapWrapper";
+import { chipColors } from "@/lib/utils";
 
 // ISR : contenu rafraîchi au plus toutes les 60 s ; les nouvelles fiches
 // créées dans l'admin sont rendues à la demande (dynamicParams par défaut).
@@ -120,15 +121,12 @@ export default async function ArtisanPage({
               <div className="mt-4 flex flex-wrap gap-3">
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium"
-                  style={{
-                    backgroundColor: (category?.color ?? "#999") + "20",
-                    color: category?.color ?? "#999",
-                  }}
+                  style={chipColors(category?.color)}
                 >
                   <CategoryIcon icon={category?.icon ?? ""} /> {category?.name}
                 </span>
                 <span
-                  className="inline-flex items-center gap-1.5 rounded-full bg-mag-cream/60 px-3 py-1 text-sm font-medium text-mag-dark/70"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-mag-cream/60 px-3 py-1 text-sm font-medium text-mag-dark/80"
                 >
                   <span aria-hidden><i className="fas fa-map-marker-alt" /></span> {artisan.commune}
                 </span>
@@ -286,7 +284,7 @@ export default async function ArtisanPage({
                 )}
 
                 {artisan.jemaParticipant && (
-                  <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/60">
+                  <div className="mt-4 rounded-lg bg-mag-sand p-4 text-xs text-mag-dark/70">
                     <p>
                       Cet·te artisan·e a participé aux Journées Européennes des
                       Métiers d&apos;Art.

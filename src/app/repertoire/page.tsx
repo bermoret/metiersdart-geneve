@@ -23,7 +23,7 @@ export default async function RepertoirePage() {
           <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
             Répertoire complet
           </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/70 leading-relaxed">
+          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
             Ce répertoire contient uniquement la liste des artisanes et artisans,
             des ateliers, des entreprises, des institutions culturelles et des
             écoles professionnelles qui exercent ou forment aux métiers d&apos;art

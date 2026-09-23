@@ -59,7 +59,7 @@ export function CommunautePasswordEditor() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="ex. MAG 2026"
-          className="flex-1 rounded-lg border border-mag-cream px-3 py-2 text-sm font-medium text-mag-dark focus:border-mag-red focus:outline-none"
+          className="flex-1 rounded-lg border border-mag-field px-3 py-2 text-sm font-medium text-mag-dark focus:border-mag-red focus:outline-none"
         />
         <button
           onClick={handleSave}
@@ -69,11 +69,11 @@ export function CommunautePasswordEditor() {
           {saving ? "…" : "Enregistrer"}
         </button>
         {saved && (
-          <span className="text-sm text-green-600 font-medium flex items-center gap-1">
+          <span className="text-sm text-green-700 font-medium flex items-center gap-1">
             <i className="fas fa-check" /> OK
           </span>
         )}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && <span className="text-sm text-red-700">{error}</span>}
       </div>
     </div>
   );

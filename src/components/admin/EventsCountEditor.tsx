@@ -66,7 +66,7 @@ export function EventsCountEditor() {
           min={0}
           value={count}
           onChange={(e) => setCount(Number(e.target.value))}
-          className="w-24 rounded-lg border border-mag-cream px-3 py-2 text-lg font-bold text-mag-dark focus:border-mag-red focus:outline-none"
+          className="w-24 rounded-lg border border-mag-field px-3 py-2 text-lg font-bold text-mag-dark focus:border-mag-red focus:outline-none"
         />
         <button
           onClick={handleSave}
@@ -76,11 +76,11 @@ export function EventsCountEditor() {
           {saving ? "Sauvegarde…" : "Enregistrer"}
         </button>
         {saved && (
-          <span className="text-sm text-green-600 font-medium flex items-center gap-1">
+          <span className="text-sm text-green-700 font-medium flex items-center gap-1">
             <i className="fas fa-check" aria-hidden /> Enregistré
           </span>
         )}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && <span className="text-sm text-red-700">{error}</span>}
       </div>
     </div>
   );

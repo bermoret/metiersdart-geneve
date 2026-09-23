@@ -90,13 +90,13 @@ export function Footer() {
             </p>
             <a
               href="tel:+41227899190"
-              className="text-sm text-white/70 hover:text-mag-red transition-colors block mt-3"
+              className="text-sm text-white/70 hover:text-white hover:underline transition-colors block mt-3"
             >
               +41 22 789 91 90 (Bureau de l&apos;association MAG)
             </a>
             <a
               href="mailto:contact@metiersdart-geneve.ch"
-              className="text-sm text-white/70 hover:text-mag-red transition-colors block"
+              className="text-sm text-white/70 hover:text-white hover:underline transition-colors block"
             >
               contact@metiersdart-geneve.ch
             </a>
@@ -110,7 +110,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/70 hover:text-mag-red transition-colors"
+                    className="text-sm text-white/70 hover:text-white hover:underline transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -140,7 +140,7 @@ export function Footer() {
             {/* Espace Communauté — bouton dédié sous les réseaux sociaux */}
             <Link
               href="/communaute"
-              className="group mt-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/80 transition-all hover:border-mag-red/50 hover:bg-mag-red/10 hover:text-mag-red"
+              className="group mt-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/80 transition-all hover:border-mag-red/50 hover:bg-mag-red/10 hover:text-white"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />

@@ -98,7 +98,7 @@ export default async function JemaPage() {
       {upcoming && (
         <section className="py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="rounded-2xl bg-mag-red text-white p-8 sm:p-12 text-center">
+            <div className="focus-ring-white rounded-2xl bg-mag-red text-white p-8 sm:p-12 text-center">
               <p className="text-white/80 uppercase tracking-wide text-sm font-semibold">
                 Prochaine édition
               </p>
@@ -257,12 +257,12 @@ export default async function JemaPage() {
                     {ed.title}
                   </h3>
                   {ed.description && (
-                    <p className="mt-2 text-sm text-mag-dark/60 leading-relaxed line-clamp-3">
+                    <p className="mt-2 text-sm text-mag-dark/70 leading-relaxed line-clamp-3">
                       {ed.description}
                     </p>
                   )}
                   {ed.highlight && (
-                    <p className="mt-2 text-xs font-medium text-mag-red/80 italic">
+                    <p className="mt-2 text-xs font-medium text-mag-red italic">
                       {ed.highlight}
                     </p>
                   )}
@@ -282,7 +282,7 @@ export default async function JemaPage() {
           <h2 className="text-xl font-bold text-mag-dark mb-4">
             Merci à nos partenaires
           </h2>
-          <p className="text-mag-dark/60 max-w-2xl mx-auto">
+          <p className="text-mag-dark/70 max-w-2xl mx-auto">
             Nous remercions chaleureusement nos partenaires pour leur soutien précieux
             sans lequel l&apos;événement n&apos;aurait pu avoir lieu.
           </p>

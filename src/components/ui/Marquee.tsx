@@ -16,7 +16,7 @@ export function Marquee({ items, className, speed = 30 }: Props) {
   const doubled = [...items, ...items];
 
   return (
-    <div className={`relative overflow-hidden ${className ?? ""}`}>
+    <div className={`relative overflow-hidden ${className ?? ""}`} aria-hidden>
       <motion.div
         className="flex gap-8 whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}

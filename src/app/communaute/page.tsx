@@ -132,11 +132,11 @@ export default function CommunautePage() {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleVerify()}
               placeholder="Mot de passe"
-              className="w-full rounded-lg border border-mag-cream bg-white px-4 py-3 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+              className="w-full rounded-lg border border-mag-field bg-white px-4 py-3 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
               autoFocus
             />
             {authError && (
-              <p className="mt-3 text-sm text-red-600">{authError}</p>
+              <p className="mt-3 text-sm text-red-700">{authError}</p>
             )}
             <button
               onClick={handleVerify}
@@ -161,7 +161,7 @@ export default function CommunautePage() {
               <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
                 Espace Communauté
               </h1>
-              <p className="mt-3 text-mag-dark/70 leading-relaxed max-w-2xl">
+              <p className="mt-3 text-mag-dark/80 leading-relaxed max-w-2xl">
                 Petites annonces entre artisan·e·s de MAG : ventes de matériel,
                 recherche d&apos;un artisan pour un marché, opportunités
                 professionnelles, collaborations, événements, expositions, conseils,
@@ -211,7 +211,7 @@ export default function CommunautePage() {
                       type="text"
                       value={fTitle}
                       onChange={(e) => setFTitle(e.target.value)}
-                      className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+                      className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                     />
                   </label>
                   <label>
@@ -219,7 +219,7 @@ export default function CommunautePage() {
                     <select
                       value={fCategory}
                       onChange={(e) => setFCategory(e.target.value)}
-                      className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
+                      className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
                     >
                       {CATEGORIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
@@ -232,7 +232,7 @@ export default function CommunautePage() {
                       type="text"
                       value={fAuthor}
                       onChange={(e) => setFAuthor(e.target.value)}
-                      className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+                      className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                     />
                   </label>
                   <label>
@@ -241,7 +241,7 @@ export default function CommunautePage() {
                       type="email"
                       value={fEmail}
                       onChange={(e) => setFEmail(e.target.value)}
-                      className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+                      className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                     />
                   </label>
                   <label className="col-span-2">
@@ -250,7 +250,7 @@ export default function CommunautePage() {
                       value={fContent}
                       onChange={(e) => setFContent(e.target.value)}
                       rows={5}
-                      className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+                      className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                     />
                   </label>
                 </div>
@@ -279,7 +279,7 @@ export default function CommunautePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {annonces.map((a) => (
                 <div key={a.id} className="rounded-xl border border-mag-cream bg-white p-6 card-hover">
-                  <span className="inline-block rounded-full bg-mag-cream/60 px-3 py-1 text-xs font-medium text-mag-dark/70 mb-3">
+                  <span className="inline-block rounded-full bg-mag-cream/60 px-3 py-1 text-xs font-medium text-mag-dark/80 mb-3">
                     {a.category}
                   </span>
                   <h3 className="font-bold text-mag-dark mb-2">{a.title}</h3>

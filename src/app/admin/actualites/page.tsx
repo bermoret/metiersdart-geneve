@@ -76,7 +76,7 @@ export default function AdminActualitesPage() {
             label: "Statut",
             render: (row) =>
               row.published ? (
-                <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                <span className="inline-flex items-center gap-1 text-xs text-green-700">
                   <i className="fas fa-check-circle" /> Publié
                 </span>
               ) : (

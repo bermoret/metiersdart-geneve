@@ -392,7 +392,7 @@ export default function MetiersFormationsPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
             Métiers et formations
           </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/70 leading-relaxed">
+          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
             Cette page répertorie tous les métiers d&apos;art exercés par les
             professionnel.le.s enregistré.e.s au répertoire MAG. Les définitions,
             non exhaustives, sont tirées du site de notre homologue français,

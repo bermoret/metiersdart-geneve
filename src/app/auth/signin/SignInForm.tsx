@@ -27,7 +27,7 @@ export function SignInForm() {
           type="email"
           required
           placeholder="contact@metiersdart-geneve.ch"
-          className="w-full rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+          className="w-full rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
         />
       </div>
       <button

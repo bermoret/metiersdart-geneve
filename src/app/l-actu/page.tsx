@@ -98,7 +98,7 @@ export default function ActuPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
             L&apos;actu des artisans
           </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/70 leading-relaxed">
+          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
             En un clin d&apos;œil, découvrez les dernières actualités de MAG et de la
             communauté des métiers d&apos;art. Classées par ordre chronologique,
             elles vous offrent un accès clair, rapide et complet à tout ce qui fait
@@ -164,7 +164,7 @@ export default function ActuPage() {
                     {actu.title}
                   </h3>
                   {actu.subtitle && (
-                    <p className="mt-1 text-xs font-medium text-mag-dark/60">
+                    <p className="mt-1 text-xs font-medium text-mag-dark/70">
                       {actu.subtitle}
                     </p>
                   )}

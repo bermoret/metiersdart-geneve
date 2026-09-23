@@ -66,7 +66,7 @@ export function AdminTable({ columns, rows, onEdit, onDelete, onAdd, addLabel = 
                       {onDelete && (
                         <button
                           onClick={() => onDelete(row)}
-                          className="text-mag-gray hover:text-red-500 transition-colors cursor-pointer"
+                          className="text-mag-gray hover:text-red-700 transition-colors cursor-pointer"
                           aria-label="Supprimer"
                         >
                           <i className="fas fa-trash" />
@@ -111,7 +111,7 @@ export function AdminField({
         onChange={(e) => onChange(e.target.value)}
         required={required}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
     </label>
   );
@@ -138,7 +138,7 @@ export function AdminTextarea({
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
     </label>
   );
@@ -164,7 +164,7 @@ export function AdminSelect({
         name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-mag-cream bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
+        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

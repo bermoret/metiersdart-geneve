@@ -49,7 +49,7 @@ export function MetiersFormationsTable({
             placeholder="Rechercher un métier…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+            className="w-full rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
           />
         </label>
         <label>
@@ -57,7 +57,7 @@ export function MetiersFormationsTable({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
+            className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
           >
             <option value="">Tous les domaines</option>
             {categoriesList.map((c) => (

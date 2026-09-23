@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { chipColors } from "@/lib/utils";
 
 // Types minimaux attendus — compatibles avec PublicArtisan (DB) et ArtisanData (statique)
 export type RepertoireItem = {
@@ -73,7 +74,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
             placeholder="Rechercher par nom, métier, commune…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+            className="w-full rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
           />
         </label>
         <label>
@@ -81,7 +82,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
+            className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
           >
             <option value="">Tous les domaines</option>
             {categories.map((c) => (
@@ -96,7 +97,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
           <select
             value={communeFilter}
             onChange={(e) => setCommuneFilter(e.target.value)}
-            className="rounded-lg border border-mag-cream bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
+            className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
           >
             <option value="">Toutes les communes</option>
             {communes.map((c) => (
@@ -153,10 +154,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
                     {cat && (
                       <span
                         className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                        style={{
-                          backgroundColor: (cat.color ?? "#999") + "20",
-                          color: cat.color ?? "#999",
-                        }}
+                        style={chipColors(cat.color)}
                       >
                         <CategoryIcon icon={cat.icon ?? ""} /> {a.categoryName}
                       </span>
