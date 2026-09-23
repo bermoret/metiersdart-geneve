@@ -29,6 +29,28 @@ Réinstaller `@simplewebauthn/server` + `/browser` **en ^9** (ce qu'Auth.js supp
 L'advisory redeviendra listée par `npm audit` : sans effet tant que `attestationType` reste
 `none`. La table `authenticator` est conservée (vide) pour ça.
 
+### Vérifications faites
+
+- Local : `tsc`, lint (0 erreur), 57 tests, `next build` ; `next start` du build
+  (`AUTH_TRUST_HOST=true`) : `/api/auth/providers` → `resend` seul, `csrf` et `session` OK, `/admin`
+  → 307 vers `/auth/signin`, `/api/admin/*` sans session → 401. Réponses d'erreur identiques à la prod.
+- Preview : build Ready, pages et garde admin OK. Les routes `/api/auth/*` y échouent
+  (`MissingSecret`), **comme sur les previews antérieures** : voir ci-dessous.
+
+### 🚩 `AUTH_SECRET` absent de l'environnement Preview de Vercel (antérieur)
+
+Défini pour Development et Production seulement (`vercel env ls`). Sur toute preview,
+`/api/auth/*` renvoie « server configuration » : la connexion admin n'y est pas testable.
+Constaté aussi sur la preview de 1002b44. Ajouter un secret **distinct** de celui de prod en
+Preview demande l'accord de Bernard (config Vercel) ; vérifier avant quelle base les previews
+utilisent, une session admin en preview y écrirait.
+
+### À vérifier
+
+- **Connexion magic link de bout en bout en prod** (Bernard, 30 s) : non testable en preview
+  (ci-dessus), et l'envoi réel du mail n'a pas été déclenché ici. Le code du chemin magic link
+  est inchangé. En cas de souci : rollback instantané sur le déploiement précédent (Vercel).
+
 ### Relevé en review (antérieur, hors périmètre)
 
 - **`src/middleware.ts`** : `/api/admin` figure dans `protectedPaths`, mais le `matcher` exclut

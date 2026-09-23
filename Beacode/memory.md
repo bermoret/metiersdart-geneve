@@ -17,7 +17,7 @@
 - Git remote : `https://github.com/bermoret/metiersdart-geneve.git`
 
 ## Variables d'environnement
-- `AUTH_SECRET` — Vercel (3 envs) + `.env.local`
+- `AUTH_SECRET` — Vercel **Development + Production seulement** (pas Preview : `/api/auth/*` y répond `MissingSecret`, constaté le 2026-09-23) + `.env.local`
 - `RESEND_API_KEY` — Vercel (3 envs) + local
 - `RESEND_FROM_EMAIL` = `contact@jooce.ch`
 - `DATABASE_URL` — Neon, `sslmode=verify-full`
