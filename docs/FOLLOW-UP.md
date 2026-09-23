@@ -2,12 +2,37 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Accueil : retour à l'ancienne version (préférence du client)
+
+### Fait
+
+- `src/app/page.tsx` et `HomeMapSection.tsx` repris de l'avant-refonte (`1002b44`), avec les
+  modifications de contenu conservées : pas de pastille « Association genevoise des métiers
+  d'art », titre « Métiers d'Art Genève (MAG) » (demande d'Elsa) ; bandeau des métiers qui
+  sépare les métiers cumulés (« A • B »). Image du hero en `priority`, flèches décoratives
+  masquées aux lecteurs d'écran.
+- Les autres pages, le header et le footer restent en style refonte.
+
+### À vérifier / décider
+
+- Cohérence : accueil ancienne version, reste du site en style refonte. Header / footer / autres
+  pages à ramener aussi si le client préfère l'ancien ensemble (tag `restore/avant-refonte-2026-09-23`).
+- Disparus avec la version refonte de l'accueil : bandeau JEMA branché sur la prochaine
+  édition, portraits d'artisan·e·s. À réintroduire au style ancien si MAG le souhaite.
+- Textes client de l'ancien accueil : « proche de chez vous » (→ proches), « oeuvrons »
+  (→ œuvrons), badge « {n}+ artisans référencés » (« + » alors que le nombre est exact,
+  non inclusif). À corriger avec l'accord de MAG.
+- « Métiers MAG » (`countCrafts`, règle LOT 1) compte « A • B » comme un métier, le bandeau
+  les sépare : deux définitions, à trancher.
+- Code devenu inutilisé : `Marquee` variante `band`, `SectionHeader` (`ui/Editorial.tsx`),
+  `.h-section-inverse`. À nettoyer si la refonte de l'accueil est abandonnée pour de bon.
+
 ## 2026-09-23 — Retours d'Elsa (mail du 19.09) : sur-titre (MAG) + liens orientation.ch
 
 ### Fait
 
-- Accueil : le sur-titre « Association genevoise des métiers d'art » devient
-  « Métiers d'Art Genève (MAG) » (la pastille de sa capture n'existait plus depuis la refonte).
+- Accueil : plus de « Association genevoise des métiers d'art » ; « (MAG) » après le nom
+  (depuis le retour à l'ancienne version : pastille supprimée, titre « Métiers d'Art Genève (MAG) »).
 - /metiers-et-formations : 62 formations sur 68 renvoient à leur fiche orientation.ch (nouvel
   onglet). URLs reprises des liens de l'ancien site, résolues vers leur adresse actuelle ;
   les 41 URLs uniques vérifiées (vraie page, pas la page « n'existe pas » d'orientation.ch).
@@ -81,9 +106,8 @@ Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `S
 
 ### À vérifier / décider
 
-- Accroche « Genève, à la main. » : proposition, à valider avec le client.
-- Artisan·e·s mis·es en avant sur l'accueil codé·e·s en dur par nom dans `src/app/page.tsx`
-  (`HERO_ARTISAN`, `PORTRAITS`…) ; introuvable = ignoré. Piste : un champ « mis en avant » dans l'admin.
+- ~~Accroche « Genève, à la main. »~~ et ~~artisan·e·s mis·es en avant codé·e·s en dur~~ :
+  caducs, l'accueil est revenu à l'ancienne version (voir « Accueil : retour à l'ancienne version »).
 - Photos des fiches encore servies depuis metiersdart-geneve.ch (Joomla) : à migrer vers Blob
   avant l'arrêt de l'ancien site. `canOptimizeImage()` passe en `unoptimized` tout hôte non déclaré.
 - Écart assumé au design system : photos à coins quasi francs (4px) au lieu de 24px.
