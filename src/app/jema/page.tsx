@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { getJemaEditions, getArtisansOnly, getAllCategories } from "@/lib/db-data";
+import {
+  getJemaEditions,
+  getArtisansOnly,
+  getAllCategories,
+  splitJemaEditions,
+} from "@/lib/db-data";
+import { formatShortRange } from "@/lib/dates";
 
 export const metadata = {
   title: "JEMA — Journées Européennes des Métiers d'Art",
@@ -48,14 +54,6 @@ function formatDateRange(start: Date | null, end: Date | null): string {
   return `du ${fmtFull(start)} au ${fmtFull(end)}`;
 }
 
-/** Formate une plage courte pour les cartes : « 27-29 mars 2026 ». */
-function formatShortRange(start: Date | null, end: Date | null): string {
-  if (!start) return "";
-  const month = start.toLocaleDateString("fr-FR", { month: "long" });
-  if (!end) return `${start.getDate()} ${month} ${start.getFullYear()}`;
-  return `${start.getDate()}-${end.getDate()} ${month} ${end.getFullYear()}`;
-}
-
 export default async function JemaPage() {
   const [allEditions, artisanList, categories] = await Promise.all([
     getJemaEditions(),
@@ -63,8 +61,7 @@ export default async function JemaPage() {
     getAllCategories(),
   ]);
 
-  const upcoming = allEditions.find((e) => e.isUpcoming) ?? null;
-  const pastEditions = allEditions.filter((e) => !e.isUpcoming);
+  const { upcoming, past: pastEditions } = splitJemaEditions(allEditions);
 
   // Artisans du domaine de la pierre (section focus)
   const pierreCategory = categories.find((c) => c.name === "Art de la pierre");

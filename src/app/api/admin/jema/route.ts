@@ -17,6 +17,10 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
+  // highlight = varchar(255) : refus explicite plutôt qu'une erreur SQL
+  if (typeof body.highlight === "string" && body.highlight.length > 255) {
+    return NextResponse.json({ error: "Le temps fort ne doit pas dépasser 255 caractères." }, { status: 400 });
+  }
   const [created] = await db
     .insert(jemaEditions)
     .values({
@@ -27,6 +31,7 @@ export async function POST(req: Request) {
       isUpcoming: body.isUpcoming ?? false,
       isPast: body.isPast ?? true,
       description: body.description,
+      highlight: body.highlight ? String(body.highlight) : null,
       programUrl: body.programUrl,
       stats: body.stats,
     })

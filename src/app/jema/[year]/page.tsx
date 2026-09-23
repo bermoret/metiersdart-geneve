@@ -1,36 +1,42 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { VideoCapsule } from "@/components/ui/VideoCapsule";
+import { getJemaEditions, splitJemaEditions } from "@/lib/db-data";
+import { formatShortRange } from "@/lib/dates";
 
-export function generateStaticParams() {
-  return [
-    { year: "2026" },
-    { year: "2025" },
-    { year: "2024" },
-    { year: "2023" },
-  ];
+// ISR : les éditions se rafraîchissent au plus toutes les 60 s après édition
+// admin ; une édition passée ajoutée dans l'admin est rendue à la demande.
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const { past } = splitJemaEditions(await getJemaEditions());
+  return past.map((e) => ({ year: String(e.year) }));
 }
 
-type EditionData = {
-  year: number;
-  title: string;
-  dates: string;
-  intro: string;
-  description: string;
+/** Édition passée depuis la base (titre, dates, description, programme, stats). */
+async function getPastEdition(year: string) {
+  const { past } = splitJemaEditions(await getJemaEditions());
+  return past.find((e) => String(e.year) === year) ?? null;
+}
+
+// Contenu éditorial complémentaire (intro, récit, vidéo, stats…), non géré
+// par l'admin à ce stade. Titre, dates et programme viennent de la base : une
+// édition ajoutée dans l'admin a sa page, avec sa description admin.
+type EditionExtras = {
+  intro?: string;
+  /** Récit détaillé d'origine — prime sur la description (résumé) en base. */
+  description?: string;
   video?: {
     platform: "vimeo" | "youtube";
     videoId: string;
     title: string;
   };
   programmeUrl?: string;
-  stats: { label: string; value: number | string }[];
+  stats?: { label: string; value: number | string }[];
 };
 
-const editionsData: Record<string, EditionData> = {
+const editionExtras: Record<string, EditionExtras> = {
   "2026": {
-    year: 2026,
-    title: "JEMA 2026",
-    dates: "27-29 mars 2026",
     intro:
       "Les JEMA 2026 c'est fini... Mais elles reviennent chaque année. Démonstrations, ateliers d'initiation, conférences, visites guidées animent ce week-end dédié aux savoir-faire.",
     description:
@@ -50,9 +56,6 @@ const editionsData: Record<string, EditionData> = {
     ],
   },
   "2025": {
-    year: 2025,
-    title: "JEMA 2025",
-    dates: "28-30 mars 2025",
     intro:
       "La 14ᵉ édition des JEMA a célébré le lien vivant entre les artisan·e·s et leur territoire, avec un focus particulier sur le 15ᵉ anniversaire du poinçon MAG.",
     description:
@@ -65,9 +68,6 @@ const editionsData: Record<string, EditionData> = {
     ],
   },
   "2024": {
-    year: 2024,
-    title: "JEMA 2024",
-    dates: "23-25 mars 2024",
     intro:
       "La 13ᵉ édition des Journées Européennes des Métiers d'Art a mis à l'honneur le dialogue entre tradition et innovation dans les métiers d'art genevois.",
     description:
@@ -80,9 +80,6 @@ const editionsData: Record<string, EditionData> = {
     ],
   },
   "2023": {
-    year: 2023,
-    title: "JEMA 2023",
-    dates: "24-26 mars 2023",
     intro:
       "Douzième édition consécutive pour Genève : les JEMA 2023 ont célébré le retour post-pandémie des métiers d'art en pleine lumière.",
     description:
@@ -96,15 +93,14 @@ const editionsData: Record<string, EditionData> = {
   },
 };
 
-export function generateMetadata({ params }: { params: Promise<{ year: string }> }) {
-  return params.then((p) => {
-    const ed = editionsData[p.year];
-    if (!ed) return { title: "Édition introuvable" };
-    return {
-      title: `${ed.title} — JEMA Genève`,
-      description: ed.intro,
-    };
-  });
+export async function generateMetadata({ params }: { params: Promise<{ year: string }> }) {
+  const { year } = await params;
+  const ed = await getPastEdition(year);
+  if (!ed) return { title: "Édition introuvable" };
+  return {
+    title: `${ed.title} — JEMA Genève`,
+    description: editionExtras[year]?.intro || ed.description || undefined,
+  };
 }
 
 export default async function EditionPage({
@@ -113,8 +109,26 @@ export default async function EditionPage({
   params: Promise<{ year: string }>;
 }) {
   const { year } = await params;
-  const edition = editionsData[year];
-  if (!edition) notFound();
+  const ed = await getPastEdition(year);
+  if (!ed) notFound();
+
+  const extras = editionExtras[year] ?? {};
+  const allPast = splitJemaEditions(await getJemaEditions()).past;
+  const edition = {
+    year: ed.year,
+    title: ed.title,
+    dates: formatShortRange(ed.startDate, ed.endDate),
+    intro: extras.intro,
+    // Le récit détaillé d'origine prime tant qu'il n'est pas en base ; la
+    // description admin (résumé des cartes /jema) sert aux nouvelles éditions.
+    description: extras.description || ed.description,
+    video: extras.video,
+    programmeUrl: ed.programUrl || extras.programmeUrl,
+    stats:
+      ed.stats && Object.keys(ed.stats).length > 0
+        ? Object.entries(ed.stats).map(([label, value]) => ({ label, value }))
+        : (extras.stats ?? []),
+  };
 
   return (
     <>
@@ -143,43 +157,51 @@ export default async function EditionPage({
           <h1 className="text-4xl sm:text-5xl font-black text-mag-dark font-serif">
             {edition.title}
           </h1>
-          <p className="mt-2 text-lg text-mag-gray">{edition.dates}</p>
-          <p className="mt-6 text-lg text-mag-dark/70 leading-relaxed">
-            {edition.intro}
-          </p>
+          {edition.dates && (
+            <p className="mt-2 text-lg text-mag-gray">{edition.dates}</p>
+          )}
+          {edition.intro && (
+            <p className="mt-6 text-lg text-mag-dark/70 leading-relaxed">
+              {edition.intro}
+            </p>
+          )}
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-8">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {edition.stats.map((stat, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-mag-cream/40 p-6 text-center"
-              >
-                <p className="text-3xl font-black text-mag-red">{stat.value}</p>
-                <p className="mt-1 text-xs text-mag-gray">{stat.label}</p>
-              </div>
-            ))}
+      {edition.stats.length > 0 && (
+        <section className="py-8">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {edition.stats.map((stat, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl bg-mag-cream/40 p-6 text-center"
+                >
+                  <p className="text-3xl font-black text-mag-red">{stat.value}</p>
+                  <p className="mt-1 text-xs text-mag-gray">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Description détaillée */}
-      <section className="py-8">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-mag-cream p-8 sm:p-10">
-            <h2 className="text-xl font-bold text-mag-dark font-serif mb-4">
-              Retour sur l&apos;édition
-            </h2>
-            <p className="text-mag-dark/70 leading-relaxed whitespace-pre-line">
-              {edition.description}
-            </p>
+      {edition.description && (
+        <section className="py-8">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-2xl border border-mag-cream p-8 sm:p-10">
+              <h2 className="text-xl font-bold text-mag-dark font-serif mb-4">
+                Retour sur l&apos;édition
+              </h2>
+              <p className="text-mag-dark/70 leading-relaxed whitespace-pre-line">
+                {edition.description}
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Vidéo Best of (si disponible) */}
       {edition.video && (
@@ -222,7 +244,7 @@ export default async function EditionPage({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-lg font-bold text-mag-dark mb-6">Autres éditions</h2>
           <div className="flex flex-wrap gap-3">
-            {Object.values(editionsData)
+            {allPast
               .filter((e) => e.year !== edition.year)
               .map((e) => (
                 <Link

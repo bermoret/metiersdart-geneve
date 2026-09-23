@@ -263,15 +263,16 @@ export const artisans: ArtisanData[] = rawArtisans.map((r, i) => {
 });
 
 // ─── Filtres métier : exclure écoles, associations, institutions, partenaires ───
+// Règle LOT 1 — source unique, réutilisée par src/lib/db-data.ts.
 
-const EXCLUDED_TYPES: ArtisanData["type"][] = [
+export const EXCLUDED_TYPES: ArtisanData["type"][] = [
   "institution_culturelle",
   "ecole_formatrice",
   "association_professionnelle",
   "partenaire",
 ];
 
-const EXCLUDED_CATEGORY_SLUGS = [
+export const EXCLUDED_CATEGORY_SLUGS = [
   "institutions-culturelles",
   "ecoles-formatrices",
   "associations-professionnelles",

@@ -30,7 +30,8 @@ export async function generateMetadata({
   if (!artisan) return { title: "Artisan introuvable" };
   return {
     title: `${artisan.name} — MAG`,
-    description: artisan.longDescription ?? artisan.shortDescription ?? undefined,
+    // `||` et non `??` : l'admin enregistre "" pour un champ laissé vide
+    description: artisan.longDescription || artisan.shortDescription || undefined,
     openGraph: artisan.imageUrl
       ? { images: [{ url: artisan.imageUrl }] }
       : undefined,
@@ -50,12 +51,23 @@ export default async function ArtisanPage({
   const categories = await getAllCategories();
   const category = categories.find((c) => c.name === artisan.categoryName);
 
-  // Artisans du même domaine (bloc « artisans du même domaine » — validé en séance)
-  const relatedArtisans = category
-    ? (await getArtisansByCategoryDb(category.slug))
-        .filter((a) => a.id !== artisan.id)
-        .slice(0, 4)
+  // Artisans du domaine : vide pour les catégories institutionnelles
+  // (écoles, institutions…) qui n'ont pas de page /categories.
+  const categoryArtisans = category
+    ? await getArtisansByCategoryDb(category.slug)
     : [];
+  // Même condition que la page catégorie : au moins un artisan rattaché
+  const hasCategoryPage = categoryArtisans.length > 0;
+
+  // Artisans du même domaine (bloc « artisans du même domaine » — validé en séance)
+  const relatedArtisans = categoryArtisans
+    .filter((a) => a.id !== artisan.id)
+    .slice(0, 4);
+
+  const coords =
+    artisan.latitude != null && artisan.longitude != null
+      ? { latitude: artisan.latitude, longitude: artisan.longitude }
+      : null;
 
   const {
     address,
@@ -80,7 +92,7 @@ export default async function ArtisanPage({
             Répertoire
           </Link>
           <span aria-hidden>/</span>
-          {category && (
+          {category && hasCategoryPage && (
             <>
               <Link
                 href={`/categories/${category.slug}`}
@@ -177,16 +189,18 @@ export default async function ArtisanPage({
                   </div>
                 )}
 
-                {/* Carte de localisation */}
-                <div>
-                  <h2 className="text-lg font-bold text-mag-dark mb-3">Localisation</h2>
-                  <ArtisanMap
-                    latitude={artisan.latitude ?? 0}
-                    longitude={artisan.longitude ?? 0}
-                    name={artisan.name}
-                    address={address ?? undefined}
-                  />
-                </div>
+                {/* Carte de localisation — masquée sans coordonnées (sinon (0,0)) */}
+                {coords && (
+                  <div>
+                    <h2 className="text-lg font-bold text-mag-dark mb-3">Localisation</h2>
+                    <ArtisanMap
+                      latitude={coords.latitude}
+                      longitude={coords.longitude}
+                      name={artisan.name}
+                      address={address ?? undefined}
+                    />
+                  </div>
+                )}
 
                 {autre && (
                   <div>

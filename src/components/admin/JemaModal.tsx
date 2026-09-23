@@ -11,6 +11,7 @@ type JemaData = {
   isUpcoming: boolean;
   isPast: boolean;
   description: string;
+  highlight: string;
   programUrl: string;
 };
 
@@ -30,6 +31,7 @@ const EMPTY: JemaData = {
   isUpcoming: false,
   isPast: false,
   description: "",
+  highlight: "",
   programUrl: "",
 };
 
@@ -80,6 +82,8 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
         isUpcoming: form.isUpcoming,
         isPast: form.isPast,
         description: form.description || undefined,
+        // "" → null côté API : permet d'effacer le highlight
+        highlight: form.highlight ?? "",
         programUrl: form.programUrl || undefined,
       };
       const url = isNew ? "/api/admin/jema" : `/api/admin/jema/${form.id}`;
@@ -145,6 +149,8 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
 
           <TextareaField label="Description" value={form.description} onChange={(v) => update("description", v)} rows={4} fullWidth />
 
+          <Field label="Temps fort (affiché sur la carte de l'édition)" value={form.highlight} onChange={(v) => update("highlight", v)} fullWidth placeholder="Ex. Best of en vidéo par Raphaël Haab" />
+
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -163,6 +169,11 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
             />
             <span className="text-sm text-mag-dark">Passée</span>
           </label>
+          <p className="col-span-2 text-xs text-mag-gray">
+            Sur le site : « À venir » → bandeau « Prochaine édition » (la plus proche) ;
+            « Passée » → liste des éditions passées et page détaillée. Ni l&apos;un ni
+            l&apos;autre : l&apos;édition n&apos;est pas affichée.
+          </p>
         </div>
 
         {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}

@@ -34,8 +34,10 @@ async function main() {
   const catIdByName = new Map(allCats.map((c) => [c.name, c.id]));
   let catLinked = 0;
 
-  // Artisans — upsert : met à jour les données existantes (corrige les
-  // coordonnées corrompues ×1e6 et injecte les champs enrichis du scraping)
+  // Artisans — insertion seule : une fiche existante (même slug) n'est JAMAIS
+  // modifiée, pour ne pas écraser les corrections faites par MAG dans l'admin.
+  // (La correction ponctuelle des coordonnées ×1e6 et l'injection des champs
+  // enrichis ont été faites par le seed du 2026-09-18.)
   for (const a of seedData.artisans) {
     const categoryId = catIdByName.get(a.categoryName) ?? null;
     if (categoryId) catLinked++;
@@ -65,35 +67,14 @@ async function main() {
         jemaParticipant: true,
         published: true,
       })
-      .onConflictDoUpdate({
-        target: artisans.slug,
-        set: {
-          type: a.type,
-          craft: a.craft,
-          categoryId,
-          commune: a.commune,
-          latitude: a.latitude,
-          longitude: a.longitude,
-          imageUrl: a.imageUrl,
-          longDescription: a.longDescription,
-          address: a.address,
-          website: a.website,
-          video: a.video,
-          phone: a.phone,
-          email: a.email,
-          autre: a.autre,
-          poinconType: a.poinconType,
-          poinconModalText: a.poinconModalText,
-          poinconModalLink: a.poinconModalLink,
-          updatedAt: new Date(),
-        },
-      });
+      .onConflictDoNothing({ target: artisans.slug });
   }
   console.log(
-    `✓ ${seedData.artisans.length} artisans insérés/mis à jour (${catLinked} liés à une catégorie)`,
+    `✓ ${seedData.artisans.length} artisans traités — nouveaux insérés, existants conservés (${catLinked} liés à une catégorie)`,
   );
 
-  // Éditions JEMA — upsert : descriptions et highlights éditables depuis l'admin
+  // Éditions JEMA — insertion seule : descriptions, highlights, dates…
+  // sont éditables depuis l'admin et ne sont jamais écrasés par le seed.
   const jemaSeed = [
     {
       year: 2027,
@@ -156,21 +137,9 @@ async function main() {
     await db
       .insert(jemaEditions)
       .values(ed)
-      .onConflictDoUpdate({
-        target: jemaEditions.year,
-        set: {
-          title: ed.title,
-          startDate: ed.startDate,
-          endDate: ed.endDate,
-          isUpcoming: ed.isUpcoming,
-          isPast: ed.isPast,
-          description: ed.description,
-          highlight: ed.highlight,
-          updatedAt: new Date(),
-        },
-      });
+      .onConflictDoNothing({ target: jemaEditions.year });
   }
-  console.log(`✓ ${jemaSeed.length} éditions JEMA insérées/mises à jour`);
+  console.log(`✓ ${jemaSeed.length} éditions JEMA traitées — nouvelles insérées, existantes conservées`);
 
   // Partenaires
   for (const p of seedData.partenaires) {

@@ -2,8 +2,12 @@
 //
 // PRINCIPE : le site public lit la base de données (source de vérité,
 // alimentée par l'admin), avec un FALLBACK sur les données statiques de
-// src/lib/data.ts si la base est indisponible (build sans DATABASE_URL,
-// base down…). Le site ne casse jamais.
+// src/lib/data.ts UNIQUEMENT si la base n'est pas configurée (build ou
+// tests sans DATABASE_URL). Base configurée = source de vérité, même si une
+// table est vide. Base configurée mais en erreur → on logue et
+// on relance : en ISR, Next continue de servir la dernière page valide
+// au lieu de mettre en cache des données statiques périmées (artisans
+// dépubliés qui réapparaissent, modifications admin perdues).
 //
 // PERF : les fonctions sont enveloppées dans React `cache()`, ce qui
 // déduplique les requêtes au sein d'un même rendu (une seule requête
@@ -14,11 +18,13 @@
 import { cache } from "react";
 import { db } from "@/db";
 import { artisans, categories, communes, jemaEditions } from "@/db/schema";
-import { eq, asc, desc } from "drizzle-orm";
+import { and, eq, asc, desc } from "drizzle-orm";
 import {
   artisans as staticArtisans,
   categories as allStaticCategories,
   communesList as staticCommunes,
+  EXCLUDED_TYPES as NON_ARTISAN_TYPES,
+  EXCLUDED_CATEGORY_SLUGS,
 } from "./data";
 import { getArtisanDetail } from "./artisan-details";
 
@@ -82,22 +88,63 @@ export type PublicJemaEdition = {
   stats: Record<string, number> | null;
 };
 
-// Types non-artisan exclus des compteurs (règle LOT 1)
-const NON_ARTISAN_TYPES = [
-  "institution_culturelle",
-  "ecole_formatrice",
-  "association_professionnelle",
-  "partenaire",
-];
-
-const EXCLUDED_CATEGORY_SLUGS = [
-  "institutions-culturelles",
-  "ecoles-formatrices",
-  "associations-professionnelles",
-  "partenaires",
-];
+// Types non-artisan exclus des compteurs (règle LOT 1, définie dans data.ts)
+function isNonArtisan(type: string): boolean {
+  return (NON_ARTISAN_TYPES as string[]).includes(type);
+}
 
 // ─── Helpers internes ───────────────────────────────────────────
+
+/** La base est-elle configurée ? Sinon (build/tests sans DATABASE_URL) → statique. */
+function dbConfigured(): boolean {
+  return !!process.env.DATABASE_URL;
+}
+
+/** Base configurée mais en erreur : on logue et on relance (voir en-tête). */
+function dbError(scope: string, err: unknown): never {
+  console.error(`[db-data] ${scope} — lecture DB impossible :`, err);
+  throw err;
+}
+
+/** Colonnes publiques d'un artisan, catégorie jointe (JOIN, pas de N+1). */
+const publicArtisanColumns = {
+  id: artisans.id,
+  name: artisans.name,
+  slug: artisans.slug,
+  type: artisans.type,
+  craft: artisans.craft,
+  categoryId: artisans.categoryId,
+  categoryName: categories.name,
+  commune: artisans.commune,
+  address: artisans.address,
+  latitude: artisans.latitude,
+  longitude: artisans.longitude,
+  phone: artisans.phone,
+  email: artisans.email,
+  website: artisans.website,
+  shortDescription: artisans.shortDescription,
+  longDescription: artisans.longDescription,
+  imageUrl: artisans.imageUrl,
+  video: artisans.video,
+  autre: artisans.autre,
+  poinconType: artisans.poinconType,
+  poinconModalText: artisans.poinconModalText,
+  poinconModalLink: artisans.poinconModalLink,
+  jemaParticipant: artisans.jemaParticipant,
+};
+
+function selectPublicArtisans() {
+  return db
+    .select(publicArtisanColumns)
+    .from(artisans)
+    .leftJoin(categories, eq(artisans.categoryId, categories.id));
+}
+
+type PublicArtisanRow = Awaited<ReturnType<typeof selectPublicArtisans>>[number];
+
+function toPublicArtisan(r: PublicArtisanRow): PublicArtisan {
+  return { ...r, type: r.type ?? "artisan" };
+}
 
 /** Convertit les données statiques au format public (fallback). */
 function staticToPublicArtisans(): PublicArtisan[] {
@@ -158,51 +205,19 @@ function staticToPublicCommunes(): PublicCommune[] {
 
 /**
  * Toutes les entités publiées, avec leur catégorie (JOIN, pas de N+1).
- * Fallback sur les données statiques si la DB est indisponible.
+ * Fallback sur les données statiques si la DB n'est pas configurée.
  */
 export const getPublishedArtisans = cache(async (): Promise<PublicArtisan[]> => {
+  if (!dbConfigured()) return staticToPublicArtisans();
   try {
-    const rows = await db
-      .select({
-        id: artisans.id,
-        name: artisans.name,
-        slug: artisans.slug,
-        type: artisans.type,
-        craft: artisans.craft,
-        categoryId: artisans.categoryId,
-        categoryName: categories.name,
-        commune: artisans.commune,
-        address: artisans.address,
-        latitude: artisans.latitude,
-        longitude: artisans.longitude,
-        phone: artisans.phone,
-        email: artisans.email,
-        website: artisans.website,
-        shortDescription: artisans.shortDescription,
-        longDescription: artisans.longDescription,
-        imageUrl: artisans.imageUrl,
-        video: artisans.video,
-        autre: artisans.autre,
-        poinconType: artisans.poinconType,
-        poinconModalText: artisans.poinconModalText,
-        poinconModalLink: artisans.poinconModalLink,
-        jemaParticipant: artisans.jemaParticipant,
-      })
-      .from(artisans)
-      .leftJoin(categories, eq(artisans.categoryId, categories.id))
+    const rows = await selectPublicArtisans()
       .where(eq(artisans.published, true))
       .orderBy(asc(artisans.name));
 
-    if (rows.length > 0) {
-      return rows.map((r) => ({
-        ...r,
-        type: r.type ?? "artisan",
-      })) as PublicArtisan[];
-    }
-  } catch {
-    // DB indisponible → fallback
+    return rows.map(toPublicArtisan);
+  } catch (err) {
+    return dbError("getPublishedArtisans", err);
   }
-  return staticToPublicArtisans();
 });
 
 /**
@@ -211,7 +226,7 @@ export const getPublishedArtisans = cache(async (): Promise<PublicArtisan[]> => 
  */
 export const getArtisansOnly = cache(async (): Promise<PublicArtisan[]> => {
   const all = await getPublishedArtisans();
-  return all.filter((a) => !NON_ARTISAN_TYPES.includes(a.type));
+  return all.filter((a) => !isNonArtisan(a.type));
 });
 
 /**
@@ -234,45 +249,41 @@ export const getArtisanCategories = cache(async (): Promise<PublicCategory[]> =>
 
 /** Toutes les catégories (y compris institutionnelles). */
 export const getAllCategories = cache(async (): Promise<PublicCategory[]> => {
+  if (!dbConfigured()) return staticToPublicCategories();
   try {
     const rows = await db
       .select()
       .from(categories)
       .orderBy(asc(categories.sortOrder));
-    if (rows.length > 0) {
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        slug: r.slug,
-        description: r.description,
-        icon: r.icon,
-        color: r.color,
-      }));
-    }
-  } catch {
-    // fallback
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      description: r.description,
+      icon: r.icon,
+      color: r.color,
+    }));
+  } catch (err) {
+    return dbError("getAllCategories", err);
   }
-  return staticToPublicCategories();
 });
 
 /** Communes du canton (avec le drapeau soutien MAG). */
 export const getCommunes = cache(async (): Promise<PublicCommune[]> => {
+  if (!dbConfigured()) return staticToPublicCommunes();
   try {
     const rows = await db.select().from(communes).orderBy(asc(communes.name));
-    if (rows.length > 0) {
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        slug: r.slug,
-        latitude: r.latitude,
-        longitude: r.longitude,
-        soutientMag: r.soutientMag,
-      }));
-    }
-  } catch {
-    // fallback
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      latitude: r.latitude,
+      longitude: r.longitude,
+      soutientMag: r.soutientMag,
+    }));
+  } catch (err) {
+    return dbError("getCommunes", err);
   }
-  return staticToPublicCommunes();
 });
 
 /** Communes au format attendu par la carte des soutiens (page Qui sommes-nous). */
@@ -291,11 +302,20 @@ export const getCommunesForMap = cache(
   },
 );
 
-/** Une entité par son slug. */
+/** Une entité publiée par son slug (requête ciblée, pas de scan de la table). */
 export const getArtisanBySlugDb = cache(
   async (slug: string): Promise<PublicArtisan | null> => {
-    const all = await getPublishedArtisans();
-    return all.find((a) => a.slug === slug) ?? null;
+    if (!dbConfigured()) {
+      return staticToPublicArtisans().find((a) => a.slug === slug) ?? null;
+    }
+    try {
+      const [row] = await selectPublicArtisans()
+        .where(and(eq(artisans.slug, slug), eq(artisans.published, true)))
+        .limit(1);
+      return row ? toPublicArtisan(row) : null;
+    } catch (err) {
+      return dbError("getArtisanBySlugDb", err);
+    }
   },
 );
 
@@ -303,47 +323,73 @@ export const getArtisanBySlugDb = cache(
 export const getArtisansByCategoryDb = cache(
   async (categorySlug: string): Promise<PublicArtisan[]> => {
     if (EXCLUDED_CATEGORY_SLUGS.includes(categorySlug)) return [];
-    const [cats, list] = await Promise.all([getAllCategories(), getArtisansOnly()]);
-    const cat = cats.find((c) => c.slug === categorySlug);
+    const cat = (await getAllCategories()).find((c) => c.slug === categorySlug);
     if (!cat) return [];
-    return list.filter((a) => a.categoryName === cat.name);
+
+    let list: PublicArtisan[];
+    if (!dbConfigured()) {
+      list = staticToPublicArtisans().filter((a) => a.categoryName === cat.name);
+    } else {
+      try {
+        const rows = await selectPublicArtisans()
+          .where(and(eq(categories.slug, categorySlug), eq(artisans.published, true)))
+          .orderBy(asc(artisans.name));
+        list = rows.map(toPublicArtisan);
+      } catch (err) {
+        return dbError("getArtisansByCategoryDb", err);
+      }
+    }
+    return list.filter((a) => !isNonArtisan(a.type));
   },
 );
 
 /** Éditions JEMA, la plus récente d'abord. */
 export const getJemaEditions = cache(async (): Promise<PublicJemaEdition[]> => {
+  // Pas d'éditions en statique : base non configurée → liste vide
+  if (!dbConfigured()) return [];
   try {
     const rows = await db
       .select()
       .from(jemaEditions)
       .orderBy(desc(jemaEditions.year));
-    if (rows.length > 0) {
-      return rows.map((r) => ({
-        id: r.id,
-        year: r.year,
-        title: r.title,
-        startDate: r.startDate,
-        endDate: r.endDate,
-        isUpcoming: r.isUpcoming,
-        isPast: r.isPast,
-        description: r.description,
-        highlight: r.highlight,
-        programUrl: r.programUrl,
-        stats: r.stats ?? null,
-      }));
-    }
-  } catch {
-    // fallback : pas d'éditions en statique, on renvoie vide
+    return rows.map((r) => ({
+      id: r.id,
+      year: r.year,
+      title: r.title,
+      startDate: r.startDate,
+      endDate: r.endDate,
+      isUpcoming: r.isUpcoming,
+      isPast: r.isPast,
+      description: r.description,
+      highlight: r.highlight,
+      programUrl: r.programUrl,
+      stats: r.stats ?? null,
+    }));
+  } catch (err) {
+    return dbError("getJemaEditions", err);
   }
-  return [];
 });
 
-// ─── Helpers de comptage (règles LOT 1) ─────────────────────────
-
-/** Nombre d'artisans (type = artisan uniquement). */
-export function countArtisans(list: PublicArtisan[]): number {
-  return list.filter((a) => a.type === "artisan").length;
+/**
+ * Répartit les éditions JEMA :
+ * - `upcoming` : la prochaine édition à venir (l'année la plus proche) ;
+ * - `past` : les éditions marquées « passée » et non « à venir », la plus
+ *   récente d'abord. Une édition ni passée ni à venir (brouillon) n'apparaît pas.
+ * Source unique pour la page /jema, les pages /jema/[année] et le sitemap.
+ */
+export function splitJemaEditions(editions: PublicJemaEdition[]): {
+  upcoming: PublicJemaEdition | null;
+  past: PublicJemaEdition[];
+} {
+  const upcoming =
+    editions.filter((e) => e.isUpcoming).sort((a, b) => a.year - b.year)[0] ?? null;
+  const past = editions
+    .filter((e) => e.isPast && !e.isUpcoming)
+    .sort((a, b) => b.year - a.year);
+  return { upcoming, past };
 }
+
+// ─── Helpers de comptage (règles LOT 1) ─────────────────────────
 
 /** Nombre de métiers dédoublonnés (un métier = une occurrence). */
 export function countCrafts(list: PublicArtisan[]): number {

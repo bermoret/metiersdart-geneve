@@ -34,6 +34,10 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
+    // highlight = varchar(255) : refus explicite plutôt qu'une erreur SQL
+    if (typeof body.highlight === "string" && body.highlight.length > 255) {
+      return NextResponse.json({ error: "Le temps fort ne doit pas dépasser 255 caractères." }, { status: 400 });
+    }
 
     const [updated] = await db
       .update(jemaEditions)
@@ -45,6 +49,7 @@ export async function PATCH(
         ...(body.isUpcoming !== undefined && { isUpcoming: Boolean(body.isUpcoming) }),
         ...(body.isPast !== undefined && { isPast: Boolean(body.isPast) }),
         ...(body.description !== undefined && { description: body.description ? String(body.description) : null }),
+        ...(body.highlight !== undefined && { highlight: body.highlight ? String(body.highlight) : null }),
         ...(body.programUrl !== undefined && { programUrl: body.programUrl ? String(body.programUrl) : null }),
         ...(body.stats !== undefined && { stats: body.stats ?? null }),
         updatedAt: new Date(),

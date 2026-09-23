@@ -3,6 +3,8 @@ import {
   getArtisansOnly,
   getPublishedArtisans,
   getArtisanCategories,
+  countCrafts,
+  countCommunes,
 } from "@/lib/db-data";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
@@ -24,15 +26,9 @@ export default async function HomePage() {
 
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
-    {
-      value: new Set(artisansOnly.map((a) => a.craft).filter(Boolean)).size,
-      label: "Métiers MAG",
-    },
-    {
-      // Règle LOT 1 : toutes entités confondues (écoles, institutions comprises)
-      value: new Set(allEntities.map((a) => a.commune).filter(Boolean)).size,
-      label: "Communes MAG",
-    },
+    { value: countCrafts(artisansOnly), label: "Métiers MAG" },
+    // Règle LOT 1 : toutes entités confondues (écoles, institutions comprises)
+    { value: countCommunes(allEntities), label: "Communes MAG" },
     { value: artisanCategories.length, label: "Domaines d'art" },
   ];
 

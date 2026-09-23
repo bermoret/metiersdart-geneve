@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getArtisanCategories, getArtisansOnly, getJemaEditions } from "@/lib/db-data";
+import {
+  getArtisanCategories,
+  getArtisansOnly,
+  getJemaEditions,
+  splitJemaEditions,
+} from "@/lib/db-data";
 
 // ISR : le sitemap suit les modifications de l'admin (nouvelles fiches incluses).
 export const revalidate = 3600;
@@ -39,7 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const jemaRoutes: MetadataRoute.Sitemap = editions.map((e) => ({
+  // Seules les éditions passées ont une page /jema/[année] (cf. splitJemaEditions)
+  const jemaRoutes: MetadataRoute.Sitemap = splitJemaEditions(editions).past.map((e) => ({
     url: `${baseUrl}/jema/${e.year}`,
     lastModified: now,
     changeFrequency: "yearly",

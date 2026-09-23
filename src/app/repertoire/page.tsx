@@ -1,6 +1,9 @@
 import { RepertoireTable } from "@/components/repertoire/RepertoireTable";
 import { getArtisansOnly, getArtisanCategories } from "@/lib/db-data";
 
+// ISR : le répertoire suit les modifications de l'admin (au plus 60 s).
+export const revalidate = 60;
+
 export const metadata = {
   title: "Répertoire",
   description:
@@ -32,7 +35,19 @@ export default async function RepertoirePage() {
 
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <RepertoireTable artisans={list} categories={categories} />
+          {/* Composant client : on ne sérialise que les champs utiles au tableau
+              (pas les descriptions, poinçons, contacts…) */}
+          <RepertoireTable
+            artisans={list.map((a) => ({
+              id: a.id,
+              name: a.name,
+              slug: a.slug,
+              craft: a.craft,
+              categoryName: a.categoryName,
+              commune: a.commune,
+            }))}
+            categories={categories}
+          />
         </div>
       </section>
     </>
