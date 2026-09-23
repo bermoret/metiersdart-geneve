@@ -17,8 +17,12 @@ Reports, points à vérifier et décisions ouvertes, par chantier (plus récent 
 
 - Cohérence : accueil ancienne version, reste du site en style refonte. Header / footer / autres
   pages à ramener aussi si le client préfère l'ancien ensemble (tag `restore/avant-refonte-2026-09-23`).
-- Disparus avec la version refonte de l'accueil : bandeau JEMA branché sur la prochaine
-  édition, portraits d'artisan·e·s. À réintroduire au style ancien si MAG le souhaite.
+- ~~Bandeau JEMA~~ : remis au style ancien (entre les domaines et « Notre mission »),
+  branché sur la prochaine édition de l'admin ; photo = fiche de Frédéric Taddeï (recherche par
+  nom, repli `/artisan-tools.jpg`). Portraits d'artisan·e·s non remis.
+- Une édition restée cochée « à venir » après ses dates s'affiche encore en « Prochaine
+  édition » (accueil et /jema) : `splitJemaEditions` ne regarde que `isUpcoming`. Piste :
+  ignorer une édition dont `endDate` est passée, dans `src/lib/db-data.ts`.
 - Textes client de l'ancien accueil : « proche de chez vous » (→ proches), « oeuvrons »
   (→ œuvrons), badge « {n}+ artisans référencés » (« + » alors que le nombre est exact,
   non inclusif). À corriger avec l'accord de MAG.

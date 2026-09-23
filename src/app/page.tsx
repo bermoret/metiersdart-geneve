@@ -5,7 +5,11 @@ import {
   getArtisanCategories,
   countCrafts,
   countCommunes,
+  getJemaEditions,
+  splitJemaEditions,
 } from "@/lib/db-data";
+import { formatShortRange } from "@/lib/dates";
+import { canOptimizeImage } from "@/lib/utils";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -17,12 +21,26 @@ import Link from "next/link";
 // modification dans l'admin, tout en restant servies depuis le cache.
 export const revalidate = 60;
 
+/* Photo du bandeau JEMA : celle de la fiche de cet artisan (recherche par nom),
+   à défaut une photo d'atelier locale. */
+const JEMA_ARTISAN = "Frédéric Taddeï";
+const JEMA_FALLBACK_IMAGE = "/artisan-tools.jpg";
+
 export default async function HomePage() {
-  const [artisansOnly, allEntities, artisanCategories] = await Promise.all([
+  const [artisansOnly, allEntities, artisanCategories, jemaEditions] = await Promise.all([
     getArtisansOnly(),
     getPublishedArtisans(),
     getArtisanCategories(),
+    // Une panne de la table JEMA ne doit pas faire tomber l'accueil : bandeau générique.
+    getJemaEditions().catch(() => []),
   ]);
+
+  // Bandeau JEMA : prochaine édition saisie dans l'admin, sinon rendez-vous générique.
+  const { upcoming } = splitJemaEditions(jemaEditions);
+  const jemaArtisan = allEntities.find(
+    (a) => a.imageUrl && a.name.toLowerCase().includes(JEMA_ARTISAN.toLowerCase()),
+  );
+  const jemaImage = jemaArtisan?.imageUrl ?? JEMA_FALLBACK_IMAGE;
 
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
@@ -254,6 +272,64 @@ export default async function HomePage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* ─── JEMA ───────────────────────────────────────────────── */}
+      <section className="pb-20 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-mag-red to-mag-red-dark text-white shadow-xl shadow-mag-red/20 focus-ring-white">
+              <div className="grid lg:grid-cols-2 items-stretch">
+                <div className="p-8 sm:p-12 lg:p-14 text-center lg:text-left">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-mag-cream">
+                    {upcoming ? "Prochaine édition" : "Rendez-vous annuel"}
+                  </p>
+                  <h2 className="mt-3 text-4xl sm:text-5xl font-black font-serif">
+                    JEMA{upcoming ? ` ${upcoming.year}` : ""}
+                  </h2>
+                  <p className="mt-5 text-lg text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    Journées Européennes des Métiers d&apos;Art : les ateliers genevois
+                    ouvrent leurs portes.
+                  </p>
+                  {upcoming?.startDate && (
+                    <p className="mt-4 inline-flex items-center gap-2 text-lg font-semibold">
+                      <i className="fas fa-calendar-alt text-mag-cream" aria-hidden />
+                      {formatShortRange(upcoming.startDate, upcoming.endDate)}
+                    </p>
+                  )}
+                  <div className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <Link
+                      href="/jema"
+                      className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-base font-semibold text-mag-red shadow-lg shadow-mag-dark/10 hover:bg-mag-cream transition-colors"
+                    >
+                      Préparer ma visite <span aria-hidden>→</span>
+                    </Link>
+                    <Link
+                      href="/repertoire"
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 px-7 py-3.5 text-base font-semibold text-white hover:border-white hover:bg-white/10 transition-all"
+                    >
+                      Trouver un atelier
+                    </Link>
+                  </div>
+                </div>
+                <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[380px] bg-mag-red-dark">
+                  <Image
+                    src={jemaImage}
+                    unoptimized={!canOptimizeImage(jemaImage)}
+                    alt={
+                      jemaArtisan
+                        ? `${jemaArtisan.name}${jemaArtisan.craft ? `, ${jemaArtisan.craft.toLowerCase()}` : ""}, dans son atelier`
+                        : "Outils d'artisan sur un établi"
+                    }
+                    fill
+                    sizes="(min-width: 1280px) 608px, (min-width: 1024px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
