@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Frank_Ruhl_Libre } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { GTM_LOADER_SCRIPT } from "@/lib/gtm";
 
 // Inter = remplaçant de Muli (sans-serif, lisible, moderne) — Muli est dépréciée sur Google Fonts
 const muli = Inter({
@@ -61,6 +63,11 @@ export default function RootLayout({
       className={`${muli.variable} ${frankRuhl.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-mag-dark">
+        {/* GTM via Stape (CookieScript + GA4 dans le conteneur) — exécuté avant
+            l'hydratation, dès le chargement du runtime Next. */}
+        <Script id="gtm-stape" strategy="beforeInteractive">
+          {GTM_LOADER_SCRIPT}
+        </Script>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -2,6 +2,28 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Suivi : GTM / Stape / CookieScript / GA4 repris de l'ancien site
+
+Même conteneur que le site Joomla (`GTM-M6497K4X`, loader Stape `nlpd.metiersdart-geneve.ch`) ;
+CookieScript et GA4 (`G-S9P7VJHKRL`) sont dans le conteneur. Chargé uniquement sur
+`metiersdart-geneve.ch` / `www` (ou avec `?gtm_debug`), jamais sur `/admin` et `/auth`.
+
+### À vérifier (à la bascule DNS)
+
+- **Ne pas toucher l'enregistrement DNS `nlpd`** (CNAME vers Stape) en basculant l'apex et
+  `www` vers Vercel — sinon GTM, CookieScript et GA4 tombent.
+- **Bannière CookieScript** visible sur `metiersdart-geneve.ch` (elle ne s'affiche pas sur
+  localhost / vercel.app, hors domaine licencié).
+- **GA4 temps réel** : pages vues reçues, y compris les navigations internes (le site est une
+  SPA : vérifier que la mesure améliorée « changements d'historique » est active sur le flux).
+
+### Skippé
+
+- **Pas de `<noscript>` ns.html** (présent sur l'ancien site) : sans JavaScript, pas de
+  consentement possible, donc pas de pixel.
+- **Tag Assistant sur vercel.app** : `?gtm_debug` se perd à chaque rechargement complet ;
+  suffisant pour un test ponctuel, pas de persistance ajoutée.
+
 ## 2026-09-23 — Correctifs de review : pages publiques branchées sur la base
 
 ### Skippé / hors périmètre
