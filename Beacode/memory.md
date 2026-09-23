@@ -3,7 +3,7 @@
 ## Architecture & Stack
 - **Next.js 15 / React 19** (App Router) / TypeScript strict / Tailwind v4
 - **DB : PostgreSQL Neon** via Drizzle ORM (`drizzle-kit push` pour migrations)
-- **Auth.js (NextAuth v5)** : magic link (Resend) + Passkeys WebAuthn — `src/auth.ts` avec `experimental.enableWebauthn: true`
+- **Auth.js (NextAuth v5)** : magic link (Resend) uniquement — `src/auth.ts`. Passkeys retirées le 2026-09-09 (a76e214, erreur `UnknownAction`) ; `@simplewebauthn/*` n'est plus une dépendance directe (Auth.js les déclare en peers optionnels). La table `authenticator` reste dans le schéma, vide.
 - **Vercel Blob** pour uploads d'images (`@vercel/blob`)
 - **Resend** pour e-mails (domaine vérifié `jooce.ch`, from: `contact@jooce.ch`)
 - **Leaflet** pour carte interactive des artisans

@@ -66,7 +66,9 @@ export const verificationTokens = pgTable(
   ],
 );
 
-// DrizzleAdapter expects these exact column names for passkey support
+// DrizzleAdapter expects these exact column names for passkey support.
+// Passkeys inactive depuis a76e214 : table gardée (vide) pour une réactivation,
+// avec @simplewebauthn/* en ^9 — voir docs/FOLLOW-UP.md (GHSA-6hxq-p678-4hr2).
 export const authenticators = pgTable("authenticator", {
   credentialID: varchar("credential_id", { length: 255 }).notNull().unique(),
   userId: uuid("user_id")

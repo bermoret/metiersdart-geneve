@@ -2,6 +2,39 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Sécurité : GHSA-6hxq-p678-4hr2 (SimpleWebAuthn), dépendances retirées
+
+Exposition établie : nulle. Les passkeys sont désactivées depuis le 2026-09-09 (a76e214 : provider
+`Passkey` et `experimental.enableWebAuthn` retirés de `src/auth.ts`, seul le magic link Resend
+reste) ; aucun import de `@simplewebauthn/*` ni de `next-auth/providers/passkey` ; table
+`authenticator` vide en prod. Même réactivées, Auth.js n'envoie pas d'`attestationType` (défaut
+`none`), donc la validation de chaîne fautive ne tourne pas.
+
+**Fait (option A, accord Bernard)** : `@simplewebauthn/server` et `/browser` retirés des
+dépendances directes. Auth.js les déclare en peers optionnels : plus installés, 19 paquets en
+moins dans le lockfile, aucun ajout. Disparaissent de `npm audit` : `@simplewebauthn/server`,
+`@auth/core`, `next-auth`, `@auth/drizzle-adapter`. Aucune ligne de code touchée.
+
+### Écarté
+
+- **Monter en 13.3.2 / v14** : `@auth/core` (même next-auth beta.32, la dernière) exige
+  `@simplewebauthn/* ^9` → ERESOLVE ; et Auth.js lit l'API v9 (`registrationInfo.credentialID`),
+  un enregistrement de passkey casserait. Code mort de toute façon.
+- **Correctif proposé par `npm audit` pour `@auth/core`** : redescendre en next-auth 4. À ignorer.
+
+### Réactiver les passkeys un jour
+
+Réinstaller `@simplewebauthn/server` + `/browser` **en ^9** (ce qu'Auth.js supporte), remettre
+`Passkey()` + `experimental.enableWebAuthn`, et régler l'erreur `UnknownAction` de a76e214.
+L'advisory redeviendra listée par `npm audit` : sans effet tant que `attestationType` reste
+`none`. La table `authenticator` est conservée (vide) pour ça.
+
+### Relevé en review (antérieur, hors périmètre)
+
+- **`src/middleware.ts`** : `/api/admin` figure dans `protectedPaths`, mais le `matcher` exclut
+  `api` → entrée morte. Pas de faille : toutes les routes `src/app/api/admin/**/route.ts` appellent
+  `requireAdminApi()` (vérifié). À retirer ou commenter.
+
 ## 2026-09-23 — Sécurité : XSS stockée via `categories.color`
 
 Corrigé en code : la couleur n'entre plus brute ni dans le HTML des marqueurs Leaflet
@@ -49,13 +82,13 @@ C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:pus
 
 ### Relevé en passant : `npm audit`, extrait (2026-09-23, antérieur, inchangé par la mise à jour)
 
-- **`@simplewebauthn/server` ≤ 13.3.1** (projet en ^9, passkeys admin) : chaîne des certificats
-  d'attestation insuffisamment vérifiée (GHSA-6hxq-p678-4hr2). Correctif = v14, cassant ; à évaluer
-  selon la politique d'attestation utilisée à l'enregistrement.
+- ~~**`@simplewebauthn/server` ≤ 13.3.1**~~ (GHSA-6hxq-p678-4hr2) : **traité**, dépendance retirée
+  (passkeys inactives) — voir la section SimpleWebAuthn plus haut.
 - **`postcss` ≤ 8.5.22** embarqué par `next` (élevé, côté build) : correctif via next 16, cassant.
 - **`esbuild` ≤ 0.24.2** via `@esbuild-kit` (dépendance de drizzle-kit 0.31, dev uniquement,
   concerne le serveur de dev d'esbuild, non utilisé ici). Disparaît avec drizzle-kit 1.0.
-- Aussi : `next` (modéré), `@auth/core` / `next-auth` (faible, via SimpleWebAuthn) ; détail : `npm audit`.
+- Aussi : `next` (modéré) ; détail : `npm audit`. (`@auth/core` / `next-auth`, faibles via
+  SimpleWebAuthn : disparus avec elle.)
 - Hors audit : `eslint-config-next` 16.3.4 face à `next` 15.5 (versions désalignées).
 
 ### Skippé / hors périmètre
