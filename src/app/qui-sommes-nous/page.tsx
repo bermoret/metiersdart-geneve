@@ -1,4 +1,5 @@
-import { getCommunesForMap } from "@/lib/db-data";
+import { getArtisansOnly, getCommunesForMap } from "@/lib/db-data";
+import { communeKey } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
 import { CommunesMapSection } from "@/components/qui-sommes-nous/CommunesMapSection";
 import { PageHero } from "@/components/ui/Editorial";
@@ -9,7 +10,7 @@ export const metadata = {
     "MAG est une association tripartite apolitique, sans but lucratif, à l'interface de l'artisanat, de la culture, du patrimoine et de l'art.",
 };
 
-// ISR : la carte des communes soutiens suit les modifications de l'admin.
+// ISR : la carte des communes partenaires suit les modifications de l'admin.
 export const revalidate = 60;
 
 const valeurs = [
@@ -54,6 +55,7 @@ const partenaires = [
     description:
       "Sauvegarde du patrimoine, conseil technique, restauration. Organise les JEP, JEMA et « l'Art de Bâtir ».",
     website: "ge.ch",
+    url: "https://www.ge.ch/organisation/office-du-patrimoine-sites-ops",
   },
   {
     name: "OFPC",
@@ -61,6 +63,7 @@ const partenaires = [
     description:
       "Encadrement de la filière professionnelle genevoise, promotion de l'apprentissage. Met en lumière les métiers d'art via JEMA et cité-métiers.ch.",
     website: "ge.ch",
+    url: "https://www.ge.ch/organisation/direction-generale-office-orientation-formation-professionnelle-continue",
   },
   {
     name: "Domus Antiqua Helvetica (DAH)",
@@ -79,7 +82,10 @@ const secrétariat = [
 ];
 
 export default async function QuiSommesNousPage() {
-  const mapCommunes = await getCommunesForMap();
+  const [communes, artisansOnly] = await Promise.all([getCommunesForMap(), getArtisansOnly()]);
+  // Une commune partenaire sans artisan·e au répertoire est « en recherche d'artisan·e·s ».
+  const withArtisans = new Set(artisansOnly.map((a) => communeKey(a.commune ?? "")));
+  const mapCommunes = communes.map((c) => ({ ...c, hasArtisans: withArtisans.has(communeKey(c.name)) }));
   return (
     <>
       <PageHero
@@ -169,21 +175,17 @@ export default async function QuiSommesNousPage() {
         </div>
       </section>
 
-      {/* Communes qui soutiennent MAG */}
+      {/* Communes partenaires */}
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <h2 className="h-section mb-8">
-              Communes qui soutiennent MAG
+              Communes partenaires
             </h2>
             <p className="text-mag-dark/70 leading-relaxed mb-6 max-w-3xl">
               MAG travaille en étroite collaboration avec les communes du canton de Genève.
-              Les communes marquées en rouge soutiennent activement l&apos;association et
-              contribuent à la promotion des métiers d&apos;art sur leur territoire.
-              Votre commune ne figure pas encore parmi nos soutiens&nbsp;?{" "}
-              <a href="mailto:contact@metiersdart-geneve.ch" className="text-mag-red hover:underline">
-                Contactez-nous pour rejoindre le dispositif
-              </a>.
+              Les communes partenaires, en couleur sur la carte, soutiennent l&apos;association
+              et contribuent à la promotion des métiers d&apos;art sur leur territoire.
             </p>
           </Reveal>
 
@@ -207,7 +209,7 @@ export default async function QuiSommesNousPage() {
                 </p>
                 <p className="mt-3 text-xs">
                   <a
-                    href={`https://${p.website}`}
+                    href={p.url ?? `https://${p.website}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-mag-red hover:underline"

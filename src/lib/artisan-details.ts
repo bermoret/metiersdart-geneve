@@ -1,5 +1,9 @@
 // Données scrapées depuis metiersdart-geneve.ch — fiches artisans individuelles
-// Généré automatiquement le 9 septembre 2026
+// Généré automatiquement le 9 septembre 2026.
+// 23 septembre 2026 : textes de présentation (`description`) complétés pour
+// 101 fiches que le premier scraping n'avait pas captés (repris des pages
+// Joomla, titre répété en tête retiré). Report en base :
+// scripts/backfill-descriptions.ts.
 
 export type ArtisanDetail = {
   image?: string;
@@ -18,6 +22,7 @@ export type ArtisanDetail = {
 export const artisanDetails: Record<string, ArtisanDetail> = {
   "AP Sellerie, Anne Ponthenier": {
     image: "https://metiersdart-geneve.ch/images/2021/11/23/ap-carr.jpg",
+    description: "L’art de la sellerie intervient dans de nombreux domaines tels que l’aéronautique, l’automobile, l’ameublement contemporain, la moto ou encore le nautisme. Anne Ponthenier s'épanouit dans la diversité et le challenge que lui procurent ses confections. Son savoir-faire fort de 20 ans, lui permet de transmettre ses connaissances à ses apprenties. Elle accorde une importance particulière à chacun de ses projets, au travers desquels elle équilibre confort et esthétique tout en promouvant les valeurs artisanes.",
     address: "Route du Nant d'Avril 49, 1214 Vernier",
     website: "http://www.aponthenier.com/",
     video: "https://vimeo.com/812729258",
@@ -28,15 +33,18 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "ARMP": {
     image: "https://metiersdart-geneve.ch/images/2026/02/02/armp-logo-carre.png",
+    description: "L’Association romande des métiers de la pierre (ARMP), créée en 1996 et forte d’une quarantaine d’entreprises issues des six cantons romands, a pour but de :\n\nRéunir sous une même bannière les entreprises exerçant les métiers dans le domaine de la pierre, à savoir dans les domaines suivants : sculpture ; industrie ; bâtiment et rénovation ; conception et marbrerie.\n\nFormer la relève en garantissant aux apprentis une formation et un avenir de qualité.\n\nÊtre l'interlocuteur \"pierre naturelle\" de référence face à tous les acteurs du secteur de la construction : administrations, architectes, décideurs, écoles, propriétaires privés, etc.",
     address: "Case postale 306, 1815 Clarens",
     website: "https://www.armp.ch",
   },
   "ASMEBI": {
     image: "https://metiersdart-geneve.ch/images/2023/06/20/asmebi.png",
+    description: "L’ASMEBI réunit les entreprises et artisans de la bijouterie-joaillerie ainsi que l’ensemble des professionnels de la branche. Son objectif est la promotion et la représentation de ces professions. Elle a également pour but de défendre et développer les intérêts des membres, ainsi que de veiller sur les valeurs de la branche.",
     address: "Association Romande des Métiers de la Bijouterie, 32, rue des Noirettes, 1227 Carouge, , ",
   },
   "Art & Maison SA": {
     image: "https://metiersdart-geneve.ch/images/2025/12/10/photo-2025-12-05-11-55-33-carre.jpg",
+    description: "Créée en 1988, Art & Maison SA est une entreprise familiale d'origine italienne qui a su allier tradition artisanale et exigence contemporaine. Si le métier de parqueteur est au cœur de son savoir-faire, l'équipe maîtrise bien d'autres compétences dans la menuiserie, le carrelage ou encore la peinture, avec toujours la même précision et le même goût du travail bien fait.\n\nAvec une dizaine de collaborateurs, l'entreprise met un point d'honneur à respecter les délais, sans jamais sacrifier la qualité. Sa polyvalence, véritable atout, lui permet d'intervenir avec souplesse et efficacité, aussi bien pour des clients privés que pour des institutions.\n\nEn 2025, Art & Maison SA a franchi un seuil symbolique avec près de 6'000 m² de parquets posés durant cette année, et plus de 40'000 m² depuis sa création. Des chiffres qui illustrent la confiance renouvelée de ses clients et la rigueur constante de ses équipes.\n\nRéactivité, qualité et adaptation sont les maîtres-mots qui animent chaque projet, du conseil à la réalisation. Dans leur showroom de Bellevue, les clients découvrent l'étendue des matières, des textures et des inspirations que l'équipe met en œuvre avec passion.",
     address: "Route de Lausanne 331, 1293, Bellevue",
     poinconType: "ENTREPRISE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ENTREPRISE – distingue des structures constituées de plusieurs employé·e·s, dont un ou plusieurs secteurs sont dédiés à un métier d’art. Accessibles sur rendez-vous, ou après un contact préalable. Cliquez ici pour en savoir plus.",
@@ -44,6 +52,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Art Kern": {
     image: "https://metiersdart-geneve.ch/images/2024/11/08/art-kern_image.jpg",
+    description: "Depuis 1926, l’entreprise familiale Art Kern s’anime et s’exprime autour du métal. Dans le respect des règles de l’art, leurs artisans travaillent à sublimer cette matière en pratiquant l’art de la patine. Chaque projet qu’elle entreprend se veut unique, porté par un esprit innovant et créateur. Elle propose ainsi une gamme variée de produits, combinant technologie, artisanat et design.\n\nLeur équipe passionnée et dévouée, s’engage à fournir un service haut de gamme, ajustant chaque détail pour donner vie à des projets sur-mesure. L’objectif premier est de répondre aux exigences, de la conception à la réalisation, tout en défiant les limites de cet art.",
     address: "Rampe Quidort 4, 1227 Les Acacias",
     website: "https://www.artkern.ch",
     autre: "Entreprise formatrice",
@@ -53,6 +62,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Artisan du Staff": {
     image: "https://metiersdart-geneve.ch/images/2026/02/16/composition-1-copie.png",
+    description: "Installé à Genève depuis 2012, l'atelier Artisan du Staff est spécialisé dans la création, la fabrication et la restauration d'éléments décoratifs. Corniches, moulures, rosaces, chapiteaux et décors sur mesure sont réalisés selon des techniques artisanales traditionnelles, alliées à une exigence contemporaine de précision et de qualité. L'atelier intervient aussi bien sur des projets neufs que dans la rénovation de bâtiments patrimoniaux et de demeures de caractère, en collaboration étroite avec architecte et maîtres d'ouvrage.",
     address: "Rue de Veyrot 14, 1217 Meyrin",
     website: "https://artisandustaff.ch",
     poinconType: "ENTREPRISE",
@@ -61,6 +71,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Association pour le patrimoine industriel (API)": {
     image: "https://metiersdart-geneve.ch/images/2021/03/25/api-copie.jpg",
+    description: "Les ateliers et l'écomusée de l'API mettent à l'honneur leur activité dans le domaine de l'impression sur presses anciennes. Cette activité permet de conserver et transmettre des savoirs-faire en composition et impression typographiques ainsi que dans le domaine de la reliure. Toutes les étapes de fabrication d'un livre sont ainsi présentes grâce au travail créatif des différent.e.s artisans et artisanes. Leurs connaissances sont partagées à travers des propositions de cours de typographie, gravure, impression, reliure... ouverts à toutes et tous.",
     address: "Rue du Vuache 25, 1201 Genève",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -68,6 +79,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier 9": {
     image: "https://metiersdart-geneve.ch/images/2024/11/20/atelier-9.jpg",
+    description: "Situé au cœur de Genève, l'Atelier 9 réunit Aurore de Geer, Oya Kozacioglu et Muriel Laurent, toutes trois bijoutières et diplômées de la HEAD, partageant une même passion pour la création de bijoux. Alliant savoir-faire traditionnel et design contemporain, l’atelier se distingue par son approche sur-mesure, offrant des pièces uniques et personnalisées. Chaque création, conçue avec soin et minutie, reflète une vision artistique singulière, valorisant des matériaux de qualité et des techniques respectueuses de l’art joaillier. À l’Atelier 9, chaque bijou raconte une histoire, façonnée avec une créativité sans limite et un amour du détail.",
     address: "Place de-Grenus 9, 1201 Genève",
     website: "https://www.atelier-neuf.ch",
     poinconType: "BOUTIQUE",
@@ -76,6 +88,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier ABR Sàrl": {
     image: "https://metiersdart-geneve.ch/images/2021/02/25/aubonrelieur.jpg",
+    description: "A l’heure du tout numérique, l’Atelier ABR nous prouve avec bonheur que la reliure artisanale se porte bien. Les appels aux sens et à la mémoire suscités par la matière indémodable qu’est le papier garantissent au métier de relieur une place de choix dans l’artisanat d’art. En plus des différentes étapes propres au savoir-faire du relieur tels que la fabrication, la dorure de livres ou encore la couture et le collage, l’atelier enrichit le métier par sa volonté d’évoluer au sein des tendances contemporaines grâce aux nouvelles technologies.",
     address: "Chemin des Coquelicots 5 , 1214 Vernier",
     website: "https://www.aubonrelieur.com/",
     poinconType: "ATELIER",
@@ -84,6 +97,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier AnD": {
     image: "https://metiersdart-geneve.ch/images/2025/02/20/img_4066.jpeg",
+    description: "Inauguré en 2024 sous l'égide d'Anita Durand, [Membre SKR-SCR], cet espace lumineux et discret, renferme près de deux décennies d'un savoir-faire empirique, doublé d'une connaissance technique solide, que viennent compléter des équipements innovants adaptés aux exigences de l'excellence. Les œuvres peintes y sont soignées, qu'elles aient subi les outrages du temps, les maladresses de manutentions ou tous autres accidents, dans la limite de nos compétences.\n\nL'Atelier AnD expertise l'état de vos pièces, il les valorise, de l'intervention minimale à la restauration mesurée, avec pour objectifs une plus-value esthétique, et la consolidation de votre patrimoine.",
     address: "Rue Eugène-Marziano 17A, 1227 Les Acacias",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -91,6 +105,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier C1, Thierry Reverdin": {
     image: "https://metiersdart-geneve.ch/images/2022/01/26/atelier-c1-carr.jpeg",
+    description: "Après une jeunesse genevoise, un long séjour romain et quelques années universitaires en Suisse, je me suis lancé : un premier atelier m’a donné une chance, puis un deuxième avec un engagement de plusieurs années et une très solide expérience, et finalement en 1999 la fondation de mon atelier, en parallèle avec un engagement à l’ECAL.\n\nMon atelier fabrique essentiellement des maquettes d’architecture, du concours au plan d’urbanisation, de la villa à l’immeuble… Mais aussi des mandats qui sortent de l’ordinaire, comme un bus de plus d’un mètre de long, des dirigeables, des bateaux.\n\nMélange de façons de travailler « archaïques » en 2022 et de méthodes à la pointe du progrès, le métier est toujours riche. Matières, matériaux, colles, peintures, techniques appropriées. La maquette d’architecture touche à beaucoup de domaines : menuiserie, quincaillerie, modélisme ferroviaire, peinture sur carrosserie ou encore outillage.\n\nLe nombre de machines peut surprendre : c’est l’addition des différentes étapes de travail bien précises sur chacune d’elle qui aboutit à une maquette : planifier, concevoir, découper, usiner, poncer, assembler, peindre.",
     address: "Avenue des Tilleuls 7, 1203 Genève, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -124,6 +139,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier Galerie Igor Siebold": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/siebold.jpg",
+    description: "Pour Igor Siebold, le style surpasse la mode. C’est selon cet esprit qu’il conçoit des bijoux dont la durabilité et la pérennité sont garantes d’un savoir-faire qu’il aime à faire évoluer avec le temps et les nouvelles technologies. Ancienne ou nouvelle génération, les machines jouent un rôle important dans l’élaboration de ses créations dont le style, caractérisé par son aspect intemporel et un refus de l’ostentatoire, représente sa passion du beau.",
     address: "Rue Saint-Joseph 8, 1227 Carouge",
     website: "https://www.igorsiebold.ch",
     poinconType: "BOUTIQUE",
@@ -132,6 +148,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier Genevois de Gravure Contemporaine (AGGC)": {
     image: "https://metiersdart-geneve.ch/images/2021/03/18/photo1-main-photogregcleement.jpg",
+    description: "Niché au cœur d’un parc situé derrière le Muséum d’Histoire Naturelle, l’Atelier genevois de gravure contemporaine (AGGC) propose une large gamme de cours ouverts à tou·te·s et offre aux artistes une infrastructure optimale pour la pratique de l’estampe, de la plus traditionnelle à la plus novatrice.",
     address: "Route de Malagnou 17, 1208 Genève",
     website: "https://aggc.ch",
     poinconType: "INSTITUTION",
@@ -140,6 +157,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier Gibson, Oran Gibson": {
     image: "https://metiersdart-geneve.ch/images/2021/02/10/gibson.jpg",
+    description: "L’Atelier Gibson est un atelier de bijouterie – joaillerie, sertissage, mais également une fonderie, qui coule des pièces pour de nombreux artisans bijoutiers de la place genevoise. Équipé avec les dernières avancées technologiques, l’Atelier Gibson vise à trouver un juste équilibre entre les techniques ancestrales de bijouterie et les méthodes plus modernes.",
     address: "Clos de la Fonderie 7, 1227 Carouge",
     website: "http://ateliergibson.ch/",
     autre: "Entreprise formatrice",
@@ -149,6 +167,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier JMS, Jean-Michel Staudhammer": {
     image: "https://metiersdart-geneve.ch/images/2021/02/26/jms.jpg",
+    description: "L’Atelier JMS réalise de manière artisanale depuis plus de 30 ans des maquettes à toutes échelles ainsi que des miniatures et des prototypes. Reproduction de quartiers entiers ou création de mondes imaginaires, Jean-Michel Staudhammer et son équipe sont les alliés indispensables des architectes, des collectivités, des promoteurs immobiliers, des muséologues, ou encore des cinéastes d’animation.",
     address: "Rue Peillonnex 17, 1225 Chêne-Bourg",
     website: "http://www.atelier-jms.ch",
     autre: "Entreprise formatrice",
@@ -158,6 +177,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier Laurent Jolliet": {
     image: "https://metiersdart-geneve.ch/images/2021/08/31/1600872801_laurentjolliet20200923a1.jpeg",
+    description: "Laurent Jolliet apprend le métier de chaîniste chez Gay-Frères à Genève. Il travaille pour divers bijoutiers et pratique la joaillerie pendant deux ans avant de reprendre l’atelier de Michel Hess en 2005. Depuis, il crée et répare colliers, bracelets et autres bijoux pour des privés ou des grandes marques horlogères. Dernier chaîniste de Suisse, il donne des cours aux apprentis bijoutiers genevois.\n\nLaurent Jolliet crée ses chaînes entièrement à la main et il peut y consacrer entre un et deux mois. En fonction du type de chaînes souhaité, il façonne des fils d’or, de platine ou d'argent, des spires ou encore des maillons qu’il monte ensuite minutieusement. Le résultat, parfois soudé, est toujours souple et résistant : un bracelet de montre porté quotidiennement peur tenir jusqu’à 30 ans.",
     address: "Chemin du Château-Bloch 19, 1219 Le Lignon",
     website: "https://www.facebook.com/AtelierLaurentJolliet/",
     poinconType: "ATELIER",
@@ -175,6 +195,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier Orange": {
     image: "https://metiersdart-geneve.ch/images/2026/02/16/unknown-carre1.jpeg",
+    description: "Dans son atelier carougeois, Aline Hiltpold crée et transforme des bijoux en or ou en argent, agrémentés de pierres, de perles ou d'émail. Elle réalise avant tout des créations sur-mesure qui puisent leur inspiration dans vos idées et soulignent votre personnalité.",
     address: "Rue Saint-Joseph 10, 1227 Carouge",
     website: "http://www.atelierorange.ch",
     poinconType: "BOUTIQUE",
@@ -192,6 +213,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Atelier d'Art, Jacky Riesen": {
     image: "https://metiersdart-geneve.ch/images/2021/03/04/atelierdart.jpg",
+    description: "Depuis 1930, l’Atelier d’Art répare, électrifie et transforme tout luminaire, du lustre le plus imposant à la lampe de chevet. Au sein de son atelier, Jacky Riesen étudie, transforme et adapte l’effet lumineux des lustres ou lampes par l’éclairage indirect afin d’embellir l’habitat. Il développe également de nouvelles techniques d’éclairage et crée des lampes teintées de modernité.",
     address: "Route des Jeunes 59, 1212 Grand-Lancy",
     website: "http://www.atelier-d-art.ch",
     poinconType: "ATELIER",
@@ -218,11 +240,13 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Ateliers de décors de théâtre": {
     image: "https://metiersdart-geneve.ch/images/2025/06/24/ateliers-de-decors_jema2024_image.jpg",
+    description: "Entre l'imagination des scénographes et les plateaux de théâtre, il y a tout le long processus de construction des décors. C'est ceci que nous vous invitons à venir découvrir dans nos ateliers de décor de théâtre où collaborent dessinateur·trice·s, menuisier·ère·s, constructeur·trice·s métallique et peintres depuis 1981.",
     address: "Route du Bois-des-Frères 44, 1219 Le Lignon",
     website: "https://www.geneve.ch/demarches/effectuer-demande-aupres-ateliers-decors-theatre",
   },
   "Ateliers de restauration de tableaux": {
     image: "https://metiersdart-geneve.ch/images/2026/02/16/screenshot_20260121_090931_chrome.jpg",
+    description: "Laurent Jornod, restaurateur de tableaux depuis 1993, redonne éclat et lisibilité aux œuvres altérées par le temps, qu’il s’agisse d’huiles sur toile, sur bois, de peintures acryliques, de cadres ou d’objets polychromes. Formé avec exigence, il met son savoir-faire au service d’institutions publiques et privées. En 2005, il fonde son propre atelier, lieu dédié à la préservation du patrimoine ancien et contemporain.",
     address: "Rue Liotard 3, 1202 Genève",
     website: "https://restauration-tableaux.ch",
     poinconType: "ATELIER",
@@ -231,6 +255,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Ateliers horlogers Van Cleef & Arpels": {
     image: "https://metiersdart-geneve.ch/images/2023/06/20/campus_image-copie.png",
+    description: "Fidèle à ses valeurs, la Maison Van Cleef & Arpels s'inscrit dans la transmission et la pérennisation de savoir-faire rares autour de l'univers horloger en proposant deux cursus de formation : la gravure et l'émail. Dextérité, exigence, patience, maîtrise technique et artistique, sens des couleurs et des volumes sont autant de compétences développées au travers des parcours proposés.",
     address: "Rue André-De-Garrini 2, 1217 Meyrin, ",
   },
   "Barro & Cie SA": {
@@ -262,6 +287,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Bespoak": {
     image: "https://metiersdart-geneve.ch/images/2026/08/31/mag-jason_lugrin_bespoak.png",
+    description: "Originaire de Whitchurch, dans le Hampshire, Jason Lugrin découvre le métier auprès de son père, qui possède sa propre entreprise de menuiserie. Après une formation de paysagiste, il rejoint l’entreprise familiale et passe plusieurs années à ses côtés, où il apprend les gestes du métier et développe son savoir-faire.\n\nArrivé en Suisse en 2017, il poursuit son parcours avant de créer sa propre entreprise en avril 2024. Aujourd’hui, dans son atelier, Jason Lugrin imagine et réalise du mobilier sur mesure : tables, cuisines, bibliothèques, rangements ou pièces uniques.\n\nAttaché au caractère naturel et vivant du bois, il accorde une grande importance au choix des matériaux et à la précision de chaque réalisation. Son approche mêle savoir-faire traditionnel et lignes contemporaines, avec l’envie de créer des pièces simples, durables et pensées pour trouver naturellement leur place dans un intérieur.",
     address: "Route de Satigny 42, 1242 Satigny",
     website: "https://www.bespoak.ch",
     poinconType: "ATELIER",
@@ -270,6 +296,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Bibliothèque de Genève": {
     image: "https://metiersdart-geneve.ch/images/2023/05/08/bge_site.jpg",
+    description: "Des manuscrits de Jean-Jacques Rousseau aux photos anciennes de Genève, en passant par les partitions, les livres, les bustes, les papyrus ou les tableaux, c’est toute l’histoire de Genève qui passe entre les mains des conservatrices-restauratrices d’art de la Bibliothèque.",
     address: "Promenade des Bastions 8, 1205 Genève",
     website: "https://www.bge-geneve.ch",
     poinconType: "INSTITUTION",
@@ -286,6 +313,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Bracelets Protexo SA": {
     image: "https://metiersdart-geneve.ch/images/2021/02/11/protexo.jpg",
+    description: "Fondée en 1953, la maison assure une excellence, une régularité et une inventivité dans la réalisation de bracelets de montres et de petite maroquinerie. La fierté de cet atelier est d’avoir su garder une réalisation manufacturée à Genève afin de garantir un Swiss made à 100%. La main est au centre de l’activité, nécessaire dans les 80 étapes de fabrication, voire plus, comme le rembord main, le cousu main, la teinture ou encore le marquage. Le travail des matériaux nobles issu d’un savoir-faire hérité et nourri de créativité assure à chaque bracelet le statut d’objet d’art à part entière.",
     address: "Chemin de la Pallanterie 8, 1252 Meinier",
     website: "http://www.protexo.ch",
     poinconType: "ENTREPRISE",
@@ -302,25 +330,30 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "CFP Arts Céramique": {
     image: "https://metiersdart-geneve.ch/images/2023/06/20/capture-dcran-2023-06-20-14.03.46.png",
+    description: "CFP Arts Céramique\nLa formation au CFPARTS privilégie autant la fibre créative que la transmission des connaissances technologiques. L'apprentissage de la céramique se profile comme un métier d'avenir aux opportunités nombreuses, aussi bien dans le domaine de la création que de la technique de pointe.\n\nCFP Arts Bijouterie\nIssue d’une tradition séculaire et particulièrement bien représentée à Genève, la bijouterie nous fait entrer dans le monde de l’élégance, de l’artisanat de précision au service du Beau et de la mise en valeur des matériaux rares.\n\nCFP Créateur·trice de vêtements\n\nDurant les trois ans de leur formation, les élèves sont familiarisés avec toutes les techniques de couture pour créer des vêtements sur mesure.",
     address: "Rue Necker 2, 1201 Genève",
   },
   "CFP Construction": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/cfp.jpg",
+    description: "Découvrez les différents métiers du Centre de Formation Professionnelle de la Construction via les vidéos, fiches techniques et autres documents disponibles sur le site internet du CFPC. Bien qu’en perpétuelle évolution, nos métiers utilisent les dernières technologies mais sont également garants du savoir-faire traditionnel.",
     address: "Chemin Gérard-De-Ternier 18, 1213 Petit-Lancy",
     website: "https://edu.ge.ch/site/cfpc/",
   },
   "CFPT Horlogerie": {
     image: "https://metiersdart-geneve.ch/images/2021/03/18/cfpt.jpg",
+    description: "Les élèves de l’école d’horlogerie vont acquérir leurs compétences en découvrant l’univers complet de la montre. De la fabrication, au pivotage en passant par le réglage, ils vont apprécier les gestes traditionnels horlogers effectués au travers des différentes étapes de la réalisation de leur propre montre école, fil rouge de leur formation.",
     address: "Route de la Galaise 23a, 1228 Plan-les-Ouates",
     website: "https://edu.ge.ch/site/cfpt-horlogerie/",
   },
   "CFPne Lullier": {
     image: "https://metiersdart-geneve.ch/images/2021/03/17/lullier.png",
+    description: "Nous fleuristes, sommes les « embellisseurs » de la nature auprès de nos clients, afin de leur transmettre des émotions visuelles et olfactives. Artisans de l’éphémère, nous créons, non pas de simples bouquets, mais de véritables œuvres végétales qui sont uniques et personnalisées. Le cycle des saisons, la richesse et la diversité des végétaux que la nature nous offre sont le moteur de nos inspirations. La maîtrise des gestes techniques et le souci du détail sont notre signature artistique.",
     address: "Route de Presinge 150, 1254 Jussy",
     website: "https://edu.ge.ch/cfpne/",
   },
   "Carolina Véliz": {
     image: "https://metiersdart-geneve.ch/images/2021/02/26/veliz.jpg",
+    description: "La magie de l’art vestimentaire est l’inspiration pour Carolina Véliz dans son atelier où se marient qualité, originalité et savoir-faire. Couleurs et textures se mélangent, laines et fibres naturelles, eau, savon et ses mains qui donnent forme à de nouvelles créations, uniques, qui insufflent une touche de féminité et d’originalité à chaque occasion de la vie.",
     address: "Place de l’Octroi 3, 1227 Carouge",
     website: "https://www.carolinaveliz.ch",
     poinconType: "BOUTIQUE",
@@ -329,6 +362,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Catherine Schmeer": {
     image: "https://metiersdart-geneve.ch/images/2021/02/24/schmeer.jpg",
+    description: "De la conception à la réalisation du bijou, Catherine Schmeer vous emmènera dans son processus de création. Elle façonne, elle lime, elle soude le métal auquel elle associe aussi bien des pierres précieuses, des perles, du corail que des minéraux et des fossiles. Dans son atelier depuis plus de 30 ans, elle partage volontiers sa passion et reste à l’écoute de tout un chacun pour concrétiser l’idée d’un bijou à venir.",
     address: "Rue Ancienne 46, 1227 Carouge",
     website: "http://www.catherineschmeer.ch",
     poinconType: "BOUTIQUE",
@@ -348,6 +382,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Charles Roulin": {
     image: "https://metiersdart-geneve.ch/images/2021/02/11/charlesroulin.jpg",
+    description: "Passionné de coutellerie artisanale autodidacte puis formé aux États-Unis, Charles Roulin confectionne depuis 30 ans des couteaux de A à Z en n'utilisant que les matériaux les plus nobles. À l’aide de limes, rifloirs d’horloger et autres fraiseuses, il donne vie à ses couteaux, tous uniques, qu’il orne de scènes animalières afin de raconter des histoires telle une bande dessinée en trois dimensions. Il participe à de nombreux salons et expositions dans le monde entier et est lauréat de multiples prix.",
     address: "Route de Soral 113B, 1233 Bernex",
     website: "http://www.coutelier-roulin.art",
     video: "https://vimeo.com/525767400",
@@ -357,6 +392,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Collection des Moulages": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/collection-des-moulages_jema2024_image.jpg",
+    description: "La Collection des moulages de l’Université de Genève est le résultat d'intentions et d'activités fort diverses. L’origine de la collection remonte au 18e siècle, avec la création de l’Ecole de dessin, visant à développer le sens esthétique des futurs artisans genevois. Durant plus d’un siècle, les moulages d’après l’antique ont été ainsi utilisés comme modèles.\n\nLa Collection des moulages a continué de grandir et fut finalement transformée en collection universitaire. Pour l'enseignement, comme pour la recherche, la comparaison stylistique est importante : c'est dans ce but que les moulages de statues antiques sont actuellement utilisés. La juxtaposition des originaux est, en effet, impossible et les photographies ne donnent qu'une idée imprécise des volumes, d'où le recours à des copies en trois dimensions. Plus qu'un outil d'enseignement, la collection représente aujourd'hui un patrimoine que nous nous devons d'étudier et de mettre en valeur.\n\nLa collection est ouverte au public les lundis et mercredis de 10h à 18h durant les semestres universitaires.",
     address: "Rue des Vieux Grenadiers 10, 1205 Genève",
     website: "https://www.unige.ch/lettres/antic/unites/archeo/collections/collection-des-moulages",
     poinconType: "INSTITUTION",
@@ -365,6 +401,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Comédie de Genève": {
     image: "https://metiersdart-geneve.ch/images/2021/03/18/comedie.jpg",
+    description: "Le costumier ou la costumière de théâtre est chargé.e de tous les éléments de costumes, accessoires compris (chaussures, chapeaux, etc.) nécessaires à une pièce de théâtre, un spectacle de danse, ou n’importe quel évènement organisé au sein d’un théâtre. En fonction des spectacles, plusieurs rôles peuvent lui être attribués : se procurer les costumes, les coudre, ou parfois les imaginer entièrement.",
     address: "Esplanade Alice-Bailly, 1207 Genève",
     website: "https://www.comedie.ch",
     poinconType: "INSTITUTION",
@@ -373,6 +410,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Conservatoire et Jardin botaniques": {
     image: "https://metiersdart-geneve.ch/images/2025/07/01/cf083699__12-copie.jpg.jpeg",
+    description: "L’herbier des Conservatoire et Jardin botaniques de Genève, l’un des plus grand au monde, est une véritable bibliothèque de la biodiversité avec plus de 6 millions d’échantillons de plantes, fougères, mousses, algues et champignons provenant du monde entier. En constante évolution, cette collection comprend des spécimens datant de plus de 350 ans et s’enrichit chaque année d’environ 12’00 nouveaux spécimens qui sont montés par les préparateurs et préparatrices d’herbier avec les mêmes gestes et méthodes ancestrales que lors de la constitution des premiers herbiers au XVIe siècle.",
     address: "Chemin de l’Impératrice 1 , 1292 Chambésy",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -380,6 +418,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Cordonnerie Seror": {
     image: "https://metiersdart-geneve.ch/images/2021/02/12/cordonnerieseror.jpg",
+    description: "Les maîtres mots caractérisant la cordonnerie de Yohan Seror vont de pair : tradition et passion, mais aussi rigueur et authenticité, autant de valeurs sûres héritées de sa formation. Implantée à Genève depuis 2003, la cordonnerie Seror offre des prestations de qualité dans différents domaines allant de la restauration à la réparation en passant par l’entretien et le sur-mesure. Elle propose des démonstrations de cirage de chaussures et une fabrication de chaussures.",
     address: "Route des Marronniers 6, 1207 Genève",
     website: "http://www.cordonnerieseror.ch/site/fr/",
     video: "https://vimeo.com/813122720",
@@ -397,6 +436,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Cyril Seiler": {
     image: "https://metiersdart-geneve.ch/images/2025/02/04/cyril-seiler_jema25_image-copie.jpg",
+    description: "Cyril Seiler, bijoutier-joaillier à Carouge, s’épanouit dans l’art de la bijouterie et de la joaillerie avec des créations essentiellement inspirées du monde animal. Chaque pièce, sculptée avec une précision délicate, raconte l’histoire d’une nature sauvage et élégante. À travers ses œuvres, il offre une vision poétique et originale, où la beauté des formes vivantes se mêle à la magie de l'or et des pierres. Une immersion dans un univers où chaque création capte la lumière pour refléter l’intention de l’artisan.",
     address: "Rue Saint-Victor 9, 1227 Carouge",
     website: "https://www.darkkiss.ch",
     poinconType: "ATELIER",
@@ -405,6 +445,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Daniel Estevez": {
     image: "https://metiersdart-geneve.ch/images/2026/03/03/pexels-hngstrm-2341290.jpg",
+    description: "Daniel Estevez est marbrier, un métier d’art exigeant qui allie précision technique, sens du volume et une grande connaissance de la matière. Passionné par les marbres anciens, il porte une attention particulière à leur histoire, à leurs veines uniques et à la richesse de leurs nuances.\n\nÀ travers le travail du marbre et de la pierre naturelle, il perpétue un savoir-faire ancestral tout en l’inscrivant dans des réalisations contemporaines. Entre tradition et modernité, il façonne, restaure et sublime la pierre, révélant toute la noblesse et la singularité de ce matériau intemporel.",
     address: "Route du Bois-de-Bay 31, 1242 Satigny",
     website: "https://search.ch/tel/satigny/route-du-bois-de-bay-31/daniel-estevez",
     poinconType: "ATELIER",
@@ -413,6 +454,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "De fil en fil - Nicole Genoud": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/de-fil-en-fil_jema24_image1.jpg",
+    description: "C'est à la suite d'une rencontre dans son adolescence que Nicole Genoud développa un intérêt pour le tissage qu'elle pratiqua en autodidacte jusqu'à sa formation à la Filambule. Un métier de passion qui laisse libre cours à la créativité et permet d’entrer dans la danse des gestes maintes fois répétés. Le métier à tisser permet de sélectionner certains fils et de les entrecroiser à chaque passage de navette. La texture se crée permettant la création d’effets surprenants obtenus par des jeux de couleurs et de matières.",
     address: "Boulevard Helvétique 9, 1205 Genève",
     video: "https://vimeo.com/924369434",
     poinconType: "ATELIER",
@@ -421,6 +463,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Denis Schott & Fille": {
     image: "https://metiersdart-geneve.ch/images/2024/12/05/img_7955.jpeg",
+    description: "Depuis sa création en 1982 par Denis Schott, l’entreprise Denis Schott & Fille a su transmettre un savoir-faire artisanal d’exception. Aujourd’hui dirigée par sa fille Marie, elle perpétue la tradition familiale en mêlant héritage et modernité. Située au cœur de la Vieille-Ville de Genève, l’entreprise dispose également d’un atelier de menuiserie et d’ébénisterie à Bernex, où sont minutieusement fabriqués ses cadres sur mesure.\n\nL'équipe est composée de sept collaborateurs, chacun spécialisé dans un domaine lié à l'encadrement, tels que la dorure sur bois, l'ébénisterie, la menuiserie ou encore la peinture. Ensemble, ils œuvrent à concevoir des cadres contemporains uniques, réalisés exclusivement sur commande.\n\nFidèle à une démarche de conservation et de valorisation des œuvres d’art, l’entreprise utilise des matériaux de pointe pour les créations qui lui sont confiées. Dans cet esprit, elle collabore régulièrement avec des restaurateurs pour garantir des solutions adaptées à chaque projet. Animée par une volonté constante de respecter et de sublimer les œuvres d’art, l’entreprise offre à ses clients des conseils personnalisés, témoins d’un savoir-faire artisanal hors pair.",
     address: "Rue Jean-Calvin 2, 1204 Genève",
     website: "https://www.schott-encadreur.com",
     autre: "Entreprise formatrice",
@@ -457,6 +500,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Elisa Neveceral-Pantazopoulos": {
     image: "https://metiersdart-geneve.ch/images/2025/08/22/eli-o.png",
+    description: "Inspirée des techniques anciennes de moulage à la cire et des enjeux écologiques actuels, Elisa Neveceral-Pantazopoulos allie dans ses créations un procédé reflétant la beauté des imperfections à des matières premières nobles recyclées. Chacune de ses créations s'inspirent de ses origines grecques pour ensuite prendre vie dans son atelier situé aux Augustins. Le métal offre à ses créations faites à la main, un statut de quasi immortel, qui leur accorde un voyage à travers le temps.",
     address: "Rue Saint-Victor 5, 1227 Carouge, ",
     poinconType: "BOUTIQUE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – BOUTIQUE – distingue des lieux de vente, comptant un ou plusieurs employé·e·s, valorisant un savoir-faire d’exception, ouverts au public selon des horaires réguliers et favorisant le contact direct. Cliquez ici pour en savoir plus.",
@@ -464,6 +508,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Emmanuelle Zem Rohner": {
     image: "https://metiersdart-geneve.ch/images/2024/04/15/emmanuelle-zem-rohner-.jpg",
+    description: "Les décors en trompe-l'œil d'Emmanuelle Zem Rohner lui permettent de déployer toute sa créativité. Experte en reconstitution de décors, elle travaille, entre autres, les frises, les grisailles, les faux marbres, les faux bois, les fausses moulures. Indépendante, elle exerce son métier depuis 1993 sur les chantiers de la région genevoise et d'ailleurs.\n\nLe processus d'une reconstitution de décor commence par une recherche de documents photographiques. Ensuite, si le décor a été recouvert d'une ou de plusieurs couches de peinture, il faudra effectuer, à l'aide d'un scalpel, des sondages sur place en quelques endroits stratégiques. Une fois le décor avéré, il conviendra d'en reconstituer les formes et les teintes au plus proche de la réalité.",
     address: "Rue Gourgas 12, 1205 Genève",
     website: "https://zemrohner.ch",
     poinconType: "ENTREPRISE",
@@ -472,6 +517,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Fanny Kopp": {
     image: "https://metiersdart-geneve.ch/images/2023/03/27/fanny-kopp_image_cgreg-clement-copie.jpg",
+    description: "La gravure sur bois ou xylogravure est un procédé d’imprimerie ancien. Le support en bois taillé par le·la graveur·euse devient alors une estampe, que l’on encre avant la mise sous presse afin d’imprimer sur papier ou tissu les émotions de l’artiste. Muni de différents outils, le·la graveur·euse sur bois fige le temps procurant un statut d’immortel à chacune de ses productions.\n\nFanny Kopp, graveuse sur bois, transmet son savoir, acquis dans différents ateliers, à des jeunes et des adultes de la Maison de quartier Chausse-coq. Ses créations puisent leurs inspirations à travers la nature et la faune, dont elle milite pour leur préservation en transmettant un message fort au travers de certaines œuvres.",
     address: "Chemin de la Verseuse 12, 1219 Vernier, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -479,6 +525,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Finissimo Reliure": {
     image: "https://metiersdart-geneve.ch/images/2022/03/09/finissimo_reliure.jpg",
+    description: "La reliure est l’art de façonner une unité matérielle à des écrits et des images imprimés sous forme de feuilles. De ce fait, l’assemblage selon diverses techniques, collage, couture, pliage, et l’habillage à l’aide de diverses matières, cuir, textile, bois, soutiennent les idées exposées en formant un ouvrage méticuleusement embelli d’un savoir-faire artisanal.\n\nPour composer un objet aux finitions soignées et contemporaines, Alexis De Los Santos puise dans ses 40 ans d’expérience dans les arts graphiques pour choisir, selon les besoins, les meilleurs matériaux ainsi que les techniques et les types de reliures les plus adaptés au contenu relié, protégeant ainsi le support tout en lui apportant une valeur ajoutée située au-delà des sentiers battus",
     address: "Rue Eugène-Marziano 17-21, 1227 Les Acacias, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -486,6 +533,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Fondation Baur": {
     image: "https://metiersdart-geneve.ch/images/2021/03/17/baur2.jpg",
+    description: "Depuis 20 ans, Nicole Gérard exerce son métier de scénographe au sein de la Fondation Baur Musée des Arts d’Extrême-Orient. Elle met en scène les expositions présentées au public ; elle propose et réalise le décor, et les modes d’exposition. Son art, c’est de savoir faire parler les œuvres afin qu’elles racontent leur histoire. Elle connait les matières et les matériaux du bout des doigts et manipule les pièces avec habilité, précision et passion.",
     address: "Rue Munier-Romilly 8 , 1206 Genève",
     website: "https://www.fondation-baur.ch",
     poinconType: "INSTITUTION",
@@ -494,6 +542,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Fondation Martin Bodmer": {
     image: "https://metiersdart-geneve.ch/images/2021/02/26/bodmer.jpg",
+    description: "L’atelier de conservation-restauration de la Fondation Martin Bodmer a pour mission la préservation matérielle de la collection du musée. Gabriella Zucchetti, technicienne en conservation et Sandra Vez, conservatrice-restauratrice, font face à des problématiques spécifiques aux différents supports de l’écrit (papyrus, parchemin, papier) sous leurs formes les plus diverses (rouleau, livre, leporello, dessin, gravure…) conservés dans leurs collections.",
     address: "Route Martin-Bodmer 19, 1223 Cologny",
     website: "https://fondationbodmer.ch/",
     poinconType: "INSTITUTION",
@@ -502,6 +551,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Frédéric Taddeï": {
     image: "https://metiersdart-geneve.ch/images/2024/04/18/frederic-taddeI_jema24_image-copie.jpg",
+    description: "Jouant des dimensions qu’atteignent ces grandes ouvertures, et d’un univers fragmenté naissant de la rencontre entre les rayons lumineux et des morceaux de verre colorés, les verriers permettent à ce matériau, à travers des sujets contemporains, de déployer toute la profondeur de son prisme. Ainsi, Frédéric Taddeï, verrier, s’emploie à restaurer, mais aussi à créer en tant que passeur de lumière soucieux de l’esthétique contemporaine, des œuvres uniques.",
     address: "Rue des Moulières 10, bâtiment G, 1242 Satigny",
     website: "https://taddei-verre.ch",
     poinconType: "ATELIER",
@@ -527,6 +577,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Grand Théâtre de Genève": {
     image: "https://metiersdart-geneve.ch/images/2021/03/24/gtg_emanuela.jpg",
+    description: "En étroite collaboration avec les costumier.ière.s, le métier de décoratrice et d’accessoiriste de costumes est l’art de décorer les costumes ainsi que de fabriquer et adapter tous les accessoires qui en font partie à travers l’utilisation de matériaux et de techniques variés. Styliste et couturière de formation, Emanuela Notaro créé et développe depuis 15 ans de nouvelles solutions et techniques nécessaires à la diversité de l’univers théâtral où chaque spectacle est une expérience unique.",
     address: "Place de Neuve 5, 1204 Genève",
     website: "https://www.gtg.ch/",
     poinconType: "INSTITUTION",
@@ -535,6 +586,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "HEAD": {
     image: "https://metiersdart-geneve.ch/images/2025/05/27/head_jema_image-copie.jpg",
+    description: "Le Bachelor en Design Mode de la HEAD – Genève s’articule en une succession d’ateliers d’expression créative, théorique et technique qui offrent aux étudiant.e.x.s la possibilité d’explorer tour à tour la conception du vêtement, la recherche sur l’accessoire et enfin la conceptualisation d’un projet de collection. La somme de ces projets expérimentaux constitue un point d’équilibre stratégique entre le développement d’un vocabulaire stylistique personnel et la conception d’un produit adapté aux attentes d’un marché multiculturel, autour d’une même passion. La mode.",
     address: "Avenue de Châtelaine 5, 1203 Genève, , ",
     website: "https://www.hesge.ch/head/",
   },
@@ -549,6 +601,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Héloïse Ihne": {
     image: "https://metiersdart-geneve.ch/images/2025/02/14/heloise-ihne_jema25_image.jpeg",
+    description: "La délicatesse qui émane d'une fleur éclose, mélangée à l'élégance d'un bourgeon à peine ouvert, agrémenté à cela quelques feuilles et branches et vous obtenez les prémices d'une œuvre florale, dont Héloïse Ihne conserve tous les secrets. Qu'elles soient sous forme de sculptures, de bougeoirs ou encore de tableaux, ses créations nous accompagnent dans les différents événements d'une vie et s'accordent aux spécificités des saisons en essayant toujours d'étendre la durée de vie de ces végétaux éphémères.",
     address: "Rue Saint-Joseph 31, 1227 Carouge",
     website: "https://heloiseihne-creationsflorales.my.canva.site",
     poinconType: "BOUTIQUE",
@@ -557,6 +610,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "ICI Céramique": {
     image: "https://metiersdart-geneve.ch/images/2025/06/10/img_7735.jpeg",
+    description: "Elise Naville Perriard façonne la matière pour donner vie à la terre. Les objets nés de ses mains célèbrent l’alliance du beau et de l’utile. Passeuse des savoirs liés au travail de l’argile à l’atelier ICI Céramique Studio, elle puise son inspiration dans la culture japonaise. Au travers de techniques diverses, telles que le tournage, le travail de la plaque et le coulage, elle explore textures et couleurs au travers d’objets tels que des vases, plats, tasses, bols, ou chawan pour la cérémonie du thé japonaise.",
     address: "Route de Chêne 5, 1207 Genève, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -564,10 +618,12 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "IPAC Design Genève": {
     image: "https://metiersdart-geneve.ch/images/2026/03/24/idg-metiers-art-1080x10804.jpg",
+    description: "IPAC Design Genève forme les créateurs de demain dans un environnement stimulant.\nL’école propose des Bachelors en Design de Mode, Architecture d'intérieur ou Design Graphique, des formations complètes qui allient créativité, savoir-faire technique et vision contemporaine.\nLes programmes privilégient une approche pédagogique axée sur la pratique et l'innovation. Les étudiants développent leur sensibilité artistique tout en maîtrisant les outils professionnels indispensables à leur future carrière. Encadrés par des professionnels passionnés, ils réalisent des projets concrets qui les préparent aux réalités du secteur.\nL'école valorise l'excellence artisanale et la créativité personnelle, dans l'esprit des métiers d'art genevois. Nos ateliers équipés et notre réseau de partenaires offrent aux apprenants un cadre propice à leur développement.\nDepuis plus de 30 ans, IPAC Design Genève s'inscrit dans la tradition des écoles d'art genevoises en cultivant l'exigence et en accompagnant chaque étudiant dans la construction de son parcours créatif.",
     address: "Avenue de l'Étang 72, 1219 Vernier, , ",
   },
   "Ingrid Schmidt Schmuck": {
     image: "https://metiersdart-geneve.ch/images/2025/06/17/ingrid_schmidt_metiers_art_artisanale_geneve_177.jpg.jpeg",
+    description: "Le travail de la créatrice d'Ingrid Schmidt montre, de manière inhabituelle, des structures et des motifs réalisés avec du fil d'argent ou d'or. Chaque pièce est unique et joue avec l'imagination du spectateur. Le traitement final confère à la surface un effet subtil et profond qui souligne l'originalité haptique. L’argent, l'or et des émaux sont utilisés pour des bijoux raffinés.",
     address: "Rue des Vieux-Grenadiers 10, 1205 Genève",
     website: "https://ingridschmidt.ch",
     poinconType: "ATELIER",
@@ -576,6 +632,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Jardin des Couleurs": {
     image: "https://metiersdart-geneve.ch/images/2026/02/16/unknown-carre.jpeg",
+    description: "Le Jardin des Couleurs est un lieu de pratique et de partage de savoir-faire autour des couleurs et teintures naturelles.\n\nLes teinturières ont créé un jardin de plantes tinctoriales et offrent à un large public des ateliers de découverte de la teinture végétale.\n\nEn parallèle, dans l’atelier, elles poursuivent leurs recherches. La maîtrise des techniques est longue et ce métier, qui a disparu depuis le 19ème, se réapprend et se transmet aujourd’hui par des artisans passionnés.",
     address: "Chemin des Blanchards 20, 1233 Loëx Bernex",
     website: "https://sites.google.com/mamajah.org/stage-teinture-vegetale/accueil?authuser=0",
     poinconType: "ATELIER",
@@ -584,6 +641,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Jean-Philippe Naef": {
     image: "https://metiersdart-geneve.ch/images/2025/05/22/img_7672.jpg",
+    description: "Jean-Philippe Naef, restaurateur d’objets anciens, redonne une nouvelle vie à ce que le temps a laissé derrière lui. Ses mains méticuleuses restituent l’éclat des lampes à pétrole et d’autres instruments qui ne font plus partie du quotidien. Pour lui, chaque objet raconte une histoire d’une époque révolue où la qualité semblait d’une solidité indestructible. Il sauve, rénove, et offre à ces vestiges un avenir empreint de lumière et de mémoire, créant une symbiose entre le passé et le présent.",
     address: "Chemin Perdriau 10, 1257 Bardonnex",
     website: "https://ch.linkedin.com/in/jean-philippe-n-66054035",
     poinconType: "ATELIER",
@@ -592,6 +650,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Jean-Robert Gase": {
     image: "https://metiersdart-geneve.ch/images/2025/07/02/img_3300-copie.jpg",
+    description: "Jean-Robert Gase est artisan chapelier passionné et indépendant depuis 1985 à Genève. Formé comme tailleur pour dames dans une maison de couture à Genève, il a enrichi son savoir-faire par plusieurs stages de perfectionnement. Installé dans son atelier et adepte des marchés, il apprécie principalement le contact direct avec la clientèle et la lumière naturelle. Jean-Robert Gase crée des chapeaux en feutre, en paille, en colimaçon ainsi que des casquettes aux matières et couleurs variées.",
     address: "Rue des Jardins 10, 1205 Genève",
     website: "https://www.instagram.com/gasejeanrobert/",
     poinconType: "ATELIER",
@@ -600,6 +659,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Joshua Teegarden": {
     image: "https://metiersdart-geneve.ch/images/2025/02/05/dsc_0695-copie.jpg",
+    description: "Le fondeur d’art contribue à donner vie au travail de l’artiste. Il oriente ce dernier dans le choix des techniques et des matériaux les plus adaptés à la réalisation de son œuvre. Passionné par la métallurgie, l’alchimie et la transformation des métaux, Joshua Teegarden, fondeur d’art, pratique diverses techniques traditionnelles, telles que le moulage au sable et la fonte à la cire perdue, pour lesquelles il ne cesse de s’émerveiller.",
     address: "Chemin de la Verseuse 8, 1219 Aïre",
     website: "http://www.handmade-teegarden.com",
     poinconType: "ATELIER",
@@ -608,6 +668,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Julien Joselon": {
     image: "https://metiersdart-geneve.ch/images/2025/11/10/rencontre-nocturne-credit-photo-david-greyo-carre.jpg",
+    description: "Julien a d'abord travaillé la pierre à travers son métier de tailleur de pierre. Sa fascination pour la faune sauvage l'a ensuite naturellement amené à s'essayer à la sculpture animalière en autodidacte. Depuis 2019, il sculpte des animaux sauvages avec pour objectif de faire vivre l'émotion de la rencontre innatendue au détour d'une balade ou de l'observation naturaliste inoubliable. Pour cela, il représente non seulement l'animal, mais aussi son environnement et les indices de son passage, en jouant sur les différentes textures et couleurs qu'il dégage de la matière. Ses œuvres, exposées dans une dizaine de festivals d'art naturaliste depuis 2022, représentent l'élan de vie et le mouvement naturel qui animent ces moments éphèmères, bien qu'ils soient figés dans une matière les rendant éternels.\n\nEn 2024, la Commune de Dardagny lui a commandé sa première œuvre d'art urbain, un lynx grandeur nature venant s'abreuver dans la fontaine du village de La Plaine au détour de son long périple.",
     address: "En recherche de locaux, 1283 La Plaine",
     website: "https://www.julienjoselon.com",
     poinconType: "ATELIER",
@@ -625,6 +686,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Karine Dupont": {
     image: "https://metiersdart-geneve.ch/images/2023/10/03/dupont-karine_bijoux.jpg",
+    description: "Karine Dupont travaille avec passion et goût du détail à faire naître des bijoux délicatement ouvragés, prêts à recevoir le secret que chacun voudra lui confier.",
     address: "Rue Saint-Joseph 13, 1227 Carouge, ",
     poinconType: "BOUTIQUE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – BOUTIQUE – distingue des lieux de vente, comptant un ou plusieurs employé·e·s, valorisant un savoir-faire d’exception, ouverts au public selon des horaires réguliers et favorisant le contact direct. Cliquez ici pour en savoir plus.",
@@ -643,6 +705,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "L'Artisan du Cuir": {
     image: "https://metiersdart-geneve.ch/images/2026/05/05/img_5234.jpg",
+    description: "Installé dans son atelier, Frédéric Viollet met son savoir-faire au service de la réparation, de la rénovation et de l’entretien d’articles en cuir. Compagnon du Devoir, il fonde son entreprise en 2005. Aujourd’hui, il se consacre principalement à redonner vie à des pièces auxquelles leurs propriétaires sont attachés, en proposant des solutions adaptées à chaque situation et à chaque budget.\n\nSacs et accessoires retrouvent ainsi couleur, souplesse et éclat grâce à des soins minutieux. Guidé par le souci du détail, Frédéric Viollet intervient avec discrétion afin d’effacer les marques du temps et de préserver l’harmonie et la durabilité de chaque objet.",
     address: "Rue de la Synagogue 32",
     website: "https://www.lartisanducuir.com",
     poinconType: "ATELIER",
@@ -659,6 +722,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "L'Atelier de céramique": {
     image: "https://metiersdart-geneve.ch/images/2025/10/27/annick-berclaz_-gigablue-_2024_-carre.jpg",
+    description: "Céramiste plasticienne formée à Genève, Annick Berclaz modèle, peint, sculpte l’argile, la porcelaine et le grès. Ses œuvres foisonnent de créativité, évoquant un univers organique et gracile.",
     address: "Avenue des Tilleuls 3, 1203 Genève",
     website: "https://annickberclaz-art.ch",
     poinconType: "ATELIER",
@@ -667,6 +731,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "L'Atelier de la Cire Genève": {
     image: "https://metiersdart-geneve.ch/images/2025/02/04/2---3-copie.png",
+    description: "Un cirier est l’artisan spécialisé dans la fabrication et le travail d’objets en cire naturelle ou minérale, notamment des bougies. Sandrine Stern, fondatrice de L’Atelier de la Cire Genève, perpétue cet art avec passion. Dans son atelier, elle crée des bougies en cire 100% végétale, fabriquées à la main selon des traditions artisanales. Parfumées avec des essences exclusives de Grasse, ses créations allient éthique, écologie et raffinement, offrant une véritable invitation olfactive.",
     address: "Rue Saint Joseph 2, 1227 Carouge",
     website: "https://latelierdelacire.com",
     poinconType: "BOUTIQUE",
@@ -675,6 +740,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "La Boutique du Relieur": {
     image: "https://metiersdart-geneve.ch/images/2021/11/17/mmagnin_portrait-carr.jpeg",
+    description: "Travaux délicats & subtils de la restauration du livre et pratique de la dorure sur cuir et papiers à l'ancienne. Atelier spécialisé depuis 1977.",
     address: "Rue de la Filature 22, 1227 Carouge",
     website: "http://www.restaurationlivre.ch",
     poinconType: "ATELIER",
@@ -691,6 +757,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "La Maison de Nathalie": {
     image: "https://metiersdart-geneve.ch/images/2025/07/04/reportageatelier-nathalieinsomby-justinegerritsen-39-copie.jpg",
+    description: "L’art de la céramique modèle l’argile pour donner vie à des objets uniques, où l’emprunte des mains sculpte des courbes esthétiques. Nathalie Insomby, céramiste et fondatrice de l’atelier La Maison de Nathalie, façonne ses créations par la douceur de ses mains pour ensuite les figer par le feu. Dans la danse des flammes, se révèle des nuances subtiles et des textures marbrées, où chaque pièce devient le fruit d’un dialogue entre la matière, la lumière et l’imaginaire.",
     address: "Rue de Frémis 10, 1224 Puplinge",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -721,6 +788,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Les Insolites": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/insolites.jpg",
+    description: "Fondée et mené par Nina Mathèz-Loïc, bijoutière de formation en quête de beauté et d’harmonie, l’atelier-boutique « Les Insolites » regroupe un collectif de 5 créateurs de bijoux où chacun exprime sa sensibilité et son univers. En plus de proposer des créations uniques et sur-mesure, l’atelier réalise également des réparations ainsi que des transformations de bijoux.",
     address: "Rue Ancienne 22, 1227 Carouge",
     website: "http://www.les-insolites.ch/site/fr/",
     poinconType: "BOUTIQUE",
@@ -729,6 +797,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Loutan & Cie SA": {
     image: "https://metiersdart-geneve.ch/images/2021/03/04/loutan.jpg",
+    description: "Alliance de l'exigence artistique et d'un savoir-faire traditionnel exceptionnel, l'impression sérigraphique artisanale du panneau trapèze, emblème visuel genevois imaginé en 1950 par Philippe Loutan à la demande de la ville de Genève, se perpétue aujourd'hui dans nos ateliers des Eaux-Vives.\n\nDans ces mêmes ateliers sont préparés nos travaux d'enseignes, alliant tradition et innovation, nécessitant des savoir-faire spécifiques liés aux films autocollants, la peinture et l'impression digitale, sur des supports nobles tels que le verre, le métal, le tissu ou encore le bois.",
     address: "Rue des Photographes 14, 1207 Genève",
     website: "https://www.loutan.ch",
     autre: "Entreprise formatrice",
@@ -747,6 +816,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Lucien Walker": {
     image: "https://metiersdart-geneve.ch/images/2023/11/20/img_5211.jpg",
+    description: "Après l’obtention de son CFC en reliure au coté de Michel Magnin en tant que Maître d'apprentissage, Lucien Walker a ouvert son atelier en 2009 à Carouge, spécialisé dans la restauration de livres. Au plus près de ses valeurs et à l’écoute de ses clients, Lucien Walker développe une relation de confiance, tout en cultivant une sensibilité dans la réalisation de ses œuvres et de ses restaurations.",
     address: "Rue de la Filature 22, 1227 Carouge",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -754,6 +824,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Luxhous SA": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/luxhous.jpg",
+    description: "Spécialiste de la restauration et de l’embellissement d’automobiles, de motos ou de bateaux, Stéphane Urfer confectionne des sièges et des capotes de cuir personnalisés, des selles sur mesure, et autres travaux de garnissage et de broderie sans oublier les différentes étapes de restauration d’un siège, d’une boîte à vitesse ou encore de panneaux de portes, tant d’interventions qui permettent de rendre tout leur éclat à des voitures d’exception.",
     address: "Chemin de la Charpente 3, 1219 Le Lignon",
     poinconType: "ENTREPRISE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ENTREPRISE – distingue des structures constituées de plusieurs employé·e·s, dont un ou plusieurs secteurs sont dédiés à un métier d’art. Accessibles sur rendez-vous, ou après un contact préalable. Cliquez ici pour en savoir plus.",
@@ -761,11 +832,13 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "MBG": {
     image: "https://metiersdart-geneve.ch/images/2025/12/04/mbg_logo_2021_cmjn_positif.png",
+    description: "MBG est le groupement genevois qui rassemble les associations faîtières des métiers techniques du bâtiment. Il réunit cinq organisations patronales représentant des domaines clés : chauffage, ventilation, climatisation, construction métallique, serrurerie, stores métalliques, électricité, domotique, télécommunication, sanitaire, ferblanterie et toiture.\n\nSon objectif est de renforcer la coopération entre ces branches, défendre leurs intérêts et soutenir les entreprises membres grâce à des conseils, des services mutualisés et une offre de formation commune. MBG fédère aujourd’hui 470 entreprises, plus de 5000 salarié·e·s et 600 apprenti·e·s, et agit en cohérence avec les évolutions politiques, économiques, environnementales et sociales du canton.",
     address: "Avenue Eugène-Pittard 24, 1206 Genève",
     website: "https://www.mbg.ch",
   },
   "Marco Colucci Encadrement": {
     image: "https://metiersdart-geneve.ch/images/2022/03/09/marco-colucci.jpg",
+    description: "Avec le bois, matière simple et commune, il est possible de protéger et de sublimer des œuvres, de leurs donner une noblesse à l’échelle des valeurs artisanales, rappelant l’aspect profondément humain de l’art. L’encadrement est ainsi un savoir-faire du bois par son travail de gravure, de peinture, de dorure, créant une œuvre à part entière.\n\nPratiquant depuis un quart de siècle pour le milieu de l’art, Marco Colucci détient la faculté de faire le lien entre l’œuvre et l’espace à travers le cadre, connaissant les subtilités de la taille, de la profondeur, devla couleur influant sur les œuvres ainsi que les spécificités des styles, proposant les meilleures solutions d’encadrement et de conservation.",
     address: "Rue de Lyon 46, 1203 Genève, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -773,6 +846,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Marco Olivet": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/marco-olivet_jema24_image1.jpg",
+    description: "Surnommé « Mano d’oro » par les artistes qu’il a côtoyé, Marco Olivet, encadreur d’art depuis plus de 30 ans, travaille pour diverses galeries et musées. Il s’épanouit dans son métier grâce aux nombreuses relations développées au fil des ans, ponctuées d’anecdotes insolites, ainsi que par les défis techniques posés par l’art contemporain. Ses connaissances de la menuiserie et de l’art lui ont permis de rendre possible l’impossible et lui ont apporté une clientèle aussi riche que variée.",
     address: "Rue des Noirettes 32, 1227 Carouge, , ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -790,6 +864,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Marina Magnin Bucher": {
     image: "https://metiersdart-geneve.ch/images/2021/02/25/magnin.jpg",
+    description: "Marina esquisse et réalise des bijoux depuis 30 ans à Genève. Son grand bonheur est de mettre en valeur : perles, diamants, pierres précieuses, reliques, etc., dans les bijoux ou boucles de ceinture en argent ou en or. Elle répare, rénove et relook aussi d'anciens bijoux ou souvenirs de vacances pour qu'ils ne restent pas oubliés dans les tiroirs.\n\nEn 2014, elle crée la marque Ninamarina, dont elle dessine toutes les créations et gère la fabrication en parallèle des bijoux.",
     address: "Chemin de Chantefleur 32, 1234 Vessy",
     website: "https://www.ninamarina.ch",
     poinconType: "ATELIER",
@@ -798,6 +873,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Maître Luthier François Lebeau": {
     image: "https://metiersdart-geneve.ch/images/2023/12/22/lebeau-copie-2.png",
+    description: "Grâce à l'enseignement reçu, au savoir-faire acquis au cours de ses nombreuses années passées à Crémone (Italie), et à l'expérience développée depuis lors, François Lebeau construit les instruments du quatuor (violons, altos et violoncelles) dans l'esprit et la tradition des Grands Maîtres italiens du XVIIIe siècle. Ses instruments sont entièrement construits à la main, dans son atelier, dans des bois de lutherie sélectionnés avec le plus grand soin. Chaque étape de la construction d'un instrument est pour lui l'occasion renouvelée de mettre en pratique les exigences de qualités techniques et artistiques nécessaires à la réalisation d'un instrument d'exception. Respectueux des instruments confiés et fidèle à l'éthique de la restauration, il restaure et répare également vos instruments avec le même soin et les mêmes exigences de précision que ceux apportés à son travail de construction.",
     address: "Rue de l'Arquebuse 10, 1204 Genève",
     website: "https://www.lebeau-luthier.ch",
     poinconType: "ATELIER",
@@ -833,6 +909,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Michel Gillabert": {
     image: "https://metiersdart-geneve.ch/images/2022/03/09/michel-gillabert.png",
+    description: "Travailler la pierre, défier ses caractéristiques pour la faire apparaître sous une forme légère et insoupçonnée, ou au contraire exploiter sa dureté et son inertie afin de lier de manière intime la matière au sujet, la sculpture sur pierre, parce qu’elle donne forme à des minéraux aux caractéristiques variées dont les différents types, marbre, granit, grès, évoquent au premier instant un style, une tradition, concentre en sa pratique ancestrale un fragment de l’histoire humaine.\n\nAnimés par leurs buts respectifs et enrichis de leur formation personnelle, Vincent Du Bois, Michel Gillabert et Philippe Cartan, tous trois membres de l’ASPIG (Association des sculpteurs Indépendants de Genève) ne cessent de réinventer ce métier d’art, entre restauration et création, entre tradition et modernité.",
     address: "Rue des Boulangers 6, 1255 Veyrier, ",
     poinconType: "ATELIER",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ATELIER distingue des lieux de création de métiers d’art genevois, portés par un·e ou plusieurs artisan·e·s, où s’exercent et se transmettent des savoir-faire rares, généralement ouverts sur rendez-vous ou à certaines occasions. Cliquez ici pour en savoir plus.",
@@ -840,11 +917,13 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Michel'Art": {
     image: "https://metiersdart-geneve.ch/images/2025/02/20/michel-favre_jema25_image-copie.jpg",
+    description: "Le métier de peintre en lettres couvre une palette de compétences toutes liées à l’art de la délicatesse. Derrière son œuvre se cachent des techniques ancestrales dont aucune machine ne s’y approche. Un questionnement approfondi sur les arrondis et bombés d’une police, sur le support visuel ou encore sur l’usage des outils appropriés dont Michel Favre, peintre en lettres depuis plus de 40 ans, prend part afin d’égayer les enseignes et les rues genevoises avec plusieurs centaines d’œuvres.",
     address: "Rue des Grottes 30a, 1201 Genève",
     website: "http://www.michelart.ch",
   },
   "Mioko": {
     image: "https://metiersdart-geneve.ch/images/2026/02/18/photo-jema-carre.jpg",
+    description: "Marie Faurax, artisane céramiste, façonne la terre à la plaque dans son atelier Mioko.\n\nElle laisse les formes naître, se déformer et s’affirmer du geste au feu. Son grès blanc chamotté et pyrité, aux accents rustiques, se pare de taches brunes imprévisibles. Les plaques fines, parfois pincées, gagnent en délicatesse.\n\nSa pratique évolue au fil des inspirations, fidèle à une écriture sensible et sa patte caractéristique.",
     address: "Chemin des Peutets 3, 1253 Vandœuvres",
     website: "https://mioko-creations.ch",
     poinconType: "ATELIER",
@@ -853,6 +932,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Musée Ariana": {
     image: "https://metiersdart-geneve.ch/images/2021/03/25/ariana_credit.png",
+    description: "L’atelier de conservation-restauration du Musée Ariana a pour mission fondamentale de préserver ses collections en œuvrant sur différents plans : surveillance et prévention, préparation des objets en vue de leur exposition, documentation, interventions de restauration dans le respect de leur intégrité historique et esthétique.",
     address: "Avenue de la Paix 10, 1202 Genève",
     website: "http://institutions.ville-geneve.ch/fr/ariana/",
     poinconType: "INSTITUTION",
@@ -861,6 +941,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Musée International de la Réforme": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/nr_.jpeg",
+    description: "Le MIR est la seule institution laïque au monde consacrée à l'histoire d'un bouleversement religieux, politique et culturel majeur, la Réforme. Tableaux, objets, livres, gravures et dispositifs audiovisuels se conjuguent en 12 salles, dans une nouvelle scénographie riche en couleurs où l’on peut contempler des tableaux de Martin Luther par Cranach, une lettre manuscrite de Jean Calvin ou un témoignage du résistant protestant allemand Dietrich Bonhoeffer. Cette nouvelle expérience muséale, à vivre dans un hôtel particulier genevois du 18e siècle, familiarise le public avec l’histoire du protestantisme, mais également avec les techniques innovantes et leurs artisans - imprimeurs et graveurs - qui, dès l’aube du 16e siècle ont permis la diffusion de cette pensée et son expansion à travers le temps et les continents.",
     address: "Cour de Saint-Pierre 10, 1204 Genève",
     website: "https://www.musee-reforme.ch",
     poinconType: "INSTITUTION",
@@ -869,6 +950,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Musée d'Art et d'Histoire": {
     image: "https://metiersdart-geneve.ch/images/2023/05/08/site.jpg",
+    description: "Uniques dans le paysage muséal suisse romand, les ateliers de conservation-restauration et la salle d’examen scientifique - reconnus comme un pôle d’excellence en matière de conservation du patrimoine et de formation - jouent un rôle fondamental dans l’étude appliquée et la conservation matérielle des collections de la Ville de Genève. Entre 1950 et 1986, les ateliers de conservation-restauration ont été progressivement créés pour répondre aux problématiques de la conservation des collections publiques, pour être réunis en 2010 au sein d’un secteur. Celui-ci est aujourd’hui constitué de douze collaborateur·trice·s réparti·e·s au sein de huit ateliers de conservation-restauration travaillant principalement sur les collections du MAH.",
     address: "Rue Charles-Galland 2, 1206 Genève, ",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -876,6 +958,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Musée d'Ethnographie de Genève": {
     image: "https://metiersdart-geneve.ch/images/2023/06/20/johnathan-wattsmeg-copie.png",
+    description: "Le MEG est un musée qui porte un regard sur les problématiques sociétales et environnementales mondiales. Des enjeux tels que la décolonisation, les processus collaboratifs et la durabilité forment le cœur de sa vision. En Suisse comme ailleurs, l’héritage colonial est contesté, les échanges inéquitables sont critiqués, le racisme et l’exclusion dénoncés. En réponse à ces mouvements, les notions de partenariat, d’échange, de collaboration et de co-construction sont promues au sein du Musée dans un esprit de respect et de confiance mutuels.\n\nSes collections, composées de plus de 75’000 objets, 200'000 livres et documents (iconographiques, holographiques, audiovisuels et sonores) relient le MEG avec les porteurs et porteuses de cultures des cinq continents.",
     address: "Bd Carl-Vogt 67, 1205 Genève, ",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -883,6 +966,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Muséum d'Histoire Naturelle": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/mhn.jpg",
+    description: "La taxidermie est l'art de redonner l'apparence de la vie aux animaux morts, c'est un métier qui fait appel à la fois à des savoir-faire techniques et artistiques, mais également à des connaissances anatomiques et une bonne approche naturaliste. Il est, en milieu muséal, en lien avec les domaines de la recherche scientifique et de la conservation du patrimoine.\n\nLe métier de scénographe et décorateur·rice au Muséum d’histoire naturelle consiste à concevoir et réaliser la mise en scène des expositions permanentes ou temporaires. Le scénographe crée des ambiances immersives et pédagogiques en valorisant les collections (fossiles, animaux naturalisés, objets scientifiques) à travers l'agencement de l'espace, l'éclairage, les décors, et parfois des effets sonores ou multimédias. Il collabore étroitement avec les commissaires d’exposition, les graphistes, les conservateurs, les médiateurs scientifiques et les techniciens pour transmettre un contenu scientifique de manière pertinente, esthétique, cohérente et accessible à tous les publics.",
     address: "Route de Malagnou 1, 1208 Genève",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -898,9 +982,11 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "OFPC": {
     image: "https://metiersdart-geneve.ch/images/2023/06/08/ofpc.png",
+    description: "L'office pour l'orientation, la formation professionnelle et continue (OFPC) est chargé de l'application de la loi cantonale sur la formation professionnelle, celle de la loi cantonale sur la formation continue, ainsi que celle de la loi cantonale sur l'information et l'orientation scolaire et professionnelle. Dépendante du département de l'instruction publique, de la formation et de la jeunesse (DIP), la direction générale de l’OFPC a ainsi pour mission de veiller à ce que ses services appliquent et fassent appliquer ces lois.",
   },
   "Olivier Murner SA": {
     image: "https://metiersdart-geneve.ch/images/2025/07/15/20250220_murner_work-180-carre.jpg",
+    description: "Olivier Murner SA est une entreprise genevoise de serrurerie et de constructions métalliques, reconnue pour la qualité de ses réalisations et son exigence du détail. Elle met son savoir-faire au service de projets complexes, notamment la rénovation d'édifices patrimoniaux, où tradition et précision se rencontrent. Chaque ouvrage est conçu avec rigueur, en étroite collaboration avec les architectes et les maîtres d'ouvrage.\n\nEn 2024, l'entreprise est reprise par François Tornare, désireux de devenir indépendant en s'appuyant sur une structure existante. Diplômé en mécanique de précision, François Tornare trouve en Olivier Murner SA un partenaire avec qui le lien humain s'établit immédiatement. Une rencontre simple, sincère, qui rend la transmission d'entreprise naturelle et pleine de sens.",
     address: "Rue Le-Royer 19, 1227 Les Acacias",
     website: "https://www.murner.ch",
     poinconType: "ENTREPRISE",
@@ -909,6 +995,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Olivier Veuthey": {
     image: "https://metiersdart-geneve.ch/images/2025/11/19/img_4454-carre.jpg",
+    description: "C'est lors d'une visite avec ses parents à la Maison Tavel à Genève qu'Olivier Veuthey se passionne pour le bois. Un coup de cœur pour un berceau sculpté en forme de cygne. Il commence ses premiers objets à la lueur de sa lampe de chevet... Le début d'un intérêt et d'une évidence.\n\nAprès un CFC de menuisier puis un CFC de charpentier, il se rapproche du bois dans ce qu'il a de plus brut : ses textures, ses contraintes, ses formes dictées par l'usage. Cette quête de simplicité, de cohérence et de justesse guide encore aujourd'hui l'ensemble de son travail.\n\nEn 2019, il fonde son atelier avec l'ambition de créer des meubles durables, pensés pour traverser le temps et fabriqués de manière responsable. Il privilégie le bois suisse, les produits éco-certifiés et une production locale.\n\nCréateur, passionné par la beauté simple des choses et des matières, Olivier Veuthey conçoit chaque pièce nourrie par les échanges, les expériences et les besoins de ses clients. Un équilibre sensible entre fonction, sobriété et poésie.",
     address: "Route de Pré-Marais 26, 1233, Bernex",
     website: "https://olivierveuthey.ch",
     poinconType: "ATELIER",
@@ -917,6 +1004,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Orth & Fils SÀRL": {
     image: "https://metiersdart-geneve.ch/images/2021/03/11/orth.jpg",
+    description: "Orth & Fils met en valeur chaque pièce en jouant sur la perception du spectateur. La peinture décorative est un véritable art de l'interprétation de nos espaces de vie. À partir de la couleur, mais aussi grâce à l'usage subtil de feuilles d'or et d'autres matières, une palette de techniques pour transformer l'espace : trompe-l'œil, faux marbres, papiers peints ou créations murales sur mesure. Chaque intervention explore lumière, textures et illusions, au service de l'harmonie et du caractère du lieu.",
     address: "Place du Bourg-de-Four 32, 1204 Genève",
     website: "http://www.orth-art.com",
     poinconType: "ATELIER",
@@ -925,6 +1013,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Orthethic": {
     image: "https://metiersdart-geneve.ch/images/2026/01/13/orthethic_botterie_couleur-carre.jpg",
+    description: "Depuis 1978 à Genève, les ateliers aujourd'hui réunis sous la marque Orthethic perpétuent l'art du sur-mesure. Héritiers de l'expérience historique de Giglio Orthopédie, ils conservent la même exigence artisanale : chaque appareillage et chaque chaussure orthopédique prend forme grâce à un savoir-faire patient, où la main de l'artisan reste au centre du processus.\n\nCoupe, couture, assemblage, montage et lustrage du cuir : les gestes se répètent avec rigueur, mais jamais à l'identique. Chaque création est conçue pour s'adapter à une empreinte singulière, transformant un simple contour tracé sur bois en un objet de confort, de précision et d'autonomie.\n\nSi l'innovation, notamment l'impression 3D, enrichit aujourd'hui ces pratiques, elle n'efface ni la sensibilité du toucher, ni la justesse du regard, ni l'exigence du détail. Orthethic crée des produits parfaitement ajustés et pensés pour durer, grâce à des gestes hérités et sans cesse réinventés, qui confèrent à chaque réalisation fiabilité, précision et durabilité.",
     address: "Rue du Tir-au-Canon 6, 1227 Carouge",
     website: "https://orthethic.ch",
     poinconType: "ENTREPRISE",
@@ -933,9 +1022,11 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Parcours des Ateliers Carougeois": {
     image: "https://metiersdart-geneve.ch/images/2023/06/19/capture-dcran-2023-06-19-14.58.46.png",
+    description: "Carouge, dès son «invention» dans la seconde moitié du 18e siècle, est une ville tournée vers l’artisanat. Un gabarit architectural volontariste – atelier au rez-de-chaussée et logement de l’artisan au premier étage – et l’absence d’un système corporatif font que les artisans affluent et s’installent durablement dans la cité sarde. En visitant ces ateliers, vous participerez à cette belle aventure où art et artisanat se côtoient au quotidien. Le beau geste et la fantaisie animent ces ateliers !",
   },
   "Patrick Reymond": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/patrick-raymond_jema24_image.jpg",
+    description: "Construire en tout petit pour laisser place à l’énormité du détail et de la précision, tel est la vocation de Patrick Reymond, maquettiste depuis plus de 34 ans. À la demande de ses clients, il construit, en respectant les échelles et perspectives, des maquettes de bateaux, d’édifices, de quartiers entiers ou encore de véhicules. Souvent allié des architectes, il reproduit à l’identique pour permettre une visualisation et une contemplation des sujets sous des angles généralement inapprochables.",
     address: "Chemin du Crêt-de-la-Neige 9, 1234 Vessy",
     website: "http://maquettes.ch",
     poinconType: "ATELIER",
@@ -944,6 +1035,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Peter Kammermann": {
     image: "https://metiersdart-geneve.ch/images/2021/02/26/kammermann.jpg",
+    description: "Passionné par la culture du textile, Peter Kammermann s’intéresse aux traditions artisanales extra-européennes et travaille le tissu selon la noblesse et la rigueur du fait main. Qu’il s’agisse de canapés, tentures murales, rideaux, habillages textiles, restauration et gainage de meubles, chaque détail est soigné et permet de répondre aux désirs de la pièce unique dans les règles de l’art.",
     address: "Rue Saint-Victor 20, 1227 Carouge",
     website: "https://www.peterkammermann.ch",
     poinconType: "BOUTIQUE",
@@ -988,6 +1080,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Roger Truan SA": {
     image: "https://metiersdart-geneve.ch/images/2022/01/12/truan-carr.jpg",
+    description: "La gainerie est aujourd’hui l’art de fabriquer des écrins. Issue de la fabrication de gaines d’épée en cuir, cette appellation désigne également une variété d'objets réalisés en cuir ou en matières similaires. Les personnes exerçant la gainerie excellent dans la maîtrise de techniques très diverses.\nEn Suisse, le développement de la gainerie est particulièrement lié à celui de l’horlogerie.\n\nL'entreprise Roger Truan SA, fondée en 1960 à Genève, incarne pleinement cette tradition d'excellence artisanale. En tant que manufacture d'écrins et de maroquinerie, elle met un point d'honneur à conjuguer savoir-faire traditionnel, matériaux haut de gamme et exigences contemporaines de qualité. Située aujourd'hui à Carouge, elle accompagne notamment les maisons horlogères et du luxe dans la conception d'écrins d'exception, alliant design, finition manuelle et personnalisation.",
     address: "Avenue de la Praille 55, 1227 Carouge, ",
     poinconType: "ENTREPRISE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – ENTREPRISE – distingue des structures constituées de plusieurs employé·e·s, dont un ou plusieurs secteurs sont dédiés à un métier d’art. Accessibles sur rendez-vous, ou après un contact préalable. Cliquez ici pour en savoir plus.",
@@ -995,6 +1088,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Rosso encadrements": {
     image: "https://metiersdart-geneve.ch/images/2026/09/01/pierre-rosso-format-carre.jpg",
+    description: "Fondée en 1966, la maison Rosso est spécialisée dans l’encadrement sur mesure. Reprise par Pierre Rosso en 2010, elle poursuit une pratique fondée sur la précision du geste, l’écoute et la recherche de solutions adaptées à chaque pièce. Formé au métier d’encadreur, il dirige aujourd’hui une équipe de quatre collaborateurs au sein d’un atelier de 400 m², où chaque projet est entièrement réalisé sur place, de la conception à la finition.\n\nChaque projet débute par un échange avec le client afin de comprendre ses attentes, ses envies et l’environnement auquel l’œuvre est destinée. Pierre Rosso accorde une place essentielle au dialogue et au conseil, convaincu que le cadre doit accompagner l’œuvre avec justesse et révéler son caractère sans s’imposer. Cette approche nourrit également son goût pour la création, qui s’exprime dans la recherche de solutions sur mesure et dans le développement de projets uniques.\n\nUne sélection de plus de 1000 références de baguettes, des cadres contemporains ou de style, passe-partout, tendage, verres de protection, systèmes d’accrochage ou éclairage pour mettre en valeur vos pièces préférées : chaque réalisation est pensée dans un souci d’esthétique, de conservation et de durabilité.\n\nGrâce à des espaces de travail adaptés et à une chambre forte intégrée à l’atelier, les œuvres demeurent sur place tout au long de leur prise en charge, garantissant un suivi attentif à chaque étape de leur mise en valeur.",
     address: "Rue François-Perréard 4, 1225 Chêne-Bourg",
     website: "https://www.rossoencadrements.ch",
     poinconType: "ATELIER",
@@ -1012,6 +1106,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Sakran SA": {
     image: "https://metiersdart-geneve.ch/images/2025/09/22/img_4077-carre.jpg",
+    description: "Artisan menuisier et ébéniste, Pascal Sakran fonde son entreprise en 2007. Entrepreneur passionné, il met son expertise au service de projets sur mesure, alliant tradition, qualité et innovation. Membre de l'organisation professionnelle ACM, son entreprise s'engage à respecter une charte rigoureuse en matière de savoir-faire et de fiabilité.\n\nPour Pascal Sakran, la qualité est bien plus qu'une exigence : c'est un véritable état d'esprit qui guide chaque étape du travail.\n\nDans son atelier, équipé de machines spécialisées pour coller, façonner et polir le bois, il travaille avec deux collaborateurs qualifiés et polyvalents. Ensemble, ils réalisent chaque pièce avec rigueur et précision, en plaçant la satisfaction du client au cœur de leur engagement.",
     address: "Route de Saint-Julien 44",
     website: "https://www.sakran.ch",
     poinconType: "ATELIER",
@@ -1037,6 +1132,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Scènes du Grütli": {
     image: "https://metiersdart-geneve.ch/images/2026/03/03/grutli.png",
+    description: "Venez explorer les coulisses du théâtre et découvrir celui-ci sous un nouvel angle. Des loges aux passerelles techniques, les Scènes du Grütli vous ouvrent grand ses portes pour partager autrement avec vous la création contemporaine. L’occasion également de rencontrer les compagnies qui y travaillent.",
     address: "Rue Général Dufour 16, 1204 Genève",
     website: "https://grutli.ch",
     poinconType: "INSTITUTION",
@@ -1045,6 +1141,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Sellerie Kühnen": {
     image: "https://metiersdart-geneve.ch/images/2021/02/24/kuhnen.jpg",
+    description: "C’est dans son atelier où il sent bon le cuir que Fabienne Panelati, sellière de formation et passionnée du domaine hippique, répare des harnais et des licols, rembourre des selles de cheval usées par le temps ou réalise des sacs sur mesure. En effet, le sellier se doit plus que jamais d’être précis, polyvalent et adroit s'il veut surclasser la fabrication en usine, et c’est à coup de gestes sûrs et précis qu’elle découpe le cuir, le coud et le façonne en des objets uniques.",
     address: "Avenue Pictet-de-Rochemont 37, 1207 Genève",
     website: "https://www.facebook.com/cuirgeneve",
     poinconType: "BOUTIQUE",
@@ -1087,6 +1184,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Théâtre de Carouge": {
     image: "https://metiersdart-geneve.ch/images/2023/05/08/theatre-de-carouge_site.jpg",
+    description: "Le Théâtre de Carouge, lieu de création et d’artisanat, vous a ouvert les portes de son bâtiment lors des JEMA 2022 pour mettre en lumière ces métiers essentiels à la magie du Théâtre: des premières esquisses et maquettes jusqu’au résultat final, vous avez pu découvrir les secrets de création des spectacles. Au programme il eut également, la visite du Théâtre et de ses ateliers, ses coulisses, ses stocks costumes et accessoires...",
     address: "Rue Ancienne 37a, 1227 Carouge, ",
     poinconType: "INSTITUTION",
     poinconModalText: "Le poinçon Métiers d’Art Genève – INSTITUTION CULTURELLE - distingue les lieux par excellence de la conservation de la mémoire, de la préservation des traditions et de la recherche artistique. Ils incarnent un lien essentiel avec l’histoire et la culture locale. Cliquez ici pour en savoir plus.",
@@ -1094,6 +1192,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Traditech": {
     image: "https://metiersdart-geneve.ch/images/2024/03/18/traditech_jema24_image.jpg",
+    description: "Technique du merveilleux, le sertissage permet d’enchâsser des pierres précieuses sur des pièces horlogères d’exception. Chaque métal nécessite des connaissances et une étude approfondie dans le but d’épouser la pierre précieuse harmonieusement. Un savoir-faire qui, au service de la société horlogère et joaillière depuis près de 20 ans, émane de chaque création sortant des ateliers Traditech. Ils accompagnent leurs clients de la phase d’étude du projet jusqu’à la réalisation de productions uniques ou en séries.",
     address: "Rue Eugène-Marziano 33, 1227 Les Acacias",
     website: "https://www.traditech.ch",
     poinconType: "ENTREPRISE",
@@ -1102,9 +1201,11 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "UFGVV": {
     image: "https://metiersdart-geneve.ch/images/2023/06/19/capture-dcran-2023-06-19-15.43.17.png",
+    description: "l'UFGVV, membre de la Convention patronale de l'industrie horlogère (CP), regroupe plus de 13'477 salariés (état septembre 2021) dans 99 entreprises sur les 49'007 employés recensés par la CP. Elle a pour buts:\n• La défense des intérêts de ses membres.\n• La représentation de ses membres auprès des autorités, Chambre de commerce et autres associations, groupements ou organisations auxquels elle adhère.\n• L'étude de toutes les questions relatives à l'industrie horlogère.\n• Le soutien d'institutions d'intérêt général pour l'industrie horlogère.",
   },
   "Vaudaux Haute Gainerie": {
     image: "https://metiersdart-geneve.ch/images/2021/09/07/image_vaudaux_sa-2.jpg",
+    description: "L’artisan·e gainier·ière doit maîtriser au minimum six métiers différents : de la menuiserie à la coupe de cuir, en passant par la maroquinerie, la couture, les assemblages et la gainerie. C’est en associant et en développant sans cesse nos savoir-faire que nos artisan.e.s développent, créent et subliment tout type d’objet.",
     address: "Avenue Louis-Pictet 9, 1214 Vernier",
     website: "https://www.vaudaux-ge.com/",
     poinconType: "ENTREPRISE",
@@ -1113,6 +1214,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Vincenti Guitares": {
     image: "https://metiersdart-geneve.ch/images/2025/02/07/guillaume-dayer_jema25_image-carre.png",
+    description: "Le luthier en guitare est un artisan spécialisé dans la fabrication, la réparation et la restauration de guitares. Chez Vincenti Guitares, Guillaume Dayer perpétue cet art avec une maîtrise héritée de Jacques Vincenti. Spécialisé dans la restauration d'instruments anciens, il sublime la guitare classique, mêlant tradition et raffinement. Depuis 2019, ses créations uniques séduisent musiciens et mélomanes, en quête de précision et d'élégance intemporelle.",
     address: "Boulevard de Saint-Georges 52, 1205 Genève",
     website: "https://www.vincenti-guitares.com",
     poinconType: "ATELIER",
@@ -1121,6 +1223,7 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "Yvan Hostettler": {
     image: "https://metiersdart-geneve.ch/images/2021/11/30/site_yvanhostettler-2.jpg",
+    description: "Après un apprentissage de typographe, Yvan Hostettler se forme aux Arts Graphiques puis apprend la calligraphie en Californie. Membre de la société suisse de calligraphie, il propose des ateliers pour partir à la découverte de la lettre latine de l’époque romaine à nos jours en passant par le Moyen Age et effectue également de nombreuses collaborations, notamment avec le musée Martin Bodmer de Cologny, le MRL, le musée d'ethnographie de Genève et la Fondation Michel Butor à Lucinges (France).\n\nLa calligraphie est l’art de former des caractères d’écriture manuscrite selon une volonté esthétique. Associée en Occident à la copie de manuscrits par les moines, sa pratique se retrouve dans un grand nombre de cultures qui ont chacune, à partir de moyens techniques divers et selon leurs propres préoccupations esthétique, morale, économique, religieuse ou philosophique, développé des traditions particulières.",
     address: "Chemin des Ouches 2, 1203 Genève",
     website: "https://www.calligraphe.ch",
     poinconType: "ATELIER",
@@ -1129,11 +1232,15 @@ export const artisanDetails: Record<string, ArtisanDetail> = {
   },
   "mademoiselle L": {
     image: "https://metiersdart-geneve.ch/images/2025/09/02/mademoisellel2024-carre.jpg",
+    description: "Couturière créatrice et fondatrice de la marque \"mademoiselle L\", Laurence Imstepf Fuentes incarne une mode urbaine et minimaliste aux lignes architecturales.\nRécemment lauréate du Prix de l'Artisanat décerné par l'association des communes genevoises, elle crée des pièces responsables dans son atelier à Versoix. En 2024, elle opte pour une collection annuelle évolutive, avec une tenue dévoilée chaque mois.\n\nAnimée par une véritable passion pour son métier, Laurence Imstepf Fuentes aime partager son savoir-faire et transmettre son goût pour la couture à travers l'enseignement. Elle assure également la promotion de la mode locale, valorisant la création artisanale et durable.",
     address: "Rue des Etuves 17",
     website: "https://mademoisellel.ch",
     poinconType: "BOUTIQUE",
     poinconModalText: "Le poinçon Artisan·e Métiers d’Art Genève – BOUTIQUE – distingue des lieux de vente, comptant un ou plusieurs employé·e·s, valorisant un savoir-faire d’exception, ouverts au public selon des horaires réguliers et favorisant le contact direct. Cliquez ici pour en savoir plus.",
     poinconModalLink: "https://metiersdart-geneve.ch/index.php?option=com_sppagebuilder&view=page&id=630",
+  },
+  "Atelier Leckie, Anna Leckie": {
+    description: "L’Atelier Leckie est l’atelier de gravure taille-douce d’Anna Leckie. A l’origine, cet espace était l’atelier professionnel de Jacques Leckie, graveur-imprimeur. L’estampe et ses diverses techniques sont au cœur de ce petit atelier carougeois. Anna Leckie y exerce et enseigne les techniques de gravure directe et indirecte sur cuivre, en particulier l’eau-forte et l’aquatinte.",
   },
 };
 

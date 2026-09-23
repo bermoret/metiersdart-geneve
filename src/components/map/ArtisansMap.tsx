@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { artisanMarker } from "@/lib/map-marker";
+import { artisanMarker, spreadOverlapping } from "@/lib/map-marker";
 
 export type MapArtisan = {
   id: string;
@@ -44,17 +44,6 @@ function getIcon(color?: string | null): L.DivIcon {
   });
   iconCache.set(marker.key, icon);
   return icon;
-}
-
-// Petit décalage pour éviter que les marqueurs d'une même commune se superposent exactement
-function jitter(lat: number, lng: number, index: number): [number, number] {
-  // Décalage en spirale déterministe basé sur l'index
-  const angle = (index * 2.39996) % (2 * Math.PI); // golden angle
-  const radius = 0.0008 * Math.sqrt(index + 1);
-  return [
-    lat + radius * Math.cos(angle),
-    lng + radius * Math.sin(angle),
-  ];
 }
 
 export default function ArtisansMap({ artisans, selectedCategory }: Props) {
@@ -173,9 +162,8 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
 
     const bounds = L.latLngBounds([]);
 
-    withCoords.forEach((artisan) => {
-      const lat = artisan.latitude;
-      const lng = artisan.longitude;
+    spreadOverlapping(withCoords).forEach((artisan) => {
+      const { lat, lng } = artisan;
       const icon = getIcon(artisan.category?.color);
 
       const marker = L.marker([lat, lng], { icon });

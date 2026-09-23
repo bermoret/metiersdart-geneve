@@ -21,3 +21,36 @@ export function artisanMarker(raw?: string | null): {
     anchor: size / 2,
   };
 }
+
+/**
+ * Artisan·e·s au même point exact (même bâtiment, ou fiche sans adresse placée
+ * au centre de sa commune) : les pastilles se superposaient et seule la
+ * dernière restait cliquable. Chaque groupe est réparti en cercle autour du
+ * point, rayon croissant avec la taille du groupe (~40 m pour 2, ~150 m pour 25) :
+ * lisible aux forts zooms ; aux zooms faibles, seul le géocodage des adresses sépare les fiches.
+ */
+export function spreadOverlapping<T extends { latitude: number; longitude: number }>(
+  items: T[],
+): (T & { lat: number; lng: number })[] {
+  const groups = new Map<string, T[]>();
+  for (const it of items) {
+    const k = `${it.latitude.toFixed(5)},${it.longitude.toFixed(5)}`;
+    groups.set(k, [...(groups.get(k) ?? []), it]);
+  }
+  return [...groups.values()].flatMap((group) => {
+    if (group.length === 1) {
+      const [it] = group;
+      return [{ ...it, lat: it.latitude, lng: it.longitude }];
+    }
+    const r = 0.00027 * Math.sqrt(group.length); // degrés de latitude
+    return group.map((it, i) => {
+      const angle = (2 * Math.PI * i) / group.length;
+      const cos = Math.cos((it.latitude * Math.PI) / 180);
+      return {
+        ...it,
+        lat: it.latitude + r * Math.sin(angle),
+        lng: it.longitude + (r * Math.cos(angle)) / cos,
+      };
+    });
+  });
+}

@@ -178,17 +178,17 @@ export default async function ArtisanPage({
 
                 {video && (
                   <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Vidéo</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-red mb-3">Capsule vidéo</h2>
                     <a
                       href={video}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-sm font-medium text-mag-red hover:underline"
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                         <path d="M8 5v14l11-7z" />
                       </svg>
-                      Regarder la vidéo
+                      Regarder la capsule vidéo
                     </a>
                   </div>
                 )}

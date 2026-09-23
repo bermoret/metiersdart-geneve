@@ -2,6 +2,64 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Retours de l'équipe MAG (mail « MAG: Retour nouveau site internet »)
+
+### Fait (code)
+
+- Accueil : pastille « Bienvenue chez MAG », bouton « Trouver les artisanes et artisans proches
+  de chez vous », badge sans « + », « MAG en chiffres » = artisan·e·s (calculé) · 53 métiers
+  (constante `CRAFTS_COUNT`, nomenclature MAG) · communes où exercent les artisan·e·s (calculé,
+  21) · projets menés (admin, masqué tant qu'il vaut 0). « Notre mission » retirée.
+- Qui sommes-nous : « Communes partenaires », phrase de contact retirée, légende limitée aux
+  partenaires ; partenaire sans artisan·e au répertoire = « en recherche d'artisan·e·s »
+  (contour rouge) ; liens OPS / OFPC mis à jour. `communeKey` : « Perly » = Perly-Certoux.
+- Carte d'accueil : pastilles au même point réparties en cercle (`spreadOverlapping`).
+- JEMA, éditions, Répertoire, Médias, Métiers et formations, Manufacto, page artisan : voir le
+  commit.
+
+### 🚩 En attente d'accord (écritures en base de prod, bloquées en session)
+
+Données préparées, non appliquées :
+- **Coordonnées** : 60 fiches posées au centre de leur commune ou empilées (26 au centre de
+  Genève) — d'où les « artisans manquants » sur la carte. 52 adresses géocodées via swisstopo
+  (SearchServer) ; restent au centre : Julien Joselon et Maïa Kvasnikova (« en recherche de
+  locaux »), fiches sans adresse (Atelier Leckie, PAC, UFGVV, OFPC, Label Genève, ARMB).
+- **Mention JEMA** : `jema_participant` vaut `true` pour les 145 fiches. D'après le tableau
+  JEMA27_APPEL (colonnes 2022-2026) : 83 artisan·e·s à `true`, 28 à `false`. Inchangés faute de
+  correspondance sûre : Marina Buckel (« Matthias Buckel et Filles » ?), Atelier ABR, Orthethic.
+  Le tableau ne couvre pas les éditions avant 2022. Institutions / écoles non touchées.
+- **Communes partenaires** (9, carte de MAG) : Bellevue, Carouge, Genève, Gy, Meyrin,
+  Perly-Certoux, Plan-les-Ouates, Satigny, Vandœuvres — cochables dans l'admin (Communes).
+- **Projets menés = 37** : admin → « Événements & projets MAG » (vaut 0 aujourd'hui).
+- **Édition 2022** : à créer (admin JEMA ou SQL) ; sa page `/jema/2022` est prête côté code.
+- **Textes « À propos » manquants** (Anne Ponthenier et 100 autres) : `long_description` vide
+  en base pour 101 fiches publiées (l'import initial n'avait repris que 44 textes). Textes
+  repris de l'ancien site dans `src/lib/artisan-details.ts` ; report en base par
+  `npx tsx scripts/backfill-descriptions.ts --apply` (ne remplit que les champs vides).
+- Script des autres données : `apply.cjs` + `plan.json` (hors dépôt, transmis à Bernard).
+- **Métiers = 53 éditable dans l'admin** : demande une colonne `site_settings.crafts_count`
+  (migration de prod → accord de Bernard) ; d'ici là constante dans `src/app/page.tsx`.
+
+### À vérifier / décider (avec MAG)
+
+- **Focus Léman Bleu** 2025 et 2026 : URLs à obtenir (candidat 2026 : article Léman Bleu du
+  28.03.2026 « Entre tradition et modernité, les artisans se dévoilent aux JEMA », non confirmé).
+- Programme 2022 : document issuu `mise_en_page_finale_2_0393e91b4eab4c` (publié le 08.03.2022
+  par le même compte que les autres programmes) — à confirmer.
+- Textes des éditions contredits par les nouveaux chiffres : 2026 (« 145 artisan·e·s »,
+  « 15 ateliers participants » vs 68 participants), 2025 (12 institutions vs 6).
+- Capsules : le site en liste 38 (dont « Le domaine de la pierre se mobilise ! »), MAG annonce
+  « 37 Capsules vidéo » — le titre affiche le nombre réel ; laquelle retirer ?
+- 🚩 Photos fournies (Manufacto : élèves ; Métiers et formations : adolescent) : droit à
+  l'image des mineur·e·s à confirmer par MAG.
+- 43 descriptions déjà en base finissent par le texte du poinçon et « Cliquez ici pour en
+  savoir plus. » (lien perdu) : à nettoyer avec l'accord de MAG.
+- Photos Manufacto / Métiers et formations publiées sans métadonnées EXIF.
+- 🚩 **Demandes hors périmètre** (engagement à cadrer) : statistiques du site reliées au fichier
+  Stat_GLOBALES ; sections de fiche artisan visibles par MAG seulement (notes, contacts,
+  formation, prix, participations JEMA, documents) → données personnelles (nLPD), accès,
+  stockage de documents.
+
 ## 2026-09-23 — Accueil : retour à l'ancienne version (préférence du client)
 
 ### Fait

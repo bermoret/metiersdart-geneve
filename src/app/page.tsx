@@ -3,13 +3,13 @@ import {
   getArtisansOnly,
   getPublishedArtisans,
   getArtisanCategories,
-  countCrafts,
   countCommunes,
   getJemaEditions,
   splitJemaEditions,
 } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
 import { canOptimizeImage } from "@/lib/utils";
+import { getSiteSettings } from "@/lib/site-settings";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { Reveal } from "@/components/ui/Reveal";
@@ -26,13 +26,18 @@ export const revalidate = 60;
 const JEMA_ARTISAN = "Frédéric Taddeï";
 const JEMA_FALLBACK_IMAGE = "/artisan-tools.jpg";
 
+/* Nombre de métiers selon la nomenclature de MAG (Stat_GLOBALES, 01.09.26) :
+   les libellés de métier en base (plus de 80 variantes) ne s'y ramènent pas. */
+const CRAFTS_COUNT = 53;
+
 export default async function HomePage() {
-  const [artisansOnly, allEntities, artisanCategories, jemaEditions] = await Promise.all([
+  const [artisansOnly, allEntities, artisanCategories, jemaEditions, settings] = await Promise.all([
     getArtisansOnly(),
     getPublishedArtisans(),
     getArtisanCategories(),
     // Une panne de la table JEMA ne doit pas faire tomber l'accueil : bandeau générique.
     getJemaEditions().catch(() => []),
+    getSiteSettings(),
   ]);
 
   // Bandeau JEMA : prochaine édition saisie dans l'admin, sinon rendez-vous générique.
@@ -42,12 +47,15 @@ export default async function HomePage() {
   );
   const jemaImage = jemaArtisan?.imageUrl ?? JEMA_FALLBACK_IMAGE;
 
+  // « MAG en chiffres » selon le tableau de statistiques de MAG (retour du 23.09) :
+  // artisan·e·s et communes calculés (communes où exercent les artisan·e·s, sans
+  // les écoles ni les institutions), métiers selon la nomenclature MAG, projets
+  // menés saisis dans l'admin (masqués tant qu'ils valent 0).
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
-    { value: countCrafts(artisansOnly), label: "Métiers MAG" },
-    // Règle LOT 1 : toutes entités confondues (écoles, institutions comprises)
-    { value: countCommunes(allEntities), label: "Communes MAG" },
-    { value: artisanCategories.length, label: "Domaines d'art" },
+    { value: CRAFTS_COUNT, label: "Métiers" },
+    { value: countCommunes(artisansOnly), label: "Communes" },
+    ...(settings?.eventsCount ? [{ value: settings.eventsCount, label: "Projets menés" }] : []),
   ];
 
   const visibleCategories = artisanCategories;
@@ -62,24 +70,6 @@ export default async function HomePage() {
     ),
   ].slice(0, 24);
 
-  const pillars = [
-    {
-      title: "Patrimoine",
-      body: "Les centres de formation professionnelle sont garants de la transmission des différents savoir-faire dont les apports artistiques et patrimoniaux sont essentiels à une création qualitative et au renforcement de l'identité locale.",
-      icon: "fas fa-landmark",
-    },
-    {
-      title: "Transmission",
-      body: "Leur rôle est essentiel dans la transmission de valeurs, de techniques, et de professions parfois méconnues. L'association s'engage à valoriser des métiers et à enrichir notre conception de l'artisanat d'art.",
-      icon: "fas fa-hands-helping",
-    },
-    {
-      title: "Futur",
-      body: "À travers l'organisation d'événements telles que les JEMA, MAG s'assure de représenter les écoles formatrices et ses nombreux métiers dans l'objectif d'offrir aux jeunes générations une nouvelle vision de l'artisanat.",
-      icon: "fas fa-seedling",
-    },
-  ];
-
   return (
     <>
       {/* ─── Hero split-screen ─────────────────────────────────── */}
@@ -88,8 +78,15 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Colonne texte */}
             <div className="text-center lg:text-left">
-              {/* Retour MAG (Elsa, 19.09) : pas de pastille « Association genevoise
-                  des métiers d'art », mais (MAG) après le nom. */}
+              {/* Retours MAG : (MAG) après le nom (19.09), pastille « Bienvenue chez MAG »
+                  au lieu de « Association genevoise des métiers d'art » (23.09). */}
+              <Reveal>
+                <span className="inline-flex items-center gap-2 rounded-full border border-mag-red/20 bg-mag-red/5 px-4 py-1.5 text-xs font-semibold text-mag-red uppercase tracking-wide mb-6">
+                  <span className="w-1.5 h-1.5 rounded-full bg-mag-red animate-pulse" aria-hidden />
+                  Bienvenue chez MAG
+                </span>
+              </Reveal>
+
               <Reveal delay={0.1}>
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight text-mag-dark font-serif leading-[1.05]">
                   Métiers
@@ -113,7 +110,7 @@ export default async function HomePage() {
                   href="/repertoire"
                   className="group btn-fill mt-8 inline-flex items-center gap-2 rounded-full bg-mag-red px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-mag-red/20 hover:shadow-xl hover:shadow-mag-red/30 transition-shadow"
                 >
-                  Trouvez les professionnel·le·s des métiers d&apos;art proche de chez vous
+                  Trouver les artisanes et artisans proches de chez vous
                   <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
               </Reveal>
@@ -134,7 +131,7 @@ export default async function HomePage() {
               </div>
               {/* Badge flottant */}
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5 border border-mag-cream">
-                <p className="font-serif text-3xl font-black text-mag-red">{artisansOnly.length}+</p>
+                <p className="font-serif text-3xl font-black text-mag-red">{artisansOnly.length}</p>
                 <p className="text-xs text-mag-gray mt-1">artisans référencés</p>
               </div>
             </div>
@@ -172,7 +169,7 @@ export default async function HomePage() {
               MAG en chiffres
             </h2>
           </Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid gap-4 ${stats.length === 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-3"}`}>
             {stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 0.12}>
                 <div className="bg-mag-red rounded-2xl p-8 text-center text-white card-hover shadow-lg shadow-mag-red/10">
@@ -330,37 +327,6 @@ export default async function HomePage() {
               </div>
             </div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* ─── Trois piliers ──────────────────────────────────────── */}
-      <section className="py-20 bg-mag-sand grain-overlay">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <h2 className="text-center text-3xl sm:text-4xl font-bold text-mag-dark font-serif mb-2">
-              Notre mission
-            </h2>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="text-center text-mag-gray mb-12 max-w-2xl mx-auto">
-              Trois axes fondamentaux guident l&apos;action de MAG au quotidien.
-            </p>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pillars.map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.15}>
-                <div className="bg-white rounded-2xl p-8 border border-mag-cream card-hover hover:shadow-lg h-full">
-                  <div className="w-14 h-14 rounded-full bg-mag-red/10 flex items-center justify-center mb-5">
-                    <i className={`${item.icon} text-2xl text-mag-red`} aria-hidden />
-                  </div>
-                  <h3 className="text-xl font-bold text-mag-red font-serif mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-mag-dark/70 leading-relaxed text-sm">{item.body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 

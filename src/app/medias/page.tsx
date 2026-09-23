@@ -1,5 +1,6 @@
 import { VideoCapsule } from "@/components/ui/VideoCapsule";
 import { PageHero } from "@/components/ui/Editorial";
+import { videoThumbnail } from "@/lib/video-thumbnails";
 
 export const metadata = {
   title: "Médias",
@@ -103,7 +104,13 @@ const articlesArchives = [
   },
 ];
 
-export default function MediasPage() {
+export default async function MediasPage() {
+  // Miniatures en parallèle (oEmbed Vimeo mis en cache 24 h) ; null → affiche par défaut
+  const [capsuleThumbs, interviewThumb] = await Promise.all([
+    Promise.all(capsules.map((c) => videoThumbnail(c.platform, c.videoId))),
+    videoThumbnail(interviewYouTube.platform, interviewYouTube.videoId),
+  ]);
+
   return (
     <>
       <PageHero
@@ -123,11 +130,11 @@ export default function MediasPage() {
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="h-section mb-10">
-            Capsules vidéo ({capsules.length})
+            {capsules.length} Capsules vidéo
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {capsules.map((c, i) => (
-              <VideoCapsule key={i} {...c} />
+              <VideoCapsule key={i} {...c} thumbnailUrl={capsuleThumbs[i]} />
             ))}
           </div>
         </div>
@@ -135,7 +142,7 @@ export default function MediasPage() {
 
       {/* Interview */}
       <section className="py-16 sm:py-24 bg-mag-sand">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="h-section mb-10">
             On parle des métiers d&apos;art !
           </h2>
@@ -143,16 +150,18 @@ export default function MediasPage() {
             Découvrez les différents médias qui mettent en lumière les savoir-faire
             et les talents des métiers d&apos;art en cliquant ci-dessous.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Même grille que les capsules : l'interview a la même carte, à la même taille */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
             {/* Interview YouTube */}
             <VideoCapsule
               platform={interviewYouTube.platform}
               videoId={interviewYouTube.videoId}
               title={interviewYouTube.title}
               category={interviewYouTube.category}
+              thumbnailUrl={interviewThumb}
             />
             {/* Liens externes */}
-            <div className="space-y-4">
+            <div className="space-y-4 lg:col-span-2 xl:col-span-3">
               {externalLinks.map((p, i) => (
                 <a
                   key={i}

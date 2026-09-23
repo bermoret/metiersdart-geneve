@@ -15,6 +15,7 @@ import {
   type PublicJemaEdition,
 } from "./db-data";
 import { formatShortRange } from "./dates";
+import { compareFr } from "./utils";
 
 // Sans base : db-data sert le fallback statique, sans aucune requête SQL.
 // Ces tests couvrent donc les règles LOT 1 telles que calculées par la
@@ -33,6 +34,24 @@ const NON_ARTISAN_TYPES = [
 describe("db-data : comptages et filtres (fallback statique)", () => {
   test("getPublishedArtisans renvoie les 145 entités", async () => {
     assert.equal((await getPublishedArtisans()).length, 145);
+  });
+
+  test("listes publiques dans l'ordre alphabétique français (« mademoiselle L » parmi les M)", async () => {
+    const sorted = (names: string[]) =>
+      names.every((n, i) => i === 0 || compareFr(names[i - 1], n) <= 0);
+    const all = (await getPublishedArtisans()).map((a) => a.name);
+    assert.ok(sorted(all));
+    const i = all.findIndex((n) => n.startsWith("mademoiselle L"));
+    // Première des M (« mad… » < « Maï… »), et non plus en queue de liste après le Z
+    assert.ok(i > 0 && all[i - 1].startsWith("L") && all[i + 1].startsWith("M"));
+    for (const cat of artisanCategories) {
+      assert.ok(sorted((await getArtisansByCategoryDb(cat.slug)).map((a) => a.name)), cat.slug);
+    }
+  });
+
+  test("chaque fiche a un texte de présentation (« À propos »)", async () => {
+    const empty = (await getPublishedArtisans()).filter((a) => !a.longDescription?.trim());
+    assert.deepEqual(empty.map((a) => a.name), []);
   });
 
   test("getArtisansOnly : 114 artisans, aucun type non-artisan", async () => {

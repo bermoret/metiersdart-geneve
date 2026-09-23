@@ -9,18 +9,43 @@ export function slugify(str: string): string {
     .replace(/-{2,}/g, "-");
 }
 
+// ─── Tri alphabétique français ─────────────────────────────────
+
+const frCollator = new Intl.Collator("fr", { sensitivity: "base" });
+
+/**
+ * Comparaison alphabétique française, insensible à la casse et aux accents
+ * (« mademoiselle L » entre « Maître » et « Maïa », « Béatrice » avec les B).
+ * La base est en collation C.UTF-8 (ordre des octets) : son ORDER BY range
+ * les minuscules et les initiales accentuées après le Z.
+ */
+export function compareFr(a: string, b: string): number {
+  return frCollator.compare(a, b);
+}
+
+/** Copie de la liste triée par nom (ordre alphabétique français). */
+export function sortByName<T extends { name: string }>(list: readonly T[]): T[] {
+  return [...list].sort((a, b) => compareFr(a.name, b.name));
+}
+
 /**
  * Clé de rapprochement d'un nom de commune entre la base et les limites
  * swisstopo : « Le Grand-Saconnex » = « Grand-Saconnex », « Carouge (GE) » =
- * « Carouge », « Vandœuvres » = « Vandoeuvres ».
+ * « Carouge », « Vandœuvres » = « Vandoeuvres ». Les fiches du répertoire
+ * écrivent parfois le nom d'usage (« Perly » pour Perly-Certoux).
  */
 export function communeKey(name: string): string {
-  return slugify(
+  const key = slugify(
     name
       .replace(/œ/gi, "oe")
       .replace(/\s*\([a-z]{2}\)\s*$/i, ""),
   ).replace(/^(le|la|les)-/, "");
+  return COMMUNE_ALIASES[key] ?? key;
 }
+
+const COMMUNE_ALIASES: Record<string, string> = {
+  perly: "perly-certoux",
+};
 
 // Helper: latitude/longitude stockées en microdegrés (int) -> degres decimaux
 export function latFromDB(microdeg: number | null): number | null {

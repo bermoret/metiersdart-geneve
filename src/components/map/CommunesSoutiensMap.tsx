@@ -14,13 +14,17 @@ export type MapCommune = {
   latitude: number;
   longitude: number;
   soutientMag: boolean;
+  /** Au moins un·e artisan·e du répertoire dans la commune (sinon : partenaire « en recherche »). */
+  hasArtisans?: boolean;
 };
 
 type Props = {
   communes: MapCommune[];
 };
 
-type CommuneProps = { name: string; bfs: number; soutien: boolean };
+/** Partenaire avec artisan·e·s, partenaire en recherche d'artisan·e·s, ou non partenaire. */
+type Statut = "partenaire" | "recherche" | "autre";
+type CommuneProps = { name: string; bfs: number; statut: Statut };
 
 const territories = geCommunes as unknown as FeatureCollection<
   Polygon | MultiPolygon,
@@ -28,12 +32,19 @@ const territories = geCommunes as unknown as FeatureCollection<
 >;
 
 // Couleurs reprises par la légende (CommunesMapSection).
-const SOUTIEN = { fillColor: "#b42c36", fillOpacity: 0.6 };
-const NON_SOUTIEN = { fillColor: "#a8a29e", fillOpacity: 0.3 };
+const PARTENAIRE = { fillColor: "#b42c36", fillOpacity: 0.6 };
+const NEUTRE = { fillColor: "#a8a29e", fillOpacity: 0.3 };
 const FALLBACK_PANE = "communes-repli";
 
-function styleFor(soutien: boolean): L.PathOptions {
-  return { ...(soutien ? SOUTIEN : NON_SOUTIEN), color: "#ffffff", weight: 1.2, opacity: 1 };
+function statutOf(c: MapCommune | undefined): Statut {
+  if (!c?.soutientMag) return "autre";
+  return c.hasArtisans === false ? "recherche" : "partenaire";
+}
+
+function styleFor(statut: Statut): L.PathOptions {
+  // En recherche d'artisan·e·s : fond neutre cerclé de rouge (légende de MAG).
+  if (statut === "recherche") return { ...NEUTRE, color: "#b42c36", weight: 2.5, opacity: 1 };
+  return { ...(statut === "partenaire" ? PARTENAIRE : NEUTRE), color: "#ffffff", weight: 1.2, opacity: 1 };
 }
 
 export default function CommunesSoutiensMap({ communes }: Props) {
@@ -93,7 +104,16 @@ export default function CommunesSoutiensMap({ communes }: Props) {
     for (const c of communes) {
       const k = communeKey(c.name);
       const prev = byKey.get(k);
-      byKey.set(k, prev ? { ...prev, soutientMag: prev.soutientMag || c.soutientMag } : c);
+      byKey.set(
+        k,
+        prev
+          ? {
+              ...prev,
+              soutientMag: prev.soutientMag || c.soutientMag,
+              hasArtisans: prev.hasArtisans || c.hasArtisans,
+            }
+          : c,
+      );
     }
     const matched = new Set<string>();
 
@@ -105,27 +125,35 @@ export default function CommunesSoutiensMap({ communes }: Props) {
         if (c) matched.add(k);
         return {
           ...f,
-          properties: { ...f.properties, name: c?.name ?? f.properties.name, soutien: !!c?.soutientMag },
+          properties: { ...f.properties, name: c?.name ?? f.properties.name, statut: statutOf(c) },
         };
       }),
     };
 
+    // Contours « en recherche » gardés au premier plan (sinon recouverts par le
+    // liseré blanc des voisins après un survol).
+    const recherche: L.Path[] = [];
     const layer = L.geoJSON(data, {
-      style: (f) => styleFor(!!f?.properties.soutien),
+      style: (f) => styleFor(f?.properties.statut ?? "autre"),
       onEachFeature: (f: Feature<Polygon | MultiPolygon, CommuneProps>, l) => {
-        const { name, soutien } = f.properties;
+        const { name, statut } = f.properties;
+        if (statut === "recherche") recherche.push(l as L.Path);
         l.bindTooltip(escapeHtml(name), { sticky: true, direction: "top", offset: [0, -8] });
-        l.bindPopup(popupHtml(name, soutien));
+        l.bindPopup(popupHtml(name, statut));
         l.on({
           mouseover: () => {
             const path = l as L.Path;
-            path.setStyle({ weight: 2.5, fillOpacity: soutien ? 0.8 : 0.45 });
+            path.setStyle({ weight: 2.5, fillOpacity: statut === "partenaire" ? 0.8 : 0.45 });
             path.bringToFront();
           },
-          mouseout: () => layer.resetStyle(l),
+          mouseout: () => {
+            layer.resetStyle(l);
+            recherche.forEach((r) => r.bringToFront());
+          },
         });
       },
     }).addTo(map);
+    recherche.forEach((r) => r.bringToFront());
     layersRef.current.push(layer);
 
     // Commune de la base sans territoire connu (nom mal orthographié, commune
@@ -134,13 +162,13 @@ export default function CommunesSoutiensMap({ communes }: Props) {
       .filter(([k, c]) => !matched.has(k) && (c.latitude || c.longitude))
       .forEach(([, c]) => {
         const marker = L.circleMarker([c.latitude, c.longitude], {
-          ...styleFor(c.soutientMag),
+          ...styleFor(statutOf(c)),
           radius: 6,
           weight: 2,
           pane: FALLBACK_PANE,
         })
           .bindTooltip(escapeHtml(c.name))
-          .bindPopup(popupHtml(c.name, c.soutientMag))
+          .bindPopup(popupHtml(c.name, statutOf(c)))
           .addTo(map);
         layersRef.current.push(marker);
       });
@@ -150,24 +178,23 @@ export default function CommunesSoutiensMap({ communes }: Props) {
     <div
       ref={containerRef}
       className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden isolate border border-mag-cream/60 shadow-md bg-mag-sand"
-      aria-label="Carte des communes qui soutiennent MAG"
+      aria-label="Carte des communes partenaires de MAG"
       role="application"
     />
   );
 }
 
-function popupHtml(name: string, isSoutien: boolean): string {
+function popupHtml(name: string, statut: Statut): string {
+  const mention =
+    statut === "autre"
+      ? ""
+      : `<p style="font-size:13px;margin-bottom:4px"><span style="color:#b42c36;font-weight:600">✓ Commune partenaire</span>${
+          statut === "recherche" ? '<br><span style="color:#555">En recherche d\'artisan·e·s</span>' : ""
+        }</p>`;
   return `
-    <div style="min-width:180px;font-family:sans-serif">
+    <div style="min-width:160px;font-family:sans-serif">
       <h3 style="font-weight:bold;font-size:15px;margin-bottom:6px;color:#b42c36">${escapeHtml(name)}</h3>
-      <p style="font-size:13px;color:#555;margin-bottom:8px">
-        ${isSoutien
-          ? '<span style="color:#b42c36;font-weight:600">✓ Commune qui soutient MAG</span>'
-          : '<span style="color:#999">Commune non-soutien</span>'}
-      </p>
-      ${!isSoutien
-        ? '<p style="font-size:12px;color:#888;font-style:italic">Cette commune ne soutient pas encore MAG. Pour rejoindre le dispositif, contactez l\'association.</p>'
-        : ""}
+      ${mention}
     </div>
   `;
 }

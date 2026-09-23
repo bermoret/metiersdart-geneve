@@ -2,7 +2,7 @@ import { PageHero } from "@/components/ui/Editorial";
 export const metadata = {
   title: "Manufacto",
   description:
-    "Manufacto, la fabrique des savoir-faire — programme initié par la Fondation d'entreprise Hermès, déployé à Genève par le DIP et MAG.",
+    "Manufacto, la fabrique des savoir-faire : programme initié par la Fondation d'entreprise Hermès et déployé à Genève par le DIP et MAG, qui fait découvrir les métiers de l'artisanat à des classes genevoises.",
 };
 
 const editions = [
@@ -25,15 +25,22 @@ export default function ManufactoPage() {
     <>
       <PageHero
         eyebrow={<>Fondation d&apos;entreprise Hermès × DIP × MAG</>}
-        title={<>Manufacto, la fabrique des savoir-faire</>}
-        image="/artisan-tools.jpg"
-        imageAlt="Outils d'artisan sur un établi"
+        title={
+          <>
+            Manufacto{" "}
+            {/* Sous-titre plus petit que `accent` (conçu pour un mot : « complet », « Genève ») */}
+            <span className="block mt-4 text-3xl sm:text-4xl lg:text-5xl leading-tight text-mag-red">
+              La fabrique des savoir-faire
+            </span>
+          </>
+        }
+        image="/manufacto-atelier-cuir-eleves.jpg"
+        imageAlt="Deux élèves découpent du cuir à l'aide d'un gabarit en papier lors d'un atelier Manufacto"
         lead={
           <p>
-            Manufacto est un programme initié et développé par la{" "}
-            <strong>Fondation d&apos;entreprise Hermès</strong>, déployé à Genève
-            par le <strong>DIP</strong> (Département de l&apos;instruction publique,
-            de la formation et de la jeunesse) et <strong>MAG</strong>. Il permet à
+            Manufacto est un programme initié et développé par la Fondation
+            d&apos;entreprise Hermès, déployé à Genève par le DIP (Département de
+            l&apos;instruction publique, de la formation et de la jeunesse) et MAG. Il permet à
             deux classes genevoises de découvrir les métiers de l&apos;artisanat et
             leurs savoir-faire. Projet pilote débuté en 2024, en complémentarité avec
             l&apos;enseignement des activités créatrices, manuelles et des arts visuels.
@@ -75,7 +82,7 @@ export default function ManufactoPage() {
               <h3 className="font-bold text-mag-dark mb-2">Métiers concernés</h3>
               <ul className="space-y-2 text-sm text-mag-dark/70">
                 <li className="flex items-center gap-2"><span className="text-mag-red">▸</span> Menuiserie (bois)</li>
-                <li className="flex items-center gap-2"><span className="text-mag-red">▸</span> Sellerie-garnissage (cuir)</li>
+                <li className="flex items-center gap-2"><span className="text-mag-red">▸</span> Maroquinerie (cuir)</li>
               </ul>
             </div>
             <div>

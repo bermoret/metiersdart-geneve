@@ -1,10 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import {
-  getJemaEditions,
-  getArtisansOnly,
-  getAllCategories,
-  splitJemaEditions,
-} from "@/lib/db-data";
+import { getJemaEditions, splitJemaEditions } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
 import { PageHero } from "@/components/ui/Editorial";
 
@@ -23,22 +19,19 @@ const parcours = [
     name: "Ouverture Ateliers",
     icon: "fas fa-hammer",
     description:
-      "À travers la ville — 15 ateliers participants : ateliers découvertes, visites d'atelier, démonstrations.",
-    stats: { ateliers: 15 },
+      "À travers la ville : ateliers découvertes, visites d'atelier, démonstrations.",
   },
   {
     name: "Pavillon SICLI",
     icon: "fas fa-store-alt",
     description:
       "Le point central de l'événement — 31 artisan·e·s, 6 écoles formatrices, 4 ateliers d'initiation, 4 conférences, 1 salle de projection, 1 MAG Café.",
-    stats: { artisans: 31, ecoles: 6, ateliers: 4, conferences: 4 },
   },
   {
     name: "Parcours Culturel",
     icon: "fas fa-university",
     description:
-      "À travers la ville — 12 institutions culturelles : visites des coulisses, visites d'ateliers, expositions, démonstrations.",
-    stats: { institutions: 12 },
+      "À travers la ville : visites des coulisses, visites d'ateliers, expositions, démonstrations.",
   },
 ];
 
@@ -56,38 +49,52 @@ function formatDateRange(start: Date | null, end: Date | null): string {
 }
 
 export default async function JemaPage() {
-  const [allEditions, artisanList, categories] = await Promise.all([
-    getJemaEditions(),
-    getArtisansOnly(),
-    getAllCategories(),
-  ]);
-
-  const { upcoming, past: pastEditions } = splitJemaEditions(allEditions);
-
-  // Artisans du domaine de la pierre (section focus)
-  const pierreCategory = categories.find((c) => c.name === "Art de la pierre");
-  const pierreArtisans = pierreCategory
-    ? artisanList.filter((a) => a.categoryName === pierreCategory.name)
-    : [];
+  const { upcoming, past: pastEditions } = splitJemaEditions(await getJemaEditions());
 
   return (
     <>
-      <PageHero
-        eyebrow="Journées Européennes des Métiers d'Art"
-        title="JEMA"
-        accent="Genève"
-        lead={
-          <p>
-            Organisées par l&apos;Association Métiers d&apos;Art Genève (MAG), les JEMA
-            représentent le rendez-vous annuel des artisanes et artisans d&apos;art à
-            Genève. Céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste et
-            plein d&apos;autres encore se mobilisent pour offrir au grand public un
-            aperçu de leurs savoir-faire uniques et si précieux. L&apos;objectif est de
-            promouvoir les métiers d&apos;art via démonstrations, animations et échanges,
-            faire découvrir le patrimoine genevois et susciter des vocations.
-          </p>
-        }
-      />
+      {/* En-tête ; sur grand écran, le logo JEMA occupe la droite du titre */}
+      <div className="relative">
+        <PageHero
+          eyebrow="Journées Européennes des Métiers d'Art"
+          title="JEMA"
+          accent="Genève"
+          lead={
+            <>
+              <p>
+                Organisées par l&apos;Association Métiers d&apos;Art Genève (MAG), les JEMA
+                représentent le rendez-vous annuel des artisanes et artisans d&apos;art à
+                Genève. Céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste et
+                plein d&apos;autres encore se mobilisent pour offrir au grand public un
+                aperçu de leurs savoir-faire uniques et si précieux. L&apos;objectif est de
+                promouvoir les métiers d&apos;art via démonstrations, animations et échanges,
+                faire découvrir le patrimoine genevois et susciter des vocations.
+              </p>
+              {/* Petits écrans : logo sous le chapô */}
+              <Image
+                src="/jema-logo.png"
+                alt="Journées Européennes des Métiers d'Art"
+                width={600}
+                height={600}
+                sizes="144px"
+                className="mt-8 w-36 h-auto lg:hidden"
+              />
+            </>
+          }
+        />
+        <div className="pointer-events-none absolute inset-0 hidden lg:block">
+          <div className="mx-auto max-w-7xl h-full px-8 flex items-center justify-end">
+            <Image
+              src="/jema-logo.png"
+              alt="Journées Européennes des Métiers d'Art"
+              width={600}
+              height={600}
+              sizes="200px"
+              className="w-48 xl:w-[200px] h-auto"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Prochaine édition — lue depuis la base (éditable dans l'admin) */}
       {upcoming && (
@@ -146,132 +153,11 @@ export default async function JemaPage() {
                 <p className="mt-2 text-sm text-mag-dark/70 leading-relaxed">
                   {p.description}
                 </p>
-                {p.stats && (
-                  <dl className="mt-4 flex flex-wrap gap-4 text-xs">
-                    {Object.entries(p.stats).map(([key, val]) => (
-                      <div key={key} className="flex items-baseline gap-1">
-                        <dt className="text-mag-gray capitalize">{key}:</dt>
-                        <dd className="font-bold text-mag-red">{val}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
               </div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Focus pierre */}
-      <section className="py-16 sm:py-24">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div>
-            <h2 className="h-section mb-6">
-              Le domaine de la pierre se mobilise
-            </h2>
-            <p className="text-mag-dark/70 leading-relaxed mb-4">
-              Former des apprenti·e·s aujourd&apos;hui, c&apos;est préserver un patrimoine
-              vivant et des compétences qui ne s&apos;apprennent qu&apos;au contact des
-              artisanes et artisans. Façonner la pierre, c&apos;est transformer une matière
-              brute et millénaire en éléments durables : sculptures et éléments décoratifs,
-              escaliers, façades et monuments, fontaines, plans de travail et aménagement.
-            </p>
-            <p className="text-mag-dark/70 leading-relaxed mb-4">
-              En Suisse romande, ces savoir-faire sont portés par les tailleurs et
-              tailleuses de pierre, qui conjuguent gestes traditionnels, précision technique
-              et outils contemporains. La formation s&apos;effectue par un apprentissage de
-              quatre ans menant au CFC Tailleur de pierre / Tailleuse de pierre, avec quatre
-              orientations possibles : sculpture ; conception et marbrerie ; bâtiment et
-              rénovation ; industrie.
-            </p>
-            <div className="my-10 grid grid-cols-3 gap-6">
-              <div>
-                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">24</p>
-                <p className="mt-2 text-sm text-mag-gray">2017–2020</p>
-              </div>
-              <div>
-                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">12</p>
-                <p className="mt-2 text-sm text-mag-gray">2023–2024</p>
-              </div>
-              <div>
-                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">15</p>
-                <p className="mt-2 text-sm text-mag-gray">2025–2026</p>
-              </div>
-            </div>
-            <p className="text-mag-dark/70 leading-relaxed italic mb-4">
-              Aujourd&apos;hui pourtant, ces métiers sont fragilisés. Le nombre
-              d&apos;apprenti·e·s est passé de 24 en 2017–2018 et 2019–2020 à seulement 12
-              en 2023–2024. Malgré une légère reprise récente (15 apprenti·e·s en 2025–2026),
-              la relève reste insuffisante. Sans nouveaux apprenti·e·s, des techniques, des
-              gestes et une connaissance fine des matériaux risquent de disparaître. Et si
-              le prochain tailleur ou la prochaine tailleuse de pierre, c&apos;était toi ?
-            </p>
-
-            {/* Artisans du domaine pierre — lus depuis la base */}
-            {pierreArtisans.length > 0 && (
-              <div className="mt-8">
-                <h3 className="font-semibold text-mag-dark mb-3">
-                  Artisan·e·s présents (domaine de la pierre)
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {pierreArtisans.map((a) => (
-                    <Link
-                      key={a.id}
-                      href={`/artisans/${a.slug}`}
-                      className="inline-flex items-center rounded-full border border-mag-cream px-3 py-1.5 text-sm text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
-                    >
-                      {a.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Éditions passées — lues depuis la base (éditables dans l'admin) */}
-      {pastEditions.length > 0 && (
-        <section className="py-16 sm:py-24 bg-mag-sand">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="h-section mb-12">
-              Éditions passées
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {pastEditions.map((ed) => (
-                <Link
-                  key={ed.id}
-                  href={`/jema/${ed.year}`}
-                  className="group block rounded-2xl border border-mag-cream bg-white p-8 hover:border-mag-red/30 hover:shadow-md transition-all"
-                >
-                  <div className="flex items-baseline justify-between mb-3">
-                    <p className="font-serif text-5xl font-black text-mag-red">{ed.year}</p>
-                    <span className="text-xs text-mag-gray">
-                      {formatShortRange(ed.startDate, ed.endDate)}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-xl font-bold text-mag-dark group-hover:text-mag-red transition-colors">
-                    {ed.title}
-                  </h3>
-                  {ed.description && (
-                    <p className="mt-2 text-sm text-mag-dark/70 leading-relaxed line-clamp-3">
-                      {ed.description}
-                    </p>
-                  )}
-                  {ed.highlight && (
-                    <p className="mt-2 text-xs font-medium text-mag-red italic">
-                      {ed.highlight}
-                    </p>
-                  )}
-                  <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
-                    En savoir plus
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Merci partenaires */}
       <section className="py-16 sm:py-24">
@@ -285,6 +171,41 @@ export default async function JemaPage() {
           </p>
         </div>
       </section>
+
+      {/* Éditions passées — lues depuis la base (éditables dans l'admin) */}
+      {pastEditions.length > 0 && (
+        <section className="py-16 sm:py-24 bg-mag-sand">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="h-section mb-12">
+              Éditions passées
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEditions.map((ed) => (
+                <Link
+                  key={ed.id}
+                  href={`/jema/${ed.year}`}
+                  className="group block rounded-2xl border border-mag-cream bg-white p-8 hover:border-mag-red/30 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-baseline justify-between mb-3">
+                    <p className="font-serif text-5xl font-black text-mag-red">{ed.year}</p>
+                    {ed.startDate && (
+                      <span className="text-xs text-mag-gray">
+                        {formatShortRange(ed.startDate, ed.endDate)}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-mag-dark group-hover:text-mag-red transition-colors">
+                    {ed.title}
+                  </h3>
+                  <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-mag-red">
+                    En savoir plus
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }

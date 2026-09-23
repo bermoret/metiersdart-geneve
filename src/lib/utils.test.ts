@@ -3,10 +3,12 @@ import { strict as assert } from "node:assert";
 import {
   chipColors,
   communeKey,
+  compareFr,
   contrastRatio,
   isHexColor,
   normalizeHex,
   readableOnTint,
+  sortByName,
 } from "./utils";
 import { categories, communesList } from "./data";
 import geCommunes from "./ge-communes.json";
@@ -18,6 +20,9 @@ describe("communeKey", () => {
     assert.equal(communeKey("Carouge (ge)"), "carouge");
     assert.equal(communeKey("Vandœuvres"), communeKey("Vandoeuvres"));
     assert.equal(communeKey("Chêne-Bougeries"), "chene-bougeries");
+  });
+  test("nom d'usage ramené à la commune officielle", () => {
+    assert.equal(communeKey("Perly"), communeKey("Perly-Certoux"));
   });
   test("un « La » qui fait partie du nom est conservé", () => {
     assert.equal(communeKey("Lancy"), "lancy");
@@ -119,5 +124,24 @@ describe("chipColors : puces domaine", () => {
       assert.equal(s.backgroundColor, "#99999920");
       assert.equal(s.color, readableOnTint("#999999"));
     }
+  });
+});
+
+describe("compareFr / sortByName : ordre alphabétique français", () => {
+  test("casse et accents ignorés (la base, en collation C, les rangeait après le Z)", () => {
+    const names = ["Yvan Hostettler", "mademoiselle L — Laurence Imstepf", "Maïa Kvasnikova", "Béatrice Archinard", "Bracelets Protexo SA", "Marco Olivet"];
+    assert.deepEqual(
+      sortByName(names.map((name) => ({ name }))).map((a) => a.name),
+      ["Béatrice Archinard", "Bracelets Protexo SA", "mademoiselle L — Laurence Imstepf", "Maïa Kvasnikova", "Marco Olivet", "Yvan Hostettler"],
+    );
+  });
+  test("ex æquo à la casse près → 0 (le tri stable garde l'ordre reçu)", () => {
+    assert.equal(compareFr("atelier", "Atelier"), 0);
+    assert.equal(compareFr("Ebénisterie", "Ébénisterie"), 0);
+  });
+  test("sortByName ne modifie pas la liste reçue", () => {
+    const list = [{ name: "b" }, { name: "a" }];
+    sortByName(list);
+    assert.deepEqual(list, [{ name: "b" }, { name: "a" }]);
   });
 });

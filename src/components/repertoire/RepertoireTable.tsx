@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
-import { chipColors } from "@/lib/utils";
+import { chipColors, compareFr } from "@/lib/utils";
 
 // Types minimaux attendus — compatibles avec PublicArtisan (DB) et ArtisanData (statique)
 export type RepertoireItem = {
@@ -34,7 +34,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
 
   const communes = useMemo(
     () =>
-      [...new Set(artisans.map((a) => a.commune).filter(Boolean))].sort() as string[],
+      ([...new Set(artisans.map((a) => a.commune).filter(Boolean))] as string[]).sort(compareFr),
     [artisans],
   );
 

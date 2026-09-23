@@ -506,9 +506,8 @@ export default function MetiersFormationsPage() {
       <PageHero
         eyebrow={<>Répertoire des savoir-faire</>}
         title={<>Métiers et formations</>}
-        image="https://metiersdart-geneve.ch/images/2021/10/20/haller_carre.jpg"
-        imageAlt="Violons en cours de fabrication sur l'établi d'un atelier de lutherie"
-        caption={<p className="font-serif text-xl sm:text-2xl font-bold">Atelier de lutherie<span className="block mt-1 font-sans text-xs font-semibold uppercase tracking-[0.14em] text-mag-cream">Béatrice de Haller · Carouge</span></p>}
+        image="/metiers-formations-initiation-horlogerie.jpg"
+        imageAlt="Un adolescent s'initie à l'horlogerie sur un établi, pinces et loupe à portée de main, accompagné d'une jeune femme en blouse blanche"
         lead={
           <>
             <p className="max-w-3xl text-mag-dark/80 leading-relaxed">

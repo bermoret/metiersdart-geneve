@@ -27,6 +27,7 @@ import {
   EXCLUDED_CATEGORY_SLUGS,
 } from "./data";
 import { getArtisanDetail } from "./artisan-details";
+import { communeKey, sortByName } from "./utils";
 
 // ─── Types publics ──────────────────────────────────────────────
 
@@ -204,17 +205,19 @@ function staticToPublicCommunes(): PublicCommune[] {
 // ─── Lecture DB ─────────────────────────────────────────────────
 
 /**
- * Toutes les entités publiées, avec leur catégorie (JOIN, pas de N+1).
+ * Toutes les entités publiées, avec leur catégorie (JOIN, pas de N+1),
+ * dans l'ordre alphabétique français (voir `compareFr` : l'ORDER BY de la
+ * base, en collation C, ne sert qu'à départager les ex æquo).
  * Fallback sur les données statiques si la DB n'est pas configurée.
  */
 export const getPublishedArtisans = cache(async (): Promise<PublicArtisan[]> => {
-  if (!dbConfigured()) return staticToPublicArtisans();
+  if (!dbConfigured()) return sortByName(staticToPublicArtisans());
   try {
     const rows = await selectPublicArtisans()
       .where(eq(artisans.published, true))
       .orderBy(asc(artisans.name));
 
-    return rows.map(toPublicArtisan);
+    return sortByName(rows.map(toPublicArtisan));
   } catch (err) {
     return dbError("getPublishedArtisans", err);
   }
@@ -319,7 +322,10 @@ export const getArtisanBySlugDb = cache(
   },
 );
 
-/** Entités d'une catégorie (par slug de catégorie), hors types non-artisan. */
+/**
+ * Entités d'une catégorie (par slug de catégorie), hors types non-artisan,
+ * dans l'ordre alphabétique français (comme `getPublishedArtisans`).
+ */
 export const getArtisansByCategoryDb = cache(
   async (categorySlug: string): Promise<PublicArtisan[]> => {
     if (EXCLUDED_CATEGORY_SLUGS.includes(categorySlug)) return [];
@@ -339,7 +345,7 @@ export const getArtisansByCategoryDb = cache(
         return dbError("getArtisansByCategoryDb", err);
       }
     }
-    return list.filter((a) => !isNonArtisan(a.type));
+    return sortByName(list.filter((a) => !isNonArtisan(a.type)));
   },
 );
 
@@ -396,7 +402,11 @@ export function countCrafts(list: PublicArtisan[]): number {
   return new Set(list.map((a) => a.craft).filter(Boolean)).size;
 }
 
-/** Nombre de communes distinctes — TOUTES entités confondues (règle LOT 1). */
+/**
+ * Nombre de communes distinctes de la liste reçue (l'accueil passe les
+ * artisan·e·s seul·e·s, chiffre MAG). Même clé que la carte des communes :
+ * « Perly » et « Perly-Certoux », « Vandœuvres » et « Vandoeuvres » comptent une fois.
+ */
 export function countCommunes(list: PublicArtisan[]): number {
-  return new Set(list.map((a) => a.commune).filter(Boolean)).size;
+  return new Set(list.map((a) => (a.commune ? communeKey(a.commune) : "")).filter(Boolean)).size;
 }
