@@ -17,7 +17,7 @@ transaction (16/16 conformes, NULL permis) et déclarée dans `src/db/schema.ts`
 transaction annulée : la charge `onclick` de la review, `red`, `#9d8`, `#b42c36ff` refusés (23514) ; NULL,
 `#b42c36`, `#B42C36` acceptés. Un `db:push` ne la touche plus (vérifié à blanc).
 
-### 🚩 `db:push` : dérive fantôme sur les tables d'auth
+### `db:push` : faux positif sur les tables d'auth — toujours passer par `db:push:dry`
 
 Même sans aucun changement de schéma, `drizzle-kit push` veut exécuter 4 statements :
 DROP puis ADD des clés primaires composites de `account` et `verification_token`. La base
@@ -43,8 +43,9 @@ C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:pus
 - `pushSchema()` de `drizzle-kit/api` (0.31) est inutilisable ici : il perd les paramètres
   des requêtes d'introspection (`there is no parameter $1`).
 
-**Décision ouverte** : rester en drizzle 0.31 + `db:push:dry` jusqu'à une 1.0 stable (et un
-adaptateur Auth.js compatible), ou migrer l'app (drizzle-orm + kit) en 1.0 RC.
+**Décidé (Bernard, 2026-09-23)** : on reste en drizzle 0.31 ; tout `db:push` passe d'abord par
+`npm run db:push:dry`. Migration en 1.0 à rouvrir quand drizzle 1.0 sera stable et
+`@auth/drizzle-adapter` compatible.
 
 ### Relevé en passant : `npm audit`, extrait (2026-09-23, antérieur, inchangé par la mise à jour)
 
