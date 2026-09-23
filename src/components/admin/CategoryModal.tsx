@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
+import { normalizeHex } from "@/lib/utils";
 
 type CategoryData = {
   id?: string;
@@ -73,6 +74,10 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
 
   if (!open) return null;
 
+  // Saisie libre tolérée (#abc, sans #, espaces) mais envoyée normalisée en #rrggbb.
+  const colorHex = normalizeHex(form.color);
+  const colorInvalid = !!(form.color ?? "").trim() && !colorHex;
+
   const update = (key: keyof CategoryData, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
@@ -86,7 +91,7 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
         slug: form.slug || undefined,
         description: form.description || undefined,
         icon: form.icon || undefined,
-        color: form.color || undefined,
+        color: colorHex ?? undefined,
         sortOrder: form.sortOrder ? Number(form.sortOrder) : 0,
       };
       const url = isNew ? "/api/admin/categories" : `/api/admin/categories/${form.id}`;
@@ -151,17 +156,14 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
             onChange={(v) => update("icon", v)}
             options={ICON_OPTIONS}
           />
-          <Field label="Couleur" value={form.color} onChange={(v) => update("color", v)} placeholder="#b42c36" />
+          <ColorField value={form.color ?? ""} onChange={(v) => update("color", v)} />
 
           <Field label="Ordre de tri" value={form.sortOrder} onChange={(v) => update("sortOrder", v)} type="number" />
           <div className="col-span-2 flex items-center gap-3">
             {form.icon && (
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white text-sm shrink-0" style={{ backgroundColor: form.color || "#999" }}>
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white text-sm shrink-0" style={{ backgroundColor: colorHex ?? "#999" }}>
                 <i className={form.icon} />
               </span>
-            )}
-            {form.color && (
-              <span className="inline-block w-6 h-6 rounded-full border border-mag-cream" style={{ backgroundColor: form.color }} />
             )}
           </div>
 
@@ -186,7 +188,7 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
             </button>
             <button
               onClick={handleSave}
-              disabled={saving || !(form.name ?? "").trim()}
+              disabled={saving || !(form.name ?? "").trim() || colorInvalid}
               className="inline-flex items-center gap-2 rounded-lg bg-mag-red px-5 py-2 text-sm font-semibold text-white hover:bg-mag-red-dark transition-colors disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
@@ -221,6 +223,43 @@ function Field({ label, value, onChange, type = "text", placeholder, fullWidth }
         className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
     </label>
+  );
+}
+
+// Sélecteur natif (renvoie toujours #rrggbb) + saisie texte ; erreur affichée en quittant le champ.
+function ColorField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const id = useId();
+  const [touched, setTouched] = useState(false);
+  const hex = normalizeHex(value);
+  const invalid = touched && !!value.trim() && !hex;
+  return (
+    <div>
+      <label htmlFor={id} className="text-xs font-medium text-mag-gray mb-1 block">Couleur</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={hex ?? "#b42c36"}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label="Choisir la couleur"
+          className="h-9 w-10 shrink-0 cursor-pointer rounded-lg border border-mag-field bg-white p-1"
+        />
+        <input
+          id={id}
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={() => setTouched(true)}
+          placeholder="#b42c36"
+          spellCheck={false}
+          aria-invalid={invalid}
+          aria-describedby={invalid ? `${id}-error` : undefined}
+          className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm font-mono focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
+        />
+      </div>
+      {invalid && (
+        <p id={`${id}-error`} className="mt-1 text-xs text-red-700">Format attendu : #rrggbb (ex. #b42c36)</p>
+      )}
+    </div>
   );
 }
 

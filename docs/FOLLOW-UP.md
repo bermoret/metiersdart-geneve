@@ -2,6 +2,46 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Sécurité : XSS stockée via `categories.color`
+
+Corrigé en code : la couleur n'entre plus brute ni dans le HTML des marqueurs Leaflet
+(`artisanMarker()`, `src/lib/map-marker.ts`) ni dans le dégradé de la page catégorie
+(`normalizeHex()`, repli `#b42c36`) ; routes admin POST / PATCH en 400 hors `^#[0-9a-fA-F]{6}$`
+(`isHexColor()`) ; champ couleur de l'admin = sélecteur natif + saisie vérifiée, envoyée
+normalisée. Tests : `isHexColor`, `artisanMarker` (charges XSS comprises).
+
+### 🚩 Décision ouverte : contrainte CHECK en base (accord Bernard requis)
+
+État de la prod relevé le 2026-09-23 (lecture seule) : 16 catégories, toutes en `#rrggbb`,
+aucune NULL, aucune contrainte CHECK → la contrainte s'appliquerait sans reprise de données.
+À déclarer dans `src/db/schema.ts` puis `npm run db:push` : drizzle-kit compare aussi les
+CHECK, un `ALTER TABLE` passé à la main serait supprimé au `db:push` suivant.
+
+```ts
+// import { check } from "drizzle-orm/pg-core"; import { sql } from "drizzle-orm";
+export const categories = pgTable("categories", { /* … */ }, (t) => [
+  check("categories_color_hex", sql`${t.color} ~ '^#[0-9a-fA-F]{6}$'`),
+]);
+```
+
+SQL équivalent (NULL reste permis) :
+`ALTER TABLE categories ADD CONSTRAINT categories_color_hex CHECK (color ~ '^#[0-9a-fA-F]{6}$');`
+
+### Skippé / hors périmètre
+
+- **Pas de Content-Security-Policy** : une CSP `script-src` sans `unsafe-inline` aurait
+  neutralisé ce `onclick`. À étudier avec GTM / Stape / CookieScript (scripts inline).
+- **Impossible de vider la couleur** d'une catégorie depuis l'admin : un champ vide part en
+  `undefined`, le PATCH ne touche pas la colonne (même motif que `JemaModal`). Antérieur.
+- **Catégorie sans couleur** : la page catégorie affiche désormais un dégradé rouge MAG
+  (`#b42c36`) au lieu d'aucun fond. Sans effet aujourd'hui (les 16 catégories ont une couleur).
+
+### À vérifier
+
+- **Admin en prod** (session admin requise, non testée ici) : couleur modifiée au sélecteur →
+  enregistrée en `#rrggbb` minuscules ; saisie `rouge` → message sous le champ, bouton
+  « Enregistrer » désactivé ; saisie `#9D8` → acceptée, enregistrée `#99dd88`.
+
 ## 2026-09-23 — Accessibilité : contrastes WCAG AA
 
 Paires texte / fond relevées à l'extraction du design system, corrigées dans le code :
@@ -16,7 +56,8 @@ puces domaine lisibles via `chipColors()`.
   routes admin des catégories ; `varchar(20)` suffit pour un `onclick`. Exploitable par un
   compte admin, servie au public. Correctif : normaliser à la sortie (`normalizeHex`),
   valider `^#[0-9a-fA-F]{6}$` en API, contrainte `CHECK` en base (accord requis avant
-  toute migration de prod). Tâche séparée ouverte.
+  toute migration de prod). → **Corrigé en code**, voir « Sécurité : XSS stockée via
+  `categories.color` » ; reste la contrainte CHECK (décision ouverte).
 
 ### Skippé / hors périmètre
 
@@ -26,7 +67,7 @@ puces domaine lisibles via `chipColors()`.
 - **Cases à cocher admin** (`ActuModal`, `ArtisanModal`, `JemaModal`) : `border-mag-cream`,
   `text-mag-red`, `focus:ring` n'ont aucun effet sans `@tailwindcss/forms` → `accent-mag-red`.
 - **Couleurs de domaine en base** inchangées : les puces sont corrigées à l'affichage ; les
-  marqueurs de carte (objets graphiques, 3:1) utilisent toujours la couleur brute.
+  marqueurs de carte (objets graphiques, 3:1) gardent la teinte d'origine (normalisée, non assombrie).
 - **Chapô du hero d'accueil** en `mag-dark/70` sur le dégradé crème : ≈ 4.6:1 à sa hauteur,
   gardé (passe, sans marge).
 

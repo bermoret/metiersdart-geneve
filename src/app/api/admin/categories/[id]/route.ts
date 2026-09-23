@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { categories, artisans } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { isHexColor } from "@/lib/utils";
 
 // GET /api/admin/categories/[id] — une catégorie
 export async function GET(
@@ -35,6 +36,10 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
+    if (body.color && !isHexColor(body.color)) {
+      return NextResponse.json({ error: "Couleur invalide : format #rrggbb attendu" }, { status: 400 });
+    }
+
     const [updated] = await db
       .update(categories)
       .set({
@@ -42,7 +47,7 @@ export async function PATCH(
         ...(body.slug !== undefined && { slug: String(body.slug) }),
         ...(body.description !== undefined && { description: body.description ? String(body.description) : null }),
         ...(body.icon !== undefined && { icon: body.icon ? String(body.icon) : null }),
-        ...(body.color !== undefined && { color: body.color ? String(body.color) : null }),
+        ...(body.color !== undefined && { color: body.color ? String(body.color).toLowerCase() : null }),
         ...(body.sortOrder !== undefined && { sortOrder: Number(body.sortOrder) || 0 }),
         updatedAt: new Date(),
       })

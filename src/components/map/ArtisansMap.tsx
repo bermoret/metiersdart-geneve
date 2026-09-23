@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { artisanMarker } from "@/lib/map-marker";
 
 export type MapArtisan = {
   id: string;
@@ -32,20 +33,16 @@ function escapeHtml(str: string): string {
 const iconCache = new Map<string, L.DivIcon>();
 
 function getIcon(color?: string | null): L.DivIcon {
-  const key = color ?? "_default";
-  if (iconCache.has(key)) return iconCache.get(key)!;
-
-  const bg = color ?? "#b42c36";
-  const size = color ? 12 : 14;
-  const anchor = color ? 8 : 9;
+  const marker = artisanMarker(color);
+  if (iconCache.has(marker.key)) return iconCache.get(marker.key)!;
 
   const icon = L.divIcon({
     className: "",
-    html: `<div class="mag-marker" style="width:${size}px;height:${size}px;background:${bg};border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>`,
-    iconSize: [size + 4, size + 4],
-    iconAnchor: [anchor, anchor],
+    html: marker.html,
+    iconSize: [marker.size, marker.size],
+    iconAnchor: [marker.anchor, marker.anchor],
   });
-  iconCache.set(key, icon);
+  iconCache.set(marker.key, icon);
   return icon;
 }
 

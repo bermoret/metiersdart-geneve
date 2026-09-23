@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { requireAdminApi } from "@/lib/admin";
+import { isHexColor } from "@/lib/utils";
 
 // GET /api/admin/categories — liste toutes les catégories
 export async function GET() {
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
     if (!body.name || !String(body.name).trim()) {
       return NextResponse.json({ error: "Le nom est requis" }, { status: 400 });
     }
+    if (body.color && !isHexColor(body.color)) {
+      return NextResponse.json({ error: "Couleur invalide : format #rrggbb attendu" }, { status: 400 });
+    }
 
     const name = String(body.name);
     const [created] = await db
@@ -37,7 +41,7 @@ export async function POST(req: Request) {
         slug: body.slug ? String(body.slug) : slugify(name),
         description: body.description ? String(body.description) : null,
         icon: body.icon ? String(body.icon) : null,
-        color: body.color ? String(body.color) : null,
+        color: body.color ? String(body.color).toLowerCase() : null,
         sortOrder: Number(body.sortOrder) || 0,
       })
       .returning();

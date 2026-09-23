@@ -18,7 +18,7 @@ export function latToDB(deg: number): number {
   return Math.round(deg * 1e6);
 }
 
-// ─── Contraste (WCAG 2) ────────────────────────────────────────
+// ─── Couleurs : format et contraste (WCAG 2) ───────────────────
 
 /** `#rgb`, `#rrggbb`, avec ou sans `#`, espaces et casse tolérés → `#rrggbb` ; sinon null. */
 export function normalizeHex(raw: string | null | undefined): string | null {
@@ -26,6 +26,15 @@ export function normalizeHex(raw: string | null | undefined): string | null {
   if (!m) return null;
   const h = m[1].length === 3 ? m[1].replace(/./g, "$&$&") : m[1];
   return "#" + h.toLowerCase();
+}
+
+/**
+ * Format stocké d'une couleur de catégorie : `#rrggbb` strict, rien d'autre.
+ * Règle des routes admin (et de la contrainte CHECK proposée en base) : la
+ * couleur finit dans du HTML (marqueurs Leaflet) et du CSS inline.
+ */
+export function isHexColor(value: unknown): value is string {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));

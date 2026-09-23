@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getArtisansByCategoryDb, getArtisanCategories } from "@/lib/db-data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { normalizeHex } from "@/lib/utils";
 
 // ISR : contenu rafraîchi au plus toutes les 60 s après une modification admin.
 export const revalidate = 60;
@@ -52,13 +53,16 @@ export default async function CategoryPage({
   // Autres catégories pour navigation
   const otherCats = cats.filter((c) => c.slug !== slug);
 
+  // Couleur saisie dans l'admin, interpolée dans du CSS inline : normalisée.
+  const tint = normalizeHex(category.color) ?? "#b42c36";
+
   return (
     <>
       {/* Header */}
       <section
         className="py-16"
         style={{
-          background: `linear-gradient(135deg, ${category.color}15, ${category.color}05)`,
+          background: `linear-gradient(135deg, ${tint}15, ${tint}05)`,
         }}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

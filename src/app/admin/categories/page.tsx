@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AdminTable } from "@/components/admin/AdminTable";
 import { CategoryModal } from "@/components/admin/CategoryModal";
+import { normalizeHex } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -93,7 +94,7 @@ export default function AdminCategoriesPage() {
                 <span className="inline-flex items-center gap-1.5">
                   <span
                     className="inline-block w-4 h-4 rounded-full"
-                    style={{ backgroundColor: String(row.color) }}
+                    style={{ backgroundColor: normalizeHex(String(row.color)) ?? undefined }}
                   />
                   {String(row.color)}
                 </span>

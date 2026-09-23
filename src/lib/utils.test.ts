@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import { strict as assert } from "node:assert";
-import { chipColors, contrastRatio, normalizeHex, readableOnTint } from "./utils";
+import { chipColors, contrastRatio, isHexColor, normalizeHex, readableOnTint } from "./utils";
 import { categories } from "./data";
 
 // Fond `hex + "20"` composé sur `ground` (blanc par défaut).
@@ -38,6 +38,27 @@ describe("normalizeHex", () => {
     for (const bad of ["", "rouge", "#b42c36ff", "#12345", "red;background:url(x)", '"onclick=alert``//', null, undefined]) {
       assert.equal(normalizeHex(bad), null, String(bad));
     }
+  });
+});
+
+describe("isHexColor : couleur de catégorie acceptée par l'API admin", () => {
+  test("#rrggbb, casse indifférente", () => {
+    for (const ok of ["#b42c36", "#B42C36", "#000000", "#FfFfFf"]) {
+      assert.equal(isHexColor(ok), true, ok);
+    }
+  });
+  test("tout le reste est refusé, y compris les formes que normalizeHex tolère", () => {
+    const bad: unknown[] = [
+      "", "b42c36", "#9d8", " #b42c36", "#b42c36 ", "#b42c36\n", "#b42c36ff", "#b42c3g",
+      "red", "#b42c36;x", '"onclick=alert``//', null, undefined, 0xb42c36, ["#b42c36"], {},
+    ];
+    for (const v of bad) assert.equal(isHexColor(v), false, JSON.stringify(v));
+  });
+  test("les couleurs du seed passent", () => {
+    for (const c of categories) assert.ok(isHexColor(c.color), `${c.name} (${c.color})`);
+  });
+  test("toute sortie de normalizeHex passe (le formulaire admin envoie la forme normalisée)", () => {
+    for (const raw of ["#9d8", "B42C36", "  #8b4513 "]) assert.ok(isHexColor(normalizeHex(raw)), raw);
   });
 });
 
