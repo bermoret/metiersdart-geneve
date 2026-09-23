@@ -30,10 +30,32 @@ C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:pus
   push n'est pas transactionnel (statements un par un).
 - Changer la regex de `categories_color_hex` dans `schema.ts` ne la change pas en base :
   push compare les CHECK par nom. DROP + ADD en SQL, ou renommer la contrainte.
-- Piste : mettre drizzle-kit à jour et revérifier, sinon passer aux migrations
-  (`drizzle-kit generate` + revue du SQL) plutôt que `push`.
+- **Cause** (établie le 2026-09-23) : drizzle-kit 0.31 lit les colonnes des PK via
+  `information_schema.constraint_column_usage` sans `ORDER BY` ; la prod les rend inversées
+  (`provider_account_id, provider` / `token, identifier`), la comparaison est ordonnée → diff.
+  Déclarer les colonnes à l'envers dans le schéma masquerait le bug sur un ordre non garanti : écarté.
+- **0.31.11** (dernière stable, installée) : toujours présent.
+- **1.0.0-rc.4** (testé à part, lecture seule) : « No changes detected », CHECK comprise ; vraie
+  lecture à blanc (`push --explain`) ; détecte bien une colonne ajoutée. Mais le kit 1.0 exige
+  drizzle-orm 1.0 (refus avec 0.45), et `@auth/drizzle-adapter` 1.11.3 est construit sur
+  drizzle-orm `^0.45.2`.
+- 1.0 ne compare pas non plus le contenu des CHECK sur push (regex modifiée non vue).
 - `pushSchema()` de `drizzle-kit/api` (0.31) est inutilisable ici : il perd les paramètres
   des requêtes d'introspection (`there is no parameter $1`).
+
+**Décision ouverte** : rester en drizzle 0.31 + `db:push:dry` jusqu'à une 1.0 stable (et un
+adaptateur Auth.js compatible), ou migrer l'app (drizzle-orm + kit) en 1.0 RC.
+
+### Relevé en passant : `npm audit`, extrait (2026-09-23, antérieur, inchangé par la mise à jour)
+
+- **`@simplewebauthn/server` ≤ 13.3.1** (projet en ^9, passkeys admin) : chaîne des certificats
+  d'attestation insuffisamment vérifiée (GHSA-6hxq-p678-4hr2). Correctif = v14, cassant ; à évaluer
+  selon la politique d'attestation utilisée à l'enregistrement.
+- **`postcss` ≤ 8.5.22** embarqué par `next` (élevé, côté build) : correctif via next 16, cassant.
+- **`esbuild` ≤ 0.24.2** via `@esbuild-kit` (dépendance de drizzle-kit 0.31, dev uniquement,
+  concerne le serveur de dev d'esbuild, non utilisé ici). Disparaît avec drizzle-kit 1.0.
+- Aussi : `next` (modéré), `@auth/core` / `next-auth` (faible, via SimpleWebAuthn) ; détail : `npm audit`.
+- Hors audit : `eslint-config-next` 16.3.4 face à `next` 15.5 (versions désalignées).
 
 ### Skippé / hors périmètre
 
