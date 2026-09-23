@@ -33,5 +33,9 @@ Reports, points à vérifier et décisions ouvertes, par chantier (plus récent 
 - **« Atelier Leckie, Anna Leckie »** : détails scrapés introuvables (1/145).
 - **Build** : avec `DATABASE_URL` défini, le build échoue désormais si Neon est injoignable
   (voulu : le déploiement précédent reste en ligne).
+- **Previews Vercel sans base** : `DATABASE_URL` n'est défini qu'en Production (Preview n'a
+  que `DATABASE_URL_UNPOOLED`) → les previews servent les données statiques et ne montrent
+  ni les modifications admin ni les éditions JEMA. Ajouter `DATABASE_URL` (idéalement une
+  branche Neon) à l'environnement Preview si on veut valider sur preview.
 - **Éditions sans case cochée** : une édition ni « À venir » ni « Passée » n'est pas affichée
   (aide ajoutée dans la modale admin).
