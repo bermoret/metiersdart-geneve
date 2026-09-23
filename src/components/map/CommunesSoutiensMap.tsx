@@ -7,6 +7,7 @@ import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson"
 import { communeKey } from "@/lib/utils";
 // Territoires des 45 communes (swisstopo) — généré par scripts/build-communes-geo.ts.
 import geCommunes from "@/lib/ge-communes.json";
+import { COMMUNE_COLORS, COMMUNE_LABELS } from "./communes-palette";
 
 export type MapCommune = {
   id: string;
@@ -14,7 +15,8 @@ export type MapCommune = {
   latitude: number;
   longitude: number;
   soutientMag: boolean;
-  /** Au moins un·e artisan·e du répertoire dans la commune (sinon : partenaire « en recherche »). */
+  /** Au moins un·e artisan·e du répertoire dans la commune : partenaire « avec artisan·e·s »
+   *  (sinon « en recherche »), ou commune rose si elle n'est pas partenaire. */
   hasArtisans?: boolean;
 };
 
@@ -22,8 +24,8 @@ type Props = {
   communes: MapCommune[];
 };
 
-/** Partenaire avec artisan·e·s, partenaire en recherche d'artisan·e·s, ou non partenaire. */
-type Statut = "partenaire" | "recherche" | "autre";
+/** Les catégories de la carte de MAG, plus « autre » (ni partenaire ni artisan·e). */
+type Statut = "partenaire" | "recherche" | "artisans" | "autre";
 type CommuneProps = { name: string; bfs: number; statut: Statut };
 
 const territories = geCommunes as unknown as FeatureCollection<
@@ -31,20 +33,23 @@ const territories = geCommunes as unknown as FeatureCollection<
   { name: string; bfs: number }
 >;
 
-// Couleurs reprises par la légende (CommunesMapSection).
-const PARTENAIRE = { fillColor: "#b42c36", fillOpacity: 0.6 };
-const NEUTRE = { fillColor: "#a8a29e", fillOpacity: 0.3 };
+const FILL: Record<Statut, L.PathOptions> = {
+  partenaire: { fillColor: COMMUNE_COLORS.or, fillOpacity: 0.85 },
+  recherche: { fillColor: COMMUNE_COLORS.gris, fillOpacity: 0.55 }, // + contour or (styleFor)
+  artisans: { fillColor: COMMUNE_COLORS.rose, fillOpacity: 0.85 },
+  autre: { fillColor: COMMUNE_COLORS.gris, fillOpacity: 0.55 },
+};
 const FALLBACK_PANE = "communes-repli";
 
 function statutOf(c: MapCommune | undefined): Statut {
-  if (!c?.soutientMag) return "autre";
-  return c.hasArtisans === false ? "recherche" : "partenaire";
+  if (c?.soutientMag) return c.hasArtisans === false ? "recherche" : "partenaire";
+  return c?.hasArtisans ? "artisans" : "autre";
 }
 
 function styleFor(statut: Statut): L.PathOptions {
-  // En recherche d'artisan·e·s : fond neutre cerclé de rouge (légende de MAG).
-  if (statut === "recherche") return { ...NEUTRE, color: "#b42c36", weight: 2.5, opacity: 1 };
-  return { ...(statut === "partenaire" ? PARTENAIRE : NEUTRE), color: "#ffffff", weight: 1.2, opacity: 1 };
+  // En recherche d'artisan·e·s : fond gris cerclé d'or (légende de MAG).
+  if (statut === "recherche") return { ...FILL.recherche, color: COMMUNE_COLORS.or, weight: 3, opacity: 1 };
+  return { ...FILL[statut], color: "#ffffff", weight: 1.2, opacity: 1 };
 }
 
 export default function CommunesSoutiensMap({ communes }: Props) {
@@ -143,7 +148,7 @@ export default function CommunesSoutiensMap({ communes }: Props) {
         l.on({
           mouseover: () => {
             const path = l as L.Path;
-            path.setStyle({ weight: 2.5, fillOpacity: statut === "partenaire" ? 0.8 : 0.45 });
+            path.setStyle({ weight: 3, fillOpacity: statut === "partenaire" || statut === "artisans" ? 1 : 0.75 });
             path.bringToFront();
           },
           mouseout: () => {
@@ -178,18 +183,19 @@ export default function CommunesSoutiensMap({ communes }: Props) {
     <div
       ref={containerRef}
       className="w-full h-[400px] sm:h-[500px] rounded-xl overflow-hidden isolate border border-mag-cream/60 shadow-md bg-mag-sand"
-      aria-label="Carte des communes partenaires de MAG"
+      aria-label="Carte des communes partenaires de MAG et des communes où exercent des artisan·e·s"
       role="application"
     />
   );
 }
 
 function popupHtml(name: string, statut: Statut): string {
+  // Libellés fixes (pas de donnée saisie) ; seul le nom est échappé.
   const mention =
     statut === "autre"
       ? ""
-      : `<p style="font-size:13px;margin-bottom:4px"><span style="color:#b42c36;font-weight:600">✓ Commune partenaire</span>${
-          statut === "recherche" ? '<br><span style="color:#555">En recherche d\'artisan·e·s</span>' : ""
+      : `<p style="font-size:13px;margin-bottom:4px;color:#323848">${
+          statut === "artisans" ? COMMUNE_LABELS.artisans : `✓ ${COMMUNE_LABELS[statut]}`
         }</p>`;
   return `
     <div style="min-width:160px;font-family:sans-serif">

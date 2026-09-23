@@ -10,7 +10,7 @@ export const metadata = {
     "MAG est une association tripartite apolitique, sans but lucratif, à l'interface de l'artisanat, de la culture, du patrimoine et de l'art.",
 };
 
-// ISR : la carte des communes partenaires suit les modifications de l'admin.
+// ISR : la carte des communes (partenaires, artisan·e·s) suit les modifications de l'admin.
 export const revalidate = 60;
 
 const valeurs = [
@@ -184,8 +184,9 @@ export default async function QuiSommesNousPage() {
             </h2>
             <p className="text-mag-dark/70 leading-relaxed mb-6 max-w-3xl">
               MAG travaille en étroite collaboration avec les communes du canton de Genève.
-              Les communes partenaires, en couleur sur la carte, soutiennent l&apos;association
-              et contribuent à la promotion des métiers d&apos;art sur leur territoire.
+              Les communes partenaires soutiennent l&apos;association et contribuent à la
+              promotion des métiers d&apos;art sur leur territoire. La carte indique aussi les
+              communes où exercent des artisan·e·s du répertoire.
             </p>
           </Reveal>
 

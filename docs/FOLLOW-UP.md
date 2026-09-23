@@ -14,6 +14,10 @@ Reports, points à vérifier et décisions ouvertes, par chantier (plus récent 
   partenaires ; partenaire sans artisan·e au répertoire = « en recherche d'artisan·e·s »
   (contour rouge) ; liens OPS / OFPC mis à jour. `communeKey` : « Perly » = Perly-Certoux.
 - Carte d'accueil : pastilles au même point réparties en cercle (`spreadOverlapping`).
+- Carte des communes aux couleurs de la carte de MAG (`communes-palette.ts`) : or = partenaire,
+  contour or = partenaire en recherche d'artisan·e·s, rose = artisan·e·s présent·e·s (non
+  partenaire), légende à trois entrées. Rose et gris peu distincts pour les daltonien·ne·s
+  (palette du client ; noms dans les popups et le texte pour lecteur d'écran).
 - JEMA, éditions, Répertoire, Médias, Métiers et formations, Manufacto, page artisan : voir le
   commit.
 

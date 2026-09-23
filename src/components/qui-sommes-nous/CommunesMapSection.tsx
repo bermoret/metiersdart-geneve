@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Reveal } from "@/components/ui/Reveal";
 import type { MapCommune } from "@/components/map/CommunesSoutiensMap";
+import { COMMUNE_COLORS, COMMUNE_LABELS } from "@/components/map/communes-palette";
 
 const CommunesSoutiensMap = dynamic(
   () => import("@/components/map/CommunesSoutiensMap"),
@@ -22,6 +23,16 @@ const CommunesSoutiensMap = dynamic(
 export function CommunesMapSection({ communes }: { communes: MapCommune[] }) {
   const partenaires = communes.filter((c) => c.soutientMag);
   const enRecherche = partenaires.filter((c) => c.hasArtisans === false).map((c) => c.name);
+  const avecArtisans = communes.filter((c) => !c.soutientMag && c.hasArtisans).map((c) => c.name);
+  const legende = [
+    { label: COMMUNE_LABELS.partenaire, style: { background: COMMUNE_COLORS.or }, show: partenaires.length > enRecherche.length },
+    {
+      label: COMMUNE_LABELS.recherche,
+      style: { background: COMMUNE_COLORS.gris, boxShadow: `inset 0 0 0 2px ${COMMUNE_COLORS.or}` },
+      show: enRecherche.length > 0,
+    },
+    { label: COMMUNE_LABELS.artisans, style: { background: COMMUNE_COLORS.rose }, show: avecArtisans.length > 0 },
+  ].filter((l) => l.show);
   return (
     <>
       <Reveal delay={0.1}>
@@ -30,18 +41,14 @@ export function CommunesMapSection({ communes }: { communes: MapCommune[] }) {
         </div>
       </Reveal>
 
-      {/* Légende — seules les communes partenaires, mêmes couleurs que la carte */}
-      <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-mag-gray">
-        <span className="flex items-center gap-2">
-          <span className="inline-block w-4 h-3 rounded-[2px] bg-mag-red/60" aria-hidden />
-          Commune partenaire
-        </span>
-        {enRecherche.length > 0 && (
-          <span className="flex items-center gap-2">
-            <span className="inline-block w-4 h-3 rounded-[2px] bg-stone-400/30 ring-2 ring-inset ring-mag-red" aria-hidden />
-            Commune partenaire en recherche d&apos;artisan·e·s
+      {/* Légende — catégories et couleurs de la carte fournie par MAG */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-mag-gray">
+        {legende.map((l) => (
+          <span key={l.label} className="flex items-center gap-2">
+            <span className="inline-block w-4 h-3 rounded-[2px] ring-1 ring-inset ring-black/10" style={l.style} aria-hidden />
+            {l.label}
           </span>
-        )}
+        ))}
       </div>
 
       {/* La carte n'est pas lisible au lecteur d'écran : la liste l'est. */}
@@ -51,6 +58,7 @@ export function CommunesMapSection({ communes }: { communes: MapCommune[] }) {
               enRecherche.length > 0 ? ` En recherche d'artisan·e·s : ${enRecherche.join(", ")}.` : ""
             }`
           : "Aucune commune partenaire n'est encore enregistrée."}
+        {avecArtisans.length > 0 ? ` Artisan·e·s présent·e·s dans : ${avecArtisans.join(", ")}.` : ""}
       </p>
     </>
   );
