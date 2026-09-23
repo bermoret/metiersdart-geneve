@@ -76,8 +76,8 @@ puces domaine lisibles via `chipColors()`.
 - **Design system « Métiers d'Art Genève »** (artifact, version 6) : `mag-gray` #626978,
   `mag-field` #868a93, `focus-ring-inverse` / `.focus-ring-white`, `red-700` ; `red-600`,
   `green-600` et `mag-dark-60` retirés ; texte des puces domaine calculé comme `chipColors()`.
-- **URL de prod** : `metiersdart-geneve.vercel.app` (alias de production Vercel). `mag.vercel.app`,
-  cité dans `Beacode/memory.md`, n'est pas ce projet.
+- **URL de prod** : `metiersdart-geneve.vercel.app` (alias de production Vercel), corrigée dans
+  `Beacode/memory.md` qui citait `mag.vercel.app` (pas ce projet).
 
 ### À vérifier
 

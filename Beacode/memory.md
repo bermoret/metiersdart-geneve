@@ -11,7 +11,8 @@
 - **Font Awesome 6 free** pour icônes
 
 ## Hébergement & déploiement
-- Vercel (CLI) — `vercel --prod` / Prod : https://mag.vercel.app
+- Vercel, intégration Git : push sur `main` → production, push de branche → preview (protégée par l'auth Vercel)
+- Prod : https://metiersdart-geneve.vercel.app (alias de production ; `mag.vercel.app` n'est pas ce projet)
 - DB Neon : pooled + unpooled connections
 - Git remote : `https://github.com/bermoret/metiersdart-geneve.git`
 
