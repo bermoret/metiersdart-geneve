@@ -17,26 +17,29 @@ Reports, points à vérifier et décisions ouvertes, par chantier (plus récent 
 - JEMA, éditions, Répertoire, Médias, Métiers et formations, Manufacto, page artisan : voir le
   commit.
 
-### 🚩 En attente d'accord (écritures en base de prod, bloquées en session)
+### Données de prod — appliquées par Bernard le 2026-09-23
 
-Données préparées, non appliquées :
+`apply.cjs` (une transaction, état avant sauvegardé) puis `backfill-descriptions.ts --apply` ;
+vérifié en prod : 9 partenaires, 37 projets, édition 2022 en ligne, mention JEMA à jour,
+3 fiches encore au centre de Genève, 0 texte « À propos » vide.
+
 - **Coordonnées** : 60 fiches posées au centre de leur commune ou empilées (26 au centre de
   Genève) — d'où les « artisans manquants » sur la carte. 52 adresses géocodées via swisstopo
   (SearchServer) ; restent au centre : Julien Joselon et Maïa Kvasnikova (« en recherche de
   locaux »), fiches sans adresse (Atelier Leckie, PAC, UFGVV, OFPC, Label Genève, ARMB).
-- **Mention JEMA** : `jema_participant` vaut `true` pour les 145 fiches. D'après le tableau
+- **Mention JEMA** : `jema_participant` valait `true` pour les 145 fiches. D'après le tableau
   JEMA27_APPEL (colonnes 2022-2026) : 83 artisan·e·s à `true`, 28 à `false`. Inchangés faute de
   correspondance sûre : Marina Buckel (« Matthias Buckel et Filles » ?), Atelier ABR, Orthethic.
   Le tableau ne couvre pas les éditions avant 2022. Institutions / écoles non touchées.
 - **Communes partenaires** (9, carte de MAG) : Bellevue, Carouge, Genève, Gy, Meyrin,
-  Perly-Certoux, Plan-les-Ouates, Satigny, Vandœuvres — cochables dans l'admin (Communes).
-- **Projets menés = 37** : admin → « Événements & projets MAG » (vaut 0 aujourd'hui).
-- **Édition 2022** : à créer (admin JEMA ou SQL) ; sa page `/jema/2022` est prête côté code.
+  Perly-Certoux, Plan-les-Ouates, Satigny, Vandœuvres — modifiables ensuite dans l'admin (Communes).
+- **Projets menés = 37** : modifiable dans l'admin → « Événements & projets MAG ».
+- **Édition 2022** : créée sans dates ni description (à compléter dans l'admin JEMA si MAG les a).
 - **Textes « À propos » manquants** (Anne Ponthenier et 100 autres) : `long_description` vide
   en base pour 101 fiches publiées (l'import initial n'avait repris que 44 textes). Textes
-  repris de l'ancien site dans `src/lib/artisan-details.ts` ; report en base par
-  `npx tsx scripts/backfill-descriptions.ts --apply` (ne remplit que les champs vides).
-- Script des autres données : `apply.cjs` + `plan.json` (hors dépôt, transmis à Bernard).
+  repris de l'ancien site dans `src/lib/artisan-details.ts`, reportés en base par
+  `scripts/backfill-descriptions.ts` (ne remplit que les champs vides).
+- Script des autres données : `apply.cjs` + `plan.json` (hors dépôt) ; état avant dans `backup-before.json` (scratchpad de session).
 - **Métiers = 53 éditable dans l'admin** : demande une colonne `site_settings.crafts_count`
   (migration de prod → accord de Bernard) ; d'ici là constante dans `src/app/page.tsx`.
 
