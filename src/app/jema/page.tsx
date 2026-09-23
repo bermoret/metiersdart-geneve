@@ -6,6 +6,7 @@ import {
   splitJemaEditions,
 } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
+import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata = {
   title: "JEMA — Journées Européennes des Métiers d'Art",
@@ -71,47 +72,43 @@ export default async function JemaPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-mag-cream/60 to-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
-            <p className="text-mag-red font-semibold uppercase tracking-wide text-sm mb-2">
-              Journées Européennes des Métiers d&apos;Art
-            </p>
-            <h1 className="text-4xl sm:text-5xl font-black text-mag-dark font-serif">
-              JEMA Genève
-            </h1>
-            <p className="mt-6 text-lg text-mag-dark/70 leading-relaxed">
-              Organisées par l&apos;Association Métiers d&apos;Art Genève (MAG), les JEMA
-              représentent le rendez-vous annuel des artisanes et artisans d&apos;art à
-              Genève. Céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste et
-              plein d&apos;autres encore se mobilisent pour offrir au grand public un
-              aperçu de leurs savoir-faire uniques et si précieux. L&apos;objectif est de
-              promouvoir les métiers d&apos;art via démonstrations, animations et échanges,
-              faire découvrir le patrimoine genevois et susciter des vocations.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Journées Européennes des Métiers d'Art"
+        title="JEMA"
+        accent="Genève"
+        lead={
+          <p>
+            Organisées par l&apos;Association Métiers d&apos;Art Genève (MAG), les JEMA
+            représentent le rendez-vous annuel des artisanes et artisans d&apos;art à
+            Genève. Céramiste, bijoutier·ère, calligraphe, ébéniste, maquettiste et
+            plein d&apos;autres encore se mobilisent pour offrir au grand public un
+            aperçu de leurs savoir-faire uniques et si précieux. L&apos;objectif est de
+            promouvoir les métiers d&apos;art via démonstrations, animations et échanges,
+            faire découvrir le patrimoine genevois et susciter des vocations.
+          </p>
+        }
+      />
 
       {/* Prochaine édition — lue depuis la base (éditable dans l'admin) */}
       {upcoming && (
-        <section className="py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="focus-ring-white rounded-2xl bg-mag-red text-white p-8 sm:p-12 text-center">
-              <p className="text-white/80 uppercase tracking-wide text-sm font-semibold">
+        <section className="focus-ring-white bg-mag-red text-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-24 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-10 lg:gap-20 items-end">
+            <div>
+              <p className="text-mag-cream uppercase tracking-[0.16em] text-sm font-semibold">
                 Prochaine édition
               </p>
-              <h2 className="mt-2 text-3xl sm:text-4xl font-black">
+              <h2 className="mt-5 font-black tracking-[-0.03em] leading-[0.9] text-6xl sm:text-8xl">
                 {upcoming.title}
               </h2>
               {upcoming.startDate && (
-                <p className="mt-4 text-xl text-white/90">
+                <p className="mt-6 font-serif text-2xl sm:text-3xl text-white">
                   {formatDateRange(upcoming.startDate, upcoming.endDate)}
                 </p>
               )}
+            </div>
+            <div>
               {upcoming.description && (
-                <p className="mt-4 max-w-xl mx-auto text-white/80 leading-relaxed">
+                <p className="text-lg leading-relaxed text-white/90">
                   {upcoming.description}
                 </p>
               )}
@@ -120,9 +117,9 @@ export default async function JemaPage() {
                   href={upcoming.programUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-mag-red hover:bg-white/90 transition-colors"
+                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-base font-semibold text-mag-red hover:bg-mag-cream transition-colors"
                 >
-                  Voir le programme
+                  Voir le programme <span aria-hidden>→</span>
                 </a>
               )}
             </div>
@@ -131,21 +128,21 @@ export default async function JemaPage() {
       )}
 
       {/* Parcours */}
-      <section className="py-12 bg-mag-sand">
+      <section className="py-16 sm:py-24 bg-mag-sand">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif mb-8 text-center">
+          <h2 className="h-section mb-12">
             Trois parcours proposés
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {parcours.map((p) => (
               <div
                 key={p.name}
-                className="rounded-xl border border-mag-cream bg-white p-6"
+                className="rounded-2xl border border-mag-cream bg-white p-8"
               >
-                <div className="text-4xl mb-4 text-mag-red" aria-hidden>
+                <div className="text-4xl mb-6 text-mag-red" aria-hidden>
                   <i className={p.icon} />
                 </div>
-                <h3 className="font-bold text-mag-dark text-lg">{p.name}</h3>
+                <h3 className="font-serif font-bold text-mag-dark text-2xl">{p.name}</h3>
                 <p className="mt-2 text-sm text-mag-dark/70 leading-relaxed">
                   {p.description}
                 </p>
@@ -166,10 +163,10 @@ export default async function JemaPage() {
       </section>
 
       {/* Focus pierre */}
-      <section className="py-16">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-mag-cream p-8 sm:p-10">
-            <h2 className="text-2xl font-bold text-mag-dark font-serif mb-4">
+          <div>
+            <h2 className="h-section mb-6">
               Le domaine de la pierre se mobilise
             </h2>
             <p className="text-mag-dark/70 leading-relaxed mb-4">
@@ -187,18 +184,18 @@ export default async function JemaPage() {
               orientations possibles : sculpture ; conception et marbrerie ; bâtiment et
               rénovation ; industrie.
             </p>
-            <div className="my-6 grid grid-cols-3 gap-4 text-center">
+            <div className="my-10 grid grid-cols-3 gap-6">
               <div>
-                <p className="text-2xl font-black text-mag-red">24</p>
-                <p className="text-xs text-mag-gray">2017–2020</p>
+                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">24</p>
+                <p className="mt-2 text-sm text-mag-gray">2017–2020</p>
               </div>
               <div>
-                <p className="text-2xl font-black text-mag-red">12</p>
-                <p className="text-xs text-mag-gray">2023–2024</p>
+                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">12</p>
+                <p className="mt-2 text-sm text-mag-gray">2023–2024</p>
               </div>
               <div>
-                <p className="text-2xl font-black text-mag-red">15</p>
-                <p className="text-xs text-mag-gray">2025–2026</p>
+                <p className="font-serif text-5xl sm:text-6xl font-black text-mag-red pt-4 border-t border-mag-red/30">15</p>
+                <p className="mt-2 text-sm text-mag-gray">2025–2026</p>
               </div>
             </div>
             <p className="text-mag-dark/70 leading-relaxed italic mb-4">
@@ -235,9 +232,9 @@ export default async function JemaPage() {
 
       {/* Éditions passées — lues depuis la base (éditables dans l'admin) */}
       {pastEditions.length > 0 && (
-        <section className="py-16 bg-mag-cream/20">
+        <section className="py-16 sm:py-24 bg-mag-sand">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif mb-8">
+            <h2 className="h-section mb-12">
               Éditions passées
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -245,15 +242,15 @@ export default async function JemaPage() {
                 <Link
                   key={ed.id}
                   href={`/jema/${ed.year}`}
-                  className="group block rounded-xl border border-mag-cream bg-white p-6 hover:border-mag-red/30 hover:shadow-md transition-all"
+                  className="group block rounded-2xl border border-mag-cream bg-white p-8 hover:border-mag-red/30 hover:shadow-md transition-all"
                 >
                   <div className="flex items-baseline justify-between mb-3">
-                    <p className="text-3xl font-black text-mag-red">{ed.year}</p>
+                    <p className="font-serif text-5xl font-black text-mag-red">{ed.year}</p>
                     <span className="text-xs text-mag-gray">
                       {formatShortRange(ed.startDate, ed.endDate)}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
+                  <h3 className="font-serif text-xl font-bold text-mag-dark group-hover:text-mag-red transition-colors">
                     {ed.title}
                   </h3>
                   {ed.description && (
@@ -277,9 +274,9 @@ export default async function JemaPage() {
       )}
 
       {/* Merci partenaires */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-xl font-bold text-mag-dark mb-4">
+          <h2 className="h-section mb-6">
             Merci à nos partenaires
           </h2>
           <p className="text-mag-dark/70 max-w-2xl mx-auto">

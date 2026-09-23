@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { PageHero } from "@/components/ui/Editorial";
 import { getArtisansByCategoryDb, getArtisanCategories } from "@/lib/db-data";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
-import { normalizeHex } from "@/lib/utils";
+import { canOptimizeImage, normalizeHex } from "@/lib/utils";
 
 // ISR : contenu rafraîchi au plus toutes les 60 s après une modification admin.
 export const revalidate = 60;
@@ -56,61 +58,74 @@ export default async function CategoryPage({
   // Couleur saisie dans l'admin, interpolée dans du CSS inline : normalisée.
   const tint = normalizeHex(category.color) ?? "#b42c36";
 
+  // Photo d'en-tête : la première fiche du domaine qui en a une.
+  const cover = list.find((a) => a.imageUrl) ?? null;
+
   return (
     <>
-      {/* Header */}
-      <section
-        className="py-16"
-        style={{
-          background: `linear-gradient(135deg, ${tint}15, ${tint}05)`,
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-5xl text-mag-red" aria-hidden>
+      {/* En-tête : filet à la couleur du domaine (décoratif) */}
+      <div style={{ borderTop: `6px solid ${tint}` }}>
+        <PageHero
+          eyebrow={
+            <>
               <CategoryIcon icon={category.icon ?? ""} />
-            </span>
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-                {category.name}
-              </h1>
-              <p className="mt-2 text-mag-dark/80">{list.length} artisan·e·s</p>
-            </div>
-          </div>
-          {category.description && (
-            <p className="max-w-2xl text-lg text-mag-dark/80 leading-relaxed mt-4">
-              {category.description}
-            </p>
-          )}
-        </div>
-      </section>
+              &nbsp;&nbsp;Domaine d&apos;art · {list.length} artisan·e·s
+            </>
+          }
+          title={category.name}
+          lead={category.description ? <p>{category.description}</p> : undefined}
+          image={cover?.imageUrl}
+          imageAlt={cover ? `${cover.name}, ${cover.craft?.toLowerCase() ?? "artisan·e"}, dans son atelier` : ""}
+          caption={
+            cover && (
+              <p className="font-serif text-xl sm:text-2xl font-bold">
+                {cover.name}
+                <span className="block mt-1 font-sans text-xs font-semibold uppercase tracking-[0.14em] text-mag-cream">
+                  {[cover.craft, cover.commune].filter(Boolean).join(" · ")}
+                </span>
+              </p>
+            )
+          }
+        />
+      </div>
 
       {/* Liste des artisans */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {list.length === 0 ? (
             <p className="text-center text-mag-gray py-12">
               Aucun artisan dans ce domaine pour le moment.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
               {list.map((artisan) => (
                 <Link
                   key={artisan.id}
                   href={`/artisans/${artisan.slug}`}
-                  className="group block rounded-xl border border-mag-cream p-6 hover:border-mag-red/30 hover:shadow-md transition-all"
+                  className="group block"
                 >
-                  <h3 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors">
-                    {artisan.name}
-                  </h3>
-                  <p className="mt-2 text-sm text-mag-dark/70">{artisan.craft}</p>
-                  <p className="mt-1 text-xs text-mag-gray flex items-center gap-1">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    {artisan.commune}
+                  <div className="relative aspect-[4/3] overflow-hidden rounded bg-mag-cream">
+                    {artisan.imageUrl ? (
+                      <Image
+                        src={artisan.imageUrl}
+                        unoptimized={!canOptimizeImage(artisan.imageUrl)}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <span className="absolute inset-0 flex items-center justify-center text-5xl text-mag-red/40" aria-hidden>
+                        <CategoryIcon icon={category.icon ?? ""} />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-mag-red">
+                    {[artisan.craft?.split(" • ")[0], artisan.commune].filter(Boolean).join(" · ")}
                   </p>
+                  <h2 className="mt-1.5 font-serif text-2xl font-bold leading-tight text-mag-dark group-hover:text-mag-red transition-colors">
+                    {artisan.name}
+                  </h2>
                 </Link>
               ))}
             </div>
@@ -119,15 +134,15 @@ export default async function CategoryPage({
       </section>
 
       {/* Navigation vers autres catégories */}
-      <section className="py-12 bg-mag-cream/20">
+      <section className="py-16 sm:py-20 bg-mag-sand">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-dark mb-6">Autres domaines</h2>
+          <h2 className="h-section mb-8">Autres domaines</h2>
           <div className="flex flex-wrap gap-3">
             {otherCats.map((c) => (
               <Link
                 key={c.id}
                 href={`/categories/${c.slug}`}
-                className="inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-mag-cream bg-white px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
               >
                 <span aria-hidden>
                   <CategoryIcon icon={c.icon ?? ""} />

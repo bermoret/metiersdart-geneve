@@ -3,6 +3,7 @@ import Link from "next/link";
 import { VideoCapsule } from "@/components/ui/VideoCapsule";
 import { getJemaEditions, splitJemaEditions } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
+import { PageHero } from "@/components/ui/Editorial";
 
 // ISR : les éditions se rafraîchissent au plus toutes les 60 s après édition
 // admin ; une édition passée ajoutée dans l'admin est rendue à la demande.
@@ -148,38 +149,33 @@ export default async function EditionPage({
         </nav>
       </div>
 
-      {/* Hero */}
-      <section className="py-8 sm:py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <p className="text-mag-red font-semibold uppercase tracking-wide text-sm mb-2">
-            Journées Européennes des Métiers d&apos;Art
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-black text-mag-dark font-serif">
-            {edition.title}
-          </h1>
-          {edition.dates && (
-            <p className="mt-2 text-lg text-mag-gray">{edition.dates}</p>
-          )}
-          {edition.intro && (
-            <p className="mt-6 text-lg text-mag-dark/70 leading-relaxed">
-              {edition.intro}
-            </p>
-          )}
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Journées Européennes des Métiers d'Art"
+        title={edition.title}
+        lead={
+          (edition.dates || edition.intro) && (
+            <>
+              {edition.dates && (
+                <p className="font-serif text-2xl text-mag-red">{edition.dates}</p>
+              )}
+              {edition.intro && <p className="mt-6">{edition.intro}</p>}
+            </>
+          )
+        }
+      />
 
       {/* Stats */}
       {edition.stats.length > 0 && (
-        <section className="py-8">
+        <section className="pt-16 sm:pt-20 pb-8">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
               {edition.stats.map((stat, i) => (
                 <div
                   key={i}
-                  className="rounded-xl bg-mag-cream/40 p-6 text-center"
+                  className="pt-5 border-t border-mag-red/30"
                 >
-                  <p className="text-3xl font-black text-mag-red">{stat.value}</p>
-                  <p className="mt-1 text-xs text-mag-gray">{stat.label}</p>
+                  <p className="font-serif text-5xl font-black text-mag-red">{stat.value}</p>
+                  <p className="mt-2 text-sm text-mag-gray">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -191,8 +187,8 @@ export default async function EditionPage({
       {edition.description && (
         <section className="py-8">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="rounded-2xl border border-mag-cream p-8 sm:p-10">
-              <h2 className="text-xl font-bold text-mag-dark font-serif mb-4">
+            <div>
+              <h2 className="h-section mb-6">
                 Retour sur l&apos;édition
               </h2>
               <p className="text-mag-dark/70 leading-relaxed whitespace-pre-line">
@@ -207,7 +203,7 @@ export default async function EditionPage({
       {edition.video && (
         <section className="py-8">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-xl font-bold text-mag-red mb-4">
+            <h2 className="h-section mb-8">
               En images
             </h2>
             <div className="max-w-2xl mx-auto">
@@ -240,9 +236,9 @@ export default async function EditionPage({
       )}
 
       {/* Navigation vers autres éditions */}
-      <section className="py-12 bg-mag-cream/20">
+      <section className="py-16 sm:py-20 bg-mag-sand">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-lg font-bold text-mag-dark mb-6">Autres éditions</h2>
+          <h2 className="h-section mb-8">Autres éditions</h2>
           <div className="flex flex-wrap gap-3">
             {allPast
               .filter((e) => e.year !== edition.year)
@@ -250,14 +246,14 @@ export default async function EditionPage({
                 <Link
                   key={e.year}
                   href={`/jema/${e.year}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-mag-cream bg-white px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
                 >
                   JEMA {e.year}
                 </Link>
               ))}
             <Link
               href="/jema"
-              className="inline-flex items-center gap-2 rounded-full border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-mag-cream bg-white px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors"
             >
               ← Page JEMA
             </Link>

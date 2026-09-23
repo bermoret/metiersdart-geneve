@@ -87,3 +87,22 @@ export function chipColors(raw: string | null | undefined): {
   const hex = normalizeHex(raw) ?? "#999999";
   return { backgroundColor: hex + "20", color: readableOnTint(hex) };
 }
+
+/**
+ * Vrai si next/image peut optimiser cette source : chemin local ou hôte
+ * déclaré dans `images.remotePatterns` (next.config.ts). Sinon il faut
+ * `unoptimized`, faute de quoi next/image lève une erreur au rendu.
+ */
+export function canOptimizeImage(src: string): boolean {
+  if (src.startsWith("/")) return true;
+  try {
+    const host = new URL(src).hostname;
+    return (
+      host === "metiersdart-geneve.ch" ||
+      host === "vercel-blob.com" ||
+      host.endsWith(".public.blob.vercel-storage.com")
+    );
+  } catch {
+    return false;
+  }
+}

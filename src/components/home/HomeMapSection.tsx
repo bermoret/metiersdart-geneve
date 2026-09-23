@@ -47,14 +47,17 @@ export function HomeMapSection({ artisans, categories }: Props) {
   );
 
   return (
-    <section className="py-16 bg-white">
+    <section className="pt-4 pb-20 sm:pb-28 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <Reveal>
-            <h2 className="text-2xl sm:text-3xl font-bold text-mag-dark font-serif">
+            <p className="mb-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-mag-red">
+              Carte
+            </p>
+            <h2 className="h-section">
               Trouvez votre artisan·e
             </h2>
-            <p className="mt-2 text-mag-dark/70">
+            <p className="mt-4 text-lg text-mag-dark/75">
               Un point pour chaque artisan·e. Cliquez pour découvrir sa fiche.
             </p>
           </Reveal>

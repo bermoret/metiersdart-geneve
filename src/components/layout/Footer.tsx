@@ -55,10 +55,15 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="bg-mag-footer text-white">
-      {/* Citation */}
+      {/* Signature */}
       <div className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-          <p className="font-serif text-lg italic text-white/80 max-w-3xl mx-auto text-center leading-relaxed">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-10 lg:gap-20 items-end">
+          <p className="font-serif font-black tracking-tight leading-[0.95] text-5xl sm:text-6xl lg:text-7xl">
+            Métiers d&apos;Art
+            <br />
+            <span className="text-mag-cream">Genève</span>
+          </p>
+          <p className="font-serif text-lg text-white/80 leading-relaxed">
             Quand vous faites travailler un·e artisan·e, vous achetez bien plus
             qu&apos;un service. Vous reconnaissez la maîtrise d&apos;un geste,
             l&apos;exigence d&apos;un savoir-faire et des centaines d&apos;heures
@@ -104,7 +109,7 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <h3 className="text-lg font-bold mb-4 font-serif">Navigation</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-cream mb-5">Navigation</h3>
             <ul className="space-y-2">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -121,7 +126,7 @@ export function Footer() {
 
           {/* Réseaux sociaux */}
           <div>
-            <h3 className="text-lg font-bold mb-4 font-serif">Nos réseaux sociaux</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-mag-cream mb-5">Nos réseaux sociaux</h3>
             <div className="flex flex-wrap gap-3">
               {socialLinks.map((social) => (
                 <a

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata = {
   title: "L'actu des artisans",
@@ -92,13 +93,12 @@ const actualites: ActuCard[] = [
 export default function ActuPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            L&apos;actu des artisans
-          </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
+      <PageHero
+        eyebrow={<>Actualités</>}
+        title={<>L&apos;actu des artisans</>}
+        lead={
+          <>
+            <p className="max-w-3xl text-mag-dark/80 leading-relaxed">
             En un clin d&apos;œil, découvrez les dernières actualités de MAG et de la
             communauté des métiers d&apos;art. Classées par ordre chronologique,
             elles vous offrent un accès clair, rapide et complet à tout ce qui fait
@@ -116,37 +116,38 @@ export default function ActuPage() {
             </a>{" "}
             !
           </p>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       {/* Cartes d'actualité */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14">
             {actualites.map((actu, i) => (
               <article
                 key={i}
-                className="flex flex-col rounded-xl border border-mag-cream overflow-hidden hover:shadow-md transition-shadow bg-white"
+                className="group flex flex-col border-t-2 border-mag-dark pt-5 bg-white"
               >
                 {/* Image cliquable */}
                 <a
                   href={actu.linkHref}
                   target={actu.linkHref.startsWith("http") ? "_blank" : undefined}
                   rel={actu.linkHref.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="relative aspect-square overflow-hidden bg-mag-cream block group/img"
+                  className="relative aspect-[4/3] overflow-hidden rounded bg-mag-cream block group/img"
                 >
                   <Image
                     src={actu.image}
                     alt={actu.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform group-hover/img:scale-105"
+                    className="object-cover transition-transform duration-700 group-hover/img:scale-105"
                     unoptimized
                   />
                 </a>
 
                 {/* Contenu */}
-                <div className="p-5 flex flex-col flex-1">
+                <div className="pt-5 flex flex-col flex-1">
                   {actu.badge && (
                     <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "#ba372a" }}>
                       {actu.badge}
@@ -160,7 +161,7 @@ export default function ActuPage() {
                       )}
                     </p>
                   )}
-                  <h3 className="mt-1 font-bold text-mag-dark text-sm leading-snug">
+                  <h3 className="mt-2 font-serif font-bold text-mag-dark text-2xl leading-tight">
                     {actu.title}
                   </h3>
                   {actu.subtitle && (

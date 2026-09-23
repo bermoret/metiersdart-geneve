@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/ui/Editorial";
 export const metadata = {
   title: "Manufacto",
   description:
@@ -22,21 +23,13 @@ const editions = [
 export default function ManufactoPage() {
   return (
     <>
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-mag-red font-semibold uppercase tracking-wide text-sm mb-2">
-            Fondation d&apos;entreprise Hermès × DIP × MAG
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            Manufacto, la fabrique des savoir-faire
-          </h1>
-        </div>
-      </section>
-
-      {/* Présentation */}
-      <section className="py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <p className="text-lg text-mag-dark/70 leading-relaxed">
+      <PageHero
+        eyebrow={<>Fondation d&apos;entreprise Hermès × DIP × MAG</>}
+        title={<>Manufacto, la fabrique des savoir-faire</>}
+        image="/artisan-tools.jpg"
+        imageAlt="Outils d'artisan sur un établi"
+        lead={
+          <p>
             Manufacto est un programme initié et développé par la{" "}
             <strong>Fondation d&apos;entreprise Hermès</strong>, déployé à Genève
             par le <strong>DIP</strong> (Département de l&apos;instruction publique,
@@ -45,20 +38,20 @@ export default function ManufactoPage() {
             leurs savoir-faire. Projet pilote débuté en 2024, en complémentarité avec
             l&apos;enseignement des activités créatrices, manuelles et des arts visuels.
           </p>
-        </div>
-      </section>
+        }
+      />
 
       {/* Éditions */}
-      <section className="py-12 bg-mag-sand">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-8">Écoles participantes</h2>
+          <h2 className="h-section mb-12">Écoles participantes</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {editions.map((ed) => (
               <div
                 key={ed.year}
-                className="rounded-xl border border-mag-cream bg-white p-6"
+                className="rounded-2xl border border-mag-cream bg-mag-sand p-8"
               >
-                <p className="text-3xl font-black text-mag-red">{ed.year}</p>
+                <p className="font-serif text-5xl font-black text-mag-red">{ed.year}</p>
                 <ul className="mt-3 space-y-1">
                   {ed.schools.map((s) => (
                     <li key={s} className="text-sm text-mag-dark/70 flex items-start gap-2">
@@ -74,9 +67,9 @@ export default function ManufactoPage() {
       </section>
 
       {/* Fonctionnement */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24 bg-mag-sand">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-6">Fonctionnement</h2>
+          <h2 className="h-section mb-10">Fonctionnement</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div>
               <h3 className="font-bold text-mag-dark mb-2">Métiers concernés</h3>
@@ -95,7 +88,7 @@ export default function ManufactoPage() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-xl bg-mag-cream/30 p-6">
+          <div className="mt-8 rounded-2xl bg-white border border-mag-cream p-8">
             <h3 className="font-bold text-mag-dark mb-3">Objectifs pédagogiques</h3>
             <ul className="space-y-2 text-sm text-mag-dark/70 leading-relaxed">
               <li>• Approche esthétique : s&apos;interroger sur le rôle des objets, les formes et les matières.</li>
@@ -109,9 +102,9 @@ export default function ManufactoPage() {
       </section>
 
       {/* Contexte institutionnel */}
-      <section className="py-12 bg-mag-cream/20">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-4">Contexte institutionnel</h2>
+          <h2 className="h-section mb-8">Contexte institutionnel</h2>
           <p className="text-mag-dark/70 leading-relaxed">
             Programme lancé en 2016 par la Fondation Hermès, déployé dans plusieurs pays.
             S&apos;inscrit dans les objectifs du DIP : faire connaître des métiers accessibles

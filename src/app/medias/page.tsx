@@ -1,4 +1,5 @@
 import { VideoCapsule } from "@/components/ui/VideoCapsule";
+import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata = {
   title: "Médias",
@@ -105,23 +106,23 @@ const articlesArchives = [
 export default function MediasPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-mag-cream/60 to-white py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-mag-dark font-serif">
-            Médias
-          </h1>
-          <p className="mt-4 max-w-3xl text-mag-dark/80 leading-relaxed">
+      <PageHero
+        eyebrow={<>Vidéos et presse</>}
+        title={<>Médias</>}
+        lead={
+          <>
+            <p className="max-w-3xl text-mag-dark/80 leading-relaxed">
             Capsules vidéo, revue de presse et articles sur les métiers d&apos;art
             genevois.
           </p>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       {/* Capsules vidéo */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-6">
+          <h2 className="h-section mb-10">
             Capsules vidéo ({capsules.length})
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -133,9 +134,9 @@ export default function MediasPage() {
       </section>
 
       {/* Interview */}
-      <section className="py-12 bg-mag-sand">
+      <section className="py-16 sm:py-24 bg-mag-sand">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-6">
+          <h2 className="h-section mb-10">
             On parle des métiers d&apos;art !
           </h2>
           <p className="mb-6 text-mag-dark/70 max-w-2xl">
@@ -170,9 +171,9 @@ export default function MediasPage() {
       </section>
 
       {/* Revue de presse */}
-      <section className="py-12">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-mag-red mb-6">Revue de presse JEMA</h2>
+          <h2 className="h-section mb-10">Revue de presse JEMA</h2>
           <div className="flex flex-wrap gap-3">
             {revuesPresse.map((r) => (
               <a
