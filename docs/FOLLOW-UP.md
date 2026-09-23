@@ -2,6 +2,42 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-23 — Accessibilité : contrastes WCAG AA
+
+Paires texte / fond relevées à l'extraction du design system, corrigées dans le code :
+`mag-gray` assombri (#626978), bordure des champs `mag-field` (#868a93), anneau de focus
+blanc sur fonds sombres ou rouges (`.focus-ring-white`), états en red-700 / green-700,
+puces domaine lisibles via `chipColors()`.
+
+### 🚩 À traiter en priorité (trouvé en review, antérieur au chantier)
+
+- **XSS stockée via `categories.color`** : `src/components/map/ArtisansMap.tsx` (`getIcon`)
+  injecte la couleur brute dans le HTML du marqueur Leaflet ; aucune validation dans les
+  routes admin des catégories ; `varchar(20)` suffit pour un `onclick`. Exploitable par un
+  compte admin, servie au public. Correctif : normaliser à la sortie (`normalizeHex`),
+  valider `^#[0-9a-fA-F]{6}$` en API, contrainte `CHECK` en base (accord requis avant
+  toute migration de prod). Tâche séparée ouverte.
+
+### Skippé / hors périmètre
+
+- **Marquee** : défilement automatique sans pause > 5 s (WCAG 2.2.2, niveau A) ; framer-motion
+  ignore la règle CSS `prefers-reduced-motion` → `useReducedMotion()` à brancher.
+- **Placeholders** des champs : `currentColor` à 50 % ≈ 2.75:1 sur blanc (défaut Tailwind v4).
+- **Cases à cocher admin** (`ActuModal`, `ArtisanModal`, `JemaModal`) : `border-mag-cream`,
+  `text-mag-red`, `focus:ring` n'ont aucun effet sans `@tailwindcss/forms` → `accent-mag-red`.
+- **Couleurs de domaine en base** inchangées : les puces sont corrigées à l'affichage ; les
+  marqueurs de carte (objets graphiques, 3:1) utilisent toujours la couleur brute.
+- **Chapô du hero d'accueil** en `mag-dark/70` sur le dégradé crème : ≈ 4.6:1 à sa hauteur,
+  gardé (passe, sans marge).
+
+### À vérifier
+
+- **Rendu en prod** : liens du header plus sombres, survol blanc souligné dans le footer,
+  bordure des champs visible (connexion, répertoire, Espace Communauté, admin), puces domaine
+  papier / horlogerie / verre assombries.
+- **Design system « Métiers d'Art Genève »** (artifact) : y reporter `mag-gray` #626978,
+  `mag-field` #868a93, `.focus-ring-white` et vider la section « paires sous le seuil ».
+
 ## 2026-09-23 — Suivi : GTM / Stape / CookieScript / GA4 repris de l'ancien site
 
 Même conteneur que le site Joomla (`GTM-M6497K4X`, loader Stape `nlpd.metiersdart-geneve.ch`) ;
