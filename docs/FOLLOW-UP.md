@@ -2,7 +2,16 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
-## 2026-09-23 — Refonte éditoriale du front public (branche `refonte-editoriale`)
+## 2026-09-23 — Soft 404 sur les routes dynamiques (relevé au déploiement de la refonte)
+
+- `/artisans/<slug inconnu>`, `/categories/<slug inconnu>`, `/jema/<année inconnue>` répondent
+  **200** (+ `<meta name="robots" content="noindex">`) au lieu de 404 ; `/page-qui-nexiste-pas`
+  répond bien 404. Constaté sur metiersdart-geneve.vercel.app, **antérieur à la refonte** (même
+  comportement sur le deploy prod précédent). Piste : `src/app/loading.tsx` à la racine → la
+  réponse part en streaming avant le `notFound()`, le statut ne peut plus changer.
+  **À corriger avant la bascule DNS** (Google classe ces pages en soft 404).
+
+## 2026-09-23 — Refonte éditoriale du front public (mergée dans `main`, `f1bc521`)
 
 Direction « magazine » validée par Bernard sur la maquette Design : grands titres serif Black,
 photos d'artisan·e·s à fond perdu, aplats sable / quasi-noir / rouge, sur-titres en capitales.
@@ -12,7 +21,7 @@ Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `S
 ### Point de restauration
 
 - Tag `restore/avant-refonte-2026-09-23` + branche `archive/avant-refonte` = `main` au
-  commit `1002b44`, créés en local. **À pousser** : `git push origin restore/avant-refonte-2026-09-23 archive/avant-refonte`.
+  commit `1002b44`, poussés sur origin.
 - Revenir à l'ancienne version : `git revert` du merge de `refonte-editoriale`, ou redéployer
   le tag dans Vercel (Deployments → deployment du commit `1002b44` → Promote).
 
@@ -24,6 +33,10 @@ Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `S
 - Photos des fiches encore servies depuis metiersdart-geneve.ch (Joomla) : à migrer vers Blob
   avant l'arrêt de l'ancien site. `canOptimizeImage()` passe en `unoptimized` tout hôte non déclaré.
 - Écart assumé au design system : photos à coins quasi francs (4px) au lieu de 24px.
+- Vérifié en HTTP seulement (preview + prod : pages 200, 50/50 images) ; **rendu visuel pas
+  encore passé au navigateur** (desktop + mobile).
+- `vercel curl` a généré un secret « Protection Bypass for Automation » dans les réglages du
+  projet Vercel (Deployment Protection) : garder ou révoquer.
 
 ## 2026-09-23 — Sécurité : XSS stockée via `categories.color`
 
