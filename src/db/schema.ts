@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   pgTable,
   pgEnum,
+  check,
   uuid,
   varchar,
   text,
@@ -26,17 +28,24 @@ export const artisanTypeEnum = pgEnum("artisan_type", [
 
 // ─── Categories (domaines d'art) ────────────────────────────────
 
-export const categories = pgTable("categories", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  description: text("description"),
-  icon: varchar("icon", { length: 100 }),
-  color: varchar("color", { length: 20 }),
-  sortOrder: integer("sort_order").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const categories = pgTable(
+  "categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    description: text("description"),
+    icon: varchar("icon", { length: 100 }),
+    color: varchar("color", { length: 20 }),
+    sortOrder: integer("sort_order").default(0),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  // La couleur finit dans du HTML (marqueurs Leaflet) : même règle que isHexColor().
+  // db:push compare les CHECK par nom : changer la regex ici ne la change pas en base
+  // (DROP + ADD en SQL, ou renommer la contrainte).
+  (t) => [check("categories_color_hex", sql`${t.color} ~ '^#[0-9a-fA-F]{6}$'`)],
+);
 
 // ─── Artisans ──────────────────────────────────────────────────
 

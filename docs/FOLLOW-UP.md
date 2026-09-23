@@ -10,22 +10,30 @@ Corrigé en code : la couleur n'entre plus brute ni dans le HTML des marqueurs L
 (`isHexColor()`) ; champ couleur de l'admin = sélecteur natif + saisie vérifiée, envoyée
 normalisée. Tests : `isHexColor`, `artisanMarker` (charges XSS comprises).
 
-### 🚩 Décision ouverte : contrainte CHECK en base (accord Bernard requis)
+### Fait : contrainte CHECK en base (accord Bernard, 2026-09-23)
 
-État de la prod relevé le 2026-09-23 (lecture seule) : 16 catégories, toutes en `#rrggbb`,
-aucune NULL, aucune contrainte CHECK → la contrainte s'appliquerait sans reprise de données.
-À déclarer dans `src/db/schema.ts` puis `npm run db:push` : drizzle-kit compare aussi les
-CHECK, un `ALTER TABLE` passé à la main serait supprimé au `db:push` suivant.
+`categories_color_hex CHECK (color ~ '^#[0-9a-fA-F]{6}$')` appliquée en prod par SQL, dans une
+transaction (16/16 conformes, NULL permis) et déclarée dans `src/db/schema.ts`. Testée dans une
+transaction annulée : la charge `onclick` de la review, `red`, `#9d8`, `#b42c36ff` refusés (23514) ; NULL,
+`#b42c36`, `#B42C36` acceptés. Un `db:push` ne la touche plus (vérifié à blanc).
 
-```ts
-// import { check } from "drizzle-orm/pg-core"; import { sql } from "drizzle-orm";
-export const categories = pgTable("categories", { /* … */ }, (t) => [
-  check("categories_color_hex", sql`${t.color} ~ '^#[0-9a-fA-F]{6}$'`),
-]);
-```
+### 🚩 `db:push` : dérive fantôme sur les tables d'auth
 
-SQL équivalent (NULL reste permis) :
-`ALTER TABLE categories ADD CONSTRAINT categories_color_hex CHECK (color ~ '^#[0-9a-fA-F]{6}$');`
+Même sans aucun changement de schéma, `drizzle-kit push` veut exécuter 4 statements :
+DROP puis ADD des clés primaires composites de `account` et `verification_token`. La base
+correspond pourtant déjà au schéma (mêmes noms, mêmes colonnes) : faux positif de drizzle-kit
+sur les PK composites nommées. Inoffensif aujourd'hui (tables vides), mais chaque push les
+rejoue et, une fois les tables peuplées, un échec entre DROP et ADD laisserait la table sans clé.
+C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:push`.
+- Avant tout `db:push` : `npm run db:push:dry` (`scripts/db-push-dry.sh`) affiche le SQL
+  que push exécuterait, via une connexion directe forcée en lecture seule : rien ne peut s'écrire.
+  push n'est pas transactionnel (statements un par un).
+- Changer la regex de `categories_color_hex` dans `schema.ts` ne la change pas en base :
+  push compare les CHECK par nom. DROP + ADD en SQL, ou renommer la contrainte.
+- Piste : mettre drizzle-kit à jour et revérifier, sinon passer aux migrations
+  (`drizzle-kit generate` + revue du SQL) plutôt que `push`.
+- `pushSchema()` de `drizzle-kit/api` (0.31) est inutilisable ici : il perd les paramètres
+  des requêtes d'introspection (`there is no parameter $1`).
 
 ### Skippé / hors périmètre
 
@@ -57,7 +65,7 @@ puces domaine lisibles via `chipColors()`.
   compte admin, servie au public. Correctif : normaliser à la sortie (`normalizeHex`),
   valider `^#[0-9a-fA-F]{6}$` en API, contrainte `CHECK` en base (accord requis avant
   toute migration de prod). → **Corrigé en code**, voir « Sécurité : XSS stockée via
-  `categories.color` » ; reste la contrainte CHECK (décision ouverte).
+  `categories.color` » ; contrainte CHECK appliquée le 2026-09-23.
 
 ### Skippé / hors périmètre
 
