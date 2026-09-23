@@ -1,7 +1,36 @@
 import { describe, test } from "node:test";
 import { strict as assert } from "node:assert";
-import { chipColors, contrastRatio, isHexColor, normalizeHex, readableOnTint } from "./utils";
-import { categories } from "./data";
+import {
+  chipColors,
+  communeKey,
+  contrastRatio,
+  isHexColor,
+  normalizeHex,
+  readableOnTint,
+} from "./utils";
+import { categories, communesList } from "./data";
+import geCommunes from "./ge-communes.json";
+
+describe("communeKey", () => {
+  test("article, suffixe cantonal, ligature et accents neutralisés", () => {
+    assert.equal(communeKey("Le Grand-Saconnex"), communeKey("Grand-Saconnex"));
+    assert.equal(communeKey("Carouge (GE)"), "carouge");
+    assert.equal(communeKey("Carouge (ge)"), "carouge");
+    assert.equal(communeKey("Vandœuvres"), communeKey("Vandoeuvres"));
+    assert.equal(communeKey("Chêne-Bougeries"), "chene-bougeries");
+  });
+  test("un « La » qui fait partie du nom est conservé", () => {
+    assert.equal(communeKey("Lancy"), "lancy");
+    assert.equal(communeKey("Laconnex"), "laconnex");
+  });
+  test("les 45 territoires et les 45 communes de la liste se répondent un à un", () => {
+    const geoKeys = geCommunes.features.map((f) => communeKey(f.properties.name));
+    const listKeys = communesList.map((c) => communeKey(c.name));
+    assert.equal(geoKeys.length, 45);
+    assert.equal(new Set(geoKeys).size, geoKeys.length);
+    assert.deepEqual([...listKeys].sort(), [...geoKeys].sort());
+  });
+});
 
 // Fond `hex + "20"` composé sur `ground` (blanc par défaut).
 const tintOn = (hex: string, ground = "#ffffff") => {

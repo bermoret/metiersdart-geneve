@@ -2,14 +2,44 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
-## 2026-09-23 — Soft 404 sur les routes dynamiques (relevé au déploiement de la refonte)
+## 2026-09-23 — Carte des communes : territoires au lieu de points (/qui-sommes-nous)
 
-- `/artisans/<slug inconnu>`, `/categories/<slug inconnu>`, `/jema/<année inconnue>` répondent
-  **200** (+ `<meta name="robots" content="noindex">`) au lieu de 404 ; `/page-qui-nexiste-pas`
-  répond bien 404. Constaté sur metiersdart-geneve.vercel.app, **antérieur à la refonte** (même
-  comportement sur le deploy prod précédent). Piste : `src/app/loading.tsx` à la racine → la
-  réponse part en streaming avant le `notFound()`, le statut ne peut plus changer.
-  **À corriger avant la bascule DNS** (Google classe ces pages en soft 404).
+### Fait
+
+- Chaque commune est dessinée par son territoire (rouge = soutient MAG, gris sinon), au lieu
+  d'un point. Géométrie : `src/lib/ge-communes.json`, générée par
+  `npx tsx scripts/build-communes-geo.ts` (swisstopo swissBOUNDARIES3D, simplifiée à 10 m en
+  préservant les frontières partagées ; le script échoue si la topologie casse).
+- Rapprochement base ↔ territoires par nom : `communeKey()` (`src/lib/utils.ts`, testé).
+  Commune de la base sans territoire → repli sur un point. Liste `sr-only` des communes soutiens.
+
+### À vérifier / décider
+
+- **Aucune commune n'est marquée « soutient MAG » en base (45/45 à `false`)** : la carte est
+  entièrement grise tant que MAG ne coche pas ses communes dans l'admin.
+- Millésime 2015 choisi pour avoir les communes **sans le lac** : dès 2016, swisstopo inclut la
+  part de Léman de chaque commune riveraine (Genève couvrirait la Rade). Limites terrestres
+  quasi inchangées depuis. Pour la version officielle avec le lac :
+  `npx tsx scripts/build-communes-geo.ts 2026`.
+- Renommer une commune dans l'admin (ex. « Ville de Genève ») la fait tomber en repli point sans
+  signal. Piste : stocker le n° OFS en base, ou choisir le nom parmi les 45 dans l'admin.
+
+### Skippé / hors périmètre
+
+- `escapeHtml` existe en 3 exemplaires (`ArtisansMap.tsx`, `api/annonces/route.ts`,
+  `CommunesSoutiensMap.tsx`) : à factoriser dans `src/lib` avec un test (précédent XSS).
+
+## 2026-09-23 — Soft 404 sur les routes dynamiques — corrigé
+
+- `/artisans/<slug inconnu>`, `/categories/<slug inconnu>`, `/jema/<année inconnue>` répondaient
+  **200** (+ `noindex`) au lieu de 404, depuis avant la refonte. Cause confirmée en local
+  (`next build && next start`) : `src/app/loading.tsx` à la racine ouvrait un Suspense, la
+  réponse partait en streaming avant le `notFound()`. Fichier supprimé → vrais 404.
+- Garde-fou : `scripts/check-deploy.sh [URL]` vérifie 200 sur les pages clés et 404 sur des
+  pages inexistantes ; à lancer après chaque deploy prod.
+- Effet de bord assumé : plus d'indicateur de chargement global pendant la navigation vers une
+  page pas encore générée (ou l'admin). Si besoin un jour : `loading.tsx` par segment, **jamais
+  au-dessus d'une route dynamique qui appelle `notFound()`**.
 
 ## 2026-09-23 — Refonte éditoriale du front public (mergée dans `main`, `f1bc521`)
 

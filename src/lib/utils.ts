@@ -9,6 +9,19 @@ export function slugify(str: string): string {
     .replace(/-{2,}/g, "-");
 }
 
+/**
+ * Clé de rapprochement d'un nom de commune entre la base et les limites
+ * swisstopo : « Le Grand-Saconnex » = « Grand-Saconnex », « Carouge (GE) » =
+ * « Carouge », « Vandœuvres » = « Vandoeuvres ».
+ */
+export function communeKey(name: string): string {
+  return slugify(
+    name
+      .replace(/œ/gi, "oe")
+      .replace(/\s*\([a-z]{2}\)\s*$/i, ""),
+  ).replace(/^(le|la|les)-/, "");
+}
+
 // Helper: latitude/longitude stockées en microdegrés (int) -> degres decimaux
 export function latFromDB(microdeg: number | null): number | null {
   if (microdeg === null) return null;

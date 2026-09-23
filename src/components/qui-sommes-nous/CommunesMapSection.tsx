@@ -20,6 +20,7 @@ const CommunesSoutiensMap = dynamic(
 );
 
 export function CommunesMapSection({ communes }: { communes: MapCommune[] }) {
+  const supporters = communes.filter((c) => c.soutientMag).map((c) => c.name);
   return (
     <>
       <Reveal delay={0.1}>
@@ -28,17 +29,24 @@ export function CommunesMapSection({ communes }: { communes: MapCommune[] }) {
         </div>
       </Reveal>
 
-      {/* Légende */}
+      {/* Légende — mêmes couleurs que les territoires de la carte */}
       <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-mag-gray">
         <span className="flex items-center gap-2">
-          <span className="inline-block w-3 h-3 rounded-full bg-mag-red" />
+          <span className="inline-block w-4 h-3 rounded-[2px] bg-mag-red/60" />
           Commune qui soutient MAG
         </span>
         <span className="flex items-center gap-2">
-          <span className="inline-block w-3 h-3 rounded-full bg-gray-300" />
+          <span className="inline-block w-4 h-3 rounded-[2px] bg-stone-400/30" />
           Commune non-soutien
         </span>
       </div>
+
+      {/* La carte n'est pas lisible au lecteur d'écran : la liste l'est. */}
+      <p className="sr-only">
+        {supporters.length > 0
+          ? `Communes qui soutiennent MAG : ${supporters.join(", ")}.`
+          : "Aucune commune n'est encore enregistrée comme soutien de MAG."}
+      </p>
     </>
   );
 }
