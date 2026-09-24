@@ -2,6 +2,25 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-24 — Contrôle en prod des retours MAG du 23.09 (avant réponse au mail)
+
+Tous les points du mail vérifiés en prod (textes, chiffres, liens, 14 artisans de la carte à
+coordonnées distinctes, mention JEMA 86 avec / 28 sans, 0 fiche sans « À propos »), sauf les
+Focus Léman Bleu 2025 / 2026 (URLs à obtenir, déjà listé plus bas). Constats en passant :
+
+- **Mention JEMA non éditable dans l'admin** : `jemaParticipant` n'a pas de case dans
+  `ArtisanModal` et n'est pas renvoyé par `GET /api/admin/artisans` ; MAG ne peut pas la tenir à
+  jour après les JEMA 2027. Ajouter la case (petit changement).
+- **JEMA 2026, « Le domaine de la pierre se mobilise »** : `PierreFocus` liste tous les
+  artisan·e·s « Art de la pierre » du répertoire sous « Artisan·e·s présents », dont Artisan du
+  Staff et Julien Joselon, non participants d'après JEMA27_APPEL. Titre à changer ou filtre
+  participants 2026 : question posée à MAG.
+- Admin Communes : colonne « Soutient MAG » alors que le site dit « Communes partenaires ».
+- /jema, « Merci à nos partenaires » : texte seul, aucun logo ni nom (jamais eu) — question à MAG.
+- Stat_GLOBALES vs site : « Au Bon Relieur » (Charles Duch, Vernier) absent du site ;
+  « Duo d'art » (Vernier) absent du tableau. Même entité ? Question à MAG.
+- Filtre commune du répertoire affiche « Perly » (alias `communeKey`, voir plus bas).
+
 ## 2026-09-24 — Code review (xhigh) du chantier « retours MAG » : reports
 
 Corrigés : texte JEMA 2026 sans chiffres contradictoires, /medias régénéré toutes les heures,
