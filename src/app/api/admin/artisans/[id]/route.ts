@@ -22,6 +22,7 @@ export async function GET(
       craft: artisans.craft,
       commune: artisans.commune,
       published: artisans.published,
+      jemaParticipant: artisans.jemaParticipant,
       categoryId: artisans.categoryId,
       categoryName: categories.name,
       address: artisans.address,
@@ -93,6 +94,7 @@ export async function PATCH(
       ...(body.poinconModalText !== undefined && { poinconModalText: body.poinconModalText || null }),
       ...(body.poinconModalLink !== undefined && { poinconModalLink: body.poinconModalLink || null }),
       ...(body.published !== undefined && { published: body.published }),
+      ...(typeof body.jemaParticipant === "boolean" && { jemaParticipant: body.jemaParticipant }),
       updatedAt: new Date(),
     })
     .where(eq(artisans.id, id))

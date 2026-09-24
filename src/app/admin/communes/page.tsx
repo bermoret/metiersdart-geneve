@@ -56,8 +56,9 @@ export default function AdminCommunesPage() {
         Communes ({rows.length})
       </h1>
       <p className="text-sm text-mag-gray mb-6">
-        {soutenants} commune{soutenants > 1 ? "s" : ""} soutiennent MAG sur{" "}
-        {rows.length} au total.
+        {soutenants} commune{soutenants > 1 ? "s" : ""} partenaire
+        {soutenants > 1 ? "s" : ""} sur {rows.length} au total. Une commune partenaire sans
+        artisan·e au répertoire apparaît « en recherche d&apos;artisan·e·s » sur la carte.
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-mag-cream shadow-sm">
@@ -65,7 +66,7 @@ export default function AdminCommunesPage() {
           <thead className="bg-mag-cream/50 text-mag-dark/80">
             <tr>
               <th className="px-4 py-3 font-semibold">Commune</th>
-              <th className="px-4 py-3 font-semibold">Soutient MAG</th>
+              <th className="px-4 py-3 font-semibold">Commune partenaire</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-mag-cream/60">

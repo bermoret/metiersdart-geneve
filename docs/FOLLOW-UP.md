@@ -8,14 +8,16 @@ Tous les points du mail vérifiés en prod (textes, chiffres, liens, 14 artisans
 coordonnées distinctes, mention JEMA 86 avec / 28 sans, 0 fiche sans « À propos »), sauf les
 Focus Léman Bleu 2025 / 2026 (URLs à obtenir, déjà listé plus bas). Constats en passant :
 
-- **Mention JEMA non éditable dans l'admin** : `jemaParticipant` n'a pas de case dans
-  `ArtisanModal` et n'est pas renvoyé par `GET /api/admin/artisans` ; MAG ne peut pas la tenir à
-  jour après les JEMA 2027. Ajouter la case (petit changement).
+- ~~Mention JEMA non éditable dans l'admin~~ : case « A participé aux JEMA » ajoutée à la fiche
+  admin (GET liste / fiche et PATCH la transmettent ; décochée pour un nouvel artisan, POST sans
+  le champ = `false`). Au passage : le formulaire se réinitialise à chaque ouverture (annuler
+  puis rouvrir ne garde plus la saisie abandonnée).
 - **JEMA 2026, « Le domaine de la pierre se mobilise »** : `PierreFocus` liste tous les
   artisan·e·s « Art de la pierre » du répertoire sous « Artisan·e·s présents », dont Artisan du
   Staff et Julien Joselon, non participants d'après JEMA27_APPEL. Titre à changer ou filtre
   participants 2026 : question posée à MAG.
-- Admin Communes : colonne « Soutient MAG » alors que le site dit « Communes partenaires ».
+- ~~Admin Communes « Soutient MAG »~~ : renommé « Commune partenaire » (+ rappel de la règle « en recherche d'artisan·e·s »).
+- ~~« oeuvrons »~~ → « œuvrons » sur l'accueil (accord Bernard).
 - /jema, « Merci à nos partenaires » : texte seul, aucun logo ni nom (jamais eu) — question à MAG.
 - Stat_GLOBALES vs site : « Au Bon Relieur » (Charles Duch, Vernier) absent du site ;
   « Duo d'art » (Vernier) absent du tableau. Même entité ? Question à MAG.

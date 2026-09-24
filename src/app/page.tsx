@@ -99,7 +99,7 @@ export default async function HomePage() {
               <Reveal delay={0.2}>
                 <p className="mt-6 max-w-xl text-lg sm:text-xl text-mag-dark/70 leading-relaxed mx-auto lg:mx-0">
                   MAG est une association à but non lucratif, travaillant de pair avec les
-                  artisanes et artisans du canton. Nous oeuvrons afin de promouvoir, fédérer,
+                  artisanes et artisans du canton. Nous œuvrons afin de promouvoir, fédérer,
                   reconnaître et défendre les métiers d&apos;art au travers de notre répertoire
                   et de nos événements.
                 </p>

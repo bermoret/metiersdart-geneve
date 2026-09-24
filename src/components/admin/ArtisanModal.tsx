@@ -27,6 +27,7 @@ type ArtisanData = {
   poinconModalText: string;
   poinconModalLink: string;
   published: boolean;
+  jemaParticipant: boolean;
 };
 
 type Props = {
@@ -63,6 +64,7 @@ const EMPTY: ArtisanData = {
   longDescription: "", imageUrl: "", video: "", autre: "",
   poinconType: "", poinconModalText: "", poinconModalLink: "",
   published: true,
+  jemaParticipant: false,
 };
 
 export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSaved }: Props) {
@@ -89,7 +91,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
         : EMPTY,
     );
     setError(null);
-  }, [formKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [formKey, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!open) return null;
 
@@ -362,6 +364,18 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
               className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
             />
             <span className="text-sm text-mag-dark">Publié</span>
+          </label>
+
+          <label className="flex items-center gap-2 col-span-2">
+            <input
+              type="checkbox"
+              checked={!!form.jemaParticipant}
+              onChange={(e) => update("jemaParticipant", e.target.checked)}
+              className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
+            />
+            <span className="text-sm text-mag-dark">
+              A participé aux JEMA (mention sur la fiche publique)
+            </span>
           </label>
         </div>
 
