@@ -26,9 +26,12 @@ export const revalidate = 60;
 const JEMA_ARTISAN = "Frédéric Taddeï";
 const JEMA_FALLBACK_IMAGE = "/artisan-tools.jpg";
 
-/* Nombre de métiers selon la nomenclature de MAG (Stat_GLOBALES, 01.09.26) :
-   les libellés de métier en base (plus de 80 variantes) ne s'y ramènent pas. */
-const CRAFTS_COUNT = 53;
+/* Grille « MAG en chiffres » selon le nombre de chiffres affichés (2 à 4). */
+const STATS_GRID: Record<number, string> = {
+  2: "grid-cols-2 max-w-3xl mx-auto",
+  3: "grid-cols-1 sm:grid-cols-3",
+  4: "grid-cols-2 lg:grid-cols-4",
+};
 
 export default async function HomePage() {
   const [artisansOnly, allEntities, artisanCategories, jemaEditions, settings] = await Promise.all([
@@ -49,11 +52,12 @@ export default async function HomePage() {
 
   // « MAG en chiffres » selon le tableau de statistiques de MAG (retour du 23.09) :
   // artisan·e·s et communes calculés (communes où exercent les artisan·e·s, sans
-  // les écoles ni les institutions), métiers selon la nomenclature MAG, projets
-  // menés saisis dans l'admin (masqués tant qu'ils valent 0).
+  // les écoles ni les institutions) ; métiers (nomenclature MAG, les libellés en
+  // base ne s'y ramènent pas) et projets menés saisis dans l'admin, masqués tant
+  // qu'ils sont vides ou à 0.
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
-    { value: CRAFTS_COUNT, label: "Métiers" },
+    ...(settings?.craftsCount ? [{ value: settings.craftsCount, label: "Métiers" }] : []),
     { value: countCommunes(artisansOnly), label: "Communes" },
     ...(settings?.eventsCount ? [{ value: settings.eventsCount, label: "Projets menés" }] : []),
   ];
@@ -169,7 +173,7 @@ export default async function HomePage() {
               MAG en chiffres
             </h2>
           </Reveal>
-          <div className={`grid gap-4 ${stats.length === 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-3"}`}>
+          <div className={`grid gap-4 ${STATS_GRID[stats.length] ?? STATS_GRID[4]}`}>
             {stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 0.12}>
                 <div className="bg-mag-red rounded-2xl p-8 text-center text-white card-hover shadow-lg shadow-mag-red/10">

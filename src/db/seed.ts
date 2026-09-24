@@ -178,6 +178,7 @@ async function main() {
   await db.insert(siteSettings).values({
     id: "default",
     eventsCount: 0,
+    craftsCount: 53, // nomenclature MAG (Stat_GLOBALES, 01.09.2026)
     communautePassword: "MAG 2026",
   }).onConflictDoNothing({ target: siteSettings.id });
   console.log("✓ Paramètres du site initialisés (mot de passe Communauté : MAG 2026)");

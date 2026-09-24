@@ -7,6 +7,7 @@ import {
   contrastRatio,
   isHexColor,
   normalizeHex,
+  parseCount,
   readableOnTint,
   sortByName,
 } from "./utils";
@@ -143,5 +144,19 @@ describe("compareFr / sortByName : ordre alphabétique français", () => {
     const list = [{ name: "b" }, { name: "a" }];
     sortByName(list);
     assert.deepEqual(list, [{ name: "b" }, { name: "a" }]);
+  });
+});
+
+describe("parseCount : chiffres saisis dans l'admin", () => {
+  test("absent → undefined (champ non modifié)", () => {
+    assert.equal(parseCount(undefined), undefined);
+  });
+  test("entiers de 0 à 2^31-1 acceptés", () => {
+    for (const n of [0, 37, 53, 2_147_483_647]) assert.equal(parseCount(n), n);
+  });
+  test("tout le reste refusé", () => {
+    for (const bad of [null, true, "53", "", 1.5, -1, 2_147_483_648, 1e21, Infinity, NaN, [53], {}]) {
+      assert.equal(parseCount(bad), null, String(bad));
+    }
   });
 });

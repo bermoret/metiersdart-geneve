@@ -11,7 +11,7 @@
  * jamais écrasé (condition répétée dans l'UPDATE).
  *
  * Usage :
- *   npx tsx scripts/backfill-descriptions.ts          → à blanc, connexion en lecture seule
+ *   npx tsx scripts/backfill-descriptions.ts          → à blanc (transaction en lecture seule)
  *   npx tsx scripts/backfill-descriptions.ts --apply  → écrit, en une transaction
  * (DATABASE_URL, sinon lu dans .env.local)
  */
@@ -46,7 +46,9 @@ async function main() {
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
   try {
-    if (!apply) await client.query("SET default_transaction_read_only = on");
+    // À blanc : transaction READ ONLY (ROLLBACK en fin de script). Pas de SET de
+    // session : derrière le pooler Neon, il resterait sur une connexion partagée.
+    if (!apply) await client.query("BEGIN TRANSACTION READ ONLY");
 
     const { rows } = await client.query<{ id: string; slug: string; name: string; published: boolean }>(
       `SELECT id, slug, name, published FROM artisans
@@ -78,13 +80,14 @@ async function main() {
       await client.query("COMMIT");
       console.log(`\n${updated} fiche(s) complétée(s), ${missing.length} sans texte.`);
     } else {
+      if (!apply) await client.query("ROLLBACK");
       console.log(
         `\nÀ blanc : ${todo.length} fiche(s) à compléter, ${missing.length} sans texte.` +
           (todo.length ? " Relancer avec --apply pour écrire." : ""),
       );
     }
   } catch (err) {
-    if (apply) await client.query("ROLLBACK").catch(() => {});
+    await client.query("ROLLBACK").catch(() => {});
     throw err;
   } finally {
     await client.end();

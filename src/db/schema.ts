@@ -238,6 +238,7 @@ export const communes = pgTable("communes", {
 export const siteSettings = pgTable("site_settings", {
   id: varchar("id", { length: 50 }).primaryKey(), // toujours "default"
   eventsCount: integer("events_count").default(0),
+  craftsCount: integer("crafts_count"), // « Métiers » de MAG en chiffres (nomenclature MAG), saisi dans l'admin
   communautePassword: varchar("communaute_password", { length: 255 }), // mot de passe commun espace Communauté
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
