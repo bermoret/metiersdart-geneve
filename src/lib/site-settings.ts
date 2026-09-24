@@ -11,13 +11,15 @@ import { dbConfigured } from "./db-data";
 export type PublicSiteSettings = {
   /** « Projets menés » : événements et projets MAG, saisi dans l'admin. */
   eventsCount: number | null;
+  /** « Métiers » selon la nomenclature MAG, saisi dans l'admin. */
+  craftsCount: number | null;
 };
 
 export const getSiteSettings = cache(async (): Promise<PublicSiteSettings | null> => {
   if (!dbConfigured()) return null;
   try {
     const [row] = await db
-      .select({ eventsCount: siteSettings.eventsCount })
+      .select({ eventsCount: siteSettings.eventsCount, craftsCount: siteSettings.craftsCount })
       .from(siteSettings)
       .where(eq(siteSettings.id, "default"))
       .limit(1);

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { artisans, categories, actualites, jemaEditions, medias } from "@/db/schema";
 import { count } from "drizzle-orm";
-import { EventsCountEditor } from "@/components/admin/EventsCountEditor";
+import { KeyFiguresEditor } from "@/components/admin/KeyFiguresEditor";
 import { CommunautePasswordEditor } from "@/components/admin/CommunautePasswordEditor";
 
 export const dynamic = "force-dynamic";
@@ -38,9 +38,9 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Compteur manuel : événements / projets MAG */}
+      {/* Chiffres saisis à la main : métiers et projets (« MAG en chiffres ») */}
       <div className="mt-6 max-w-md space-y-4">
-        <EventsCountEditor />
+        <KeyFiguresEditor />
         <CommunautePasswordEditor />
       </div>
     </div>

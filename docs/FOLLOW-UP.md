@@ -2,6 +2,21 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-24 — Métiers éditables dans l'admin (« MAG en chiffres »)
+
+- Colonne `site_settings.crafts_count` (déclarée dans `src/db/schema.ts`), créée et initialisée
+  à 53 par `npx tsx scripts/migrate-crafts-count.ts --apply` — **à lancer avant le deploy**
+  (le code lit la colonne ; `db:push:dry` ne montre que cet ajout + le faux positif auth).
+- Admin : « MAG en chiffres » (métiers + projets menés), enregistrement bloqué tant que les
+  valeurs n'ont pas été lues. Accueil : chiffre masqué s'il est vide ou à 0.
+- Corrigé en passant : enregistrer le mot de passe Communauté remettait « projets menés » à 0
+  (PUT non partiel). La vérification du mot de passe ne lit plus que sa colonne.
+- **Piège Neon** : ne jamais faire `SET default_transaction_read_only` (ni autre `SET` de
+  session) à travers le pooler (`-pooler`) — le réglage peut rester sur une connexion reprise
+  par la prod. Lecture à blanc = `BEGIN TRANSACTION READ ONLY … ROLLBACK` (scripts corrigés).
+  Des lectures à blanc à l'ancienne ont tourné les 23-24.09 : aucune erreur « read-only » dans
+  les erreurs d'exécution Vercel sur 48 h.
+
 ## 2026-09-24 — Code review (xhigh) du chantier « retours MAG » : reports
 
 Corrigés : texte JEMA 2026 sans chiffres contradictoires, /medias régénéré toutes les heures,
@@ -19,16 +34,15 @@ Reportés :
   dans un contrôle périodique si des fiches sont créées sans texte.
 - **Qui sommes-nous** charge toute la liste des artisan·e·s pour en déduire les communes :
   une requête `SELECT DISTINCT commune` suffirait (gain négligeable à 145 fiches).
-- Métiers = 53 (constante) et photos de mineur·e·s : voir ci-dessous (migration à accorder,
-  consentement à confirmer par MAG).
+- Photos de mineur·e·s : consentement à confirmer par MAG (voir ci-dessous).
 
 ## 2026-09-23 — Retours de l'équipe MAG (mail « MAG: Retour nouveau site internet »)
 
 ### Fait (code)
 
 - Accueil : pastille « Bienvenue chez MAG », bouton « Trouver les artisanes et artisans proches
-  de chez vous », badge sans « + », « MAG en chiffres » = artisan·e·s (calculé) · 53 métiers
-  (constante `CRAFTS_COUNT`, nomenclature MAG) · communes où exercent les artisan·e·s (calculé,
+  de chez vous », badge sans « + », « MAG en chiffres » = artisan·e·s (calculé) · métiers
+  (admin, nomenclature MAG) · communes où exercent les artisan·e·s (calculé,
   21) · projets menés (admin, masqué tant qu'il vaut 0). « Notre mission » retirée.
 - Qui sommes-nous : « Communes partenaires », phrase de contact retirée, légende limitée aux
   partenaires ; partenaire sans artisan·e au répertoire = « en recherche d'artisan·e·s »
@@ -57,15 +71,15 @@ vérifié en prod : 9 partenaires, 37 projets, édition 2022 en ligne, mention J
   Le tableau ne couvre pas les éditions avant 2022. Institutions / écoles non touchées.
 - **Communes partenaires** (9, carte de MAG) : Bellevue, Carouge, Genève, Gy, Meyrin,
   Perly-Certoux, Plan-les-Ouates, Satigny, Vandœuvres — modifiables ensuite dans l'admin (Communes).
-- **Projets menés = 37** : modifiable dans l'admin → « Événements & projets MAG ».
+- **Projets menés = 37** : modifiable dans l'admin → « MAG en chiffres ».
 - **Édition 2022** : créée sans dates ni description (à compléter dans l'admin JEMA si MAG les a).
 - **Textes « À propos » manquants** (Anne Ponthenier et 100 autres) : `long_description` vide
   en base pour 101 fiches publiées (l'import initial n'avait repris que 44 textes). Textes
   repris de l'ancien site dans `src/lib/artisan-details.ts`, reportés en base par
   `scripts/backfill-descriptions.ts` (ne remplit que les champs vides).
 - Script des autres données : `apply.cjs` + `plan.json` (hors dépôt) ; état avant dans `backup-before.json` (scratchpad de session).
-- **Métiers = 53 éditable dans l'admin** : demande une colonne `site_settings.crafts_count`
-  (migration de prod → accord de Bernard) ; d'ici là constante dans `src/app/page.tsx`.
+- **Métiers = 53 éditable dans l'admin** : accord de Bernard le 2026-09-24, voir
+  « Métiers éditables » ci-dessus.
 
 ### À vérifier / décider (avec MAG)
 

@@ -144,3 +144,20 @@ export function canOptimizeImage(src: string): boolean {
     return false;
   }
 }
+
+// ─── Chiffres saisis dans l'admin ──────────────────────────────
+
+/** Plus grand entier d'une colonne Postgres `integer`. */
+const PG_INT_MAX = 2_147_483_647;
+
+/**
+ * Chiffre saisi dans l'admin (« MAG en chiffres ») : champ absent → undefined
+ * (non modifié) ; entier de 0 à PG_INT_MAX → sa valeur ; tout le reste → null
+ * (refusé, 400).
+ */
+export function parseCount(raw: unknown): number | undefined | null {
+  if (raw === undefined) return undefined;
+  return typeof raw === "number" && Number.isInteger(raw) && raw >= 0 && raw <= PG_INT_MAX
+    ? raw
+    : null;
+}

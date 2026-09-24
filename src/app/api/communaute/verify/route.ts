@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   }
 
   const [settings] = await db
-    .select()
+    .select({ communautePassword: siteSettings.communautePassword })
     .from(siteSettings)
     .where(eq(siteSettings.id, "default"))
     .limit(1);
