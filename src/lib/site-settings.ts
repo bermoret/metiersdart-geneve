@@ -6,6 +6,7 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
+import { dbConfigured } from "./db-data";
 
 export type PublicSiteSettings = {
   /** « Projets menés » : événements et projets MAG, saisi dans l'admin. */
@@ -13,7 +14,7 @@ export type PublicSiteSettings = {
 };
 
 export const getSiteSettings = cache(async (): Promise<PublicSiteSettings | null> => {
-  if (!process.env.DATABASE_URL) return null;
+  if (!dbConfigured()) return null;
   try {
     const [row] = await db
       .select({ eventsCount: siteSettings.eventsCount })

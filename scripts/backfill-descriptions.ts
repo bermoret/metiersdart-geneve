@@ -18,7 +18,7 @@
 import { existsSync } from "node:fs";
 import { Client } from "pg";
 import { artisans as staticArtisans } from "../src/lib/data";
-import { getArtisanDetail } from "../src/lib/artisan-details";
+import { artisanDetails, getArtisanDetail } from "../src/lib/artisan-details";
 
 const apply = process.argv.includes("--apply");
 
@@ -30,11 +30,15 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-/** Texte de la fiche : via le nom statique du même slug, sinon via le nom en base. */
+/**
+ * Texte de la fiche : via le nom statique du même slug, sinon via le nom exact
+ * en base (jamais par mots-clés : une fiche créée dans l'admin ne doit pas
+ * recevoir le texte d'une autre).
+ */
 function descriptionFor(slug: string, name: string): string | null {
   const staticName = staticArtisans.find((a) => a.slug === slug)?.name;
   const detail =
-    (staticName ? getArtisanDetail(staticName) : undefined) ?? getArtisanDetail(name);
+    (staticName ? getArtisanDetail(staticName) : undefined) ?? artisanDetails[name];
   return detail?.description?.trim() || null;
 }
 

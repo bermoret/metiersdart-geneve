@@ -10,7 +10,6 @@ import {
   getArtisanBySlugDb,
   getJemaEditions,
   splitJemaEditions,
-  countCrafts,
   countCommunes,
   type PublicJemaEdition,
 } from "./db-data";
@@ -90,9 +89,8 @@ describe("db-data : comptages et filtres (fallback statique)", () => {
     assert.equal(await getArtisanBySlugDb("slug-qui-n-existe-pas"), null);
   });
 
-  test("countCrafts / countCommunes : mêmes valeurs que les règles LOT 1", async () => {
-    const [only, all] = await Promise.all([getArtisansOnly(), getPublishedArtisans()]);
-    assert.equal(countCrafts(only), new Set(artisansOnly.map((a) => a.craft)).size);
+  test("countCommunes : communes distinctes de la liste reçue", async () => {
+    const all = await getPublishedArtisans();
     assert.equal(countCommunes(all), new Set(artisans.map((a) => a.commune)).size);
   });
 

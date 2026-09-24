@@ -97,7 +97,7 @@ function isNonArtisan(type: string): boolean {
 // ─── Helpers internes ───────────────────────────────────────────
 
 /** La base est-elle configurée ? Sinon (build/tests sans DATABASE_URL) → statique. */
-function dbConfigured(): boolean {
+export function dbConfigured(): boolean {
   return !!process.env.DATABASE_URL;
 }
 
@@ -395,12 +395,8 @@ export function splitJemaEditions(editions: PublicJemaEdition[]): {
   return { upcoming, past };
 }
 
-// ─── Helpers de comptage (règles LOT 1) ─────────────────────────
-
-/** Nombre de métiers dédoublonnés (un métier = une occurrence). */
-export function countCrafts(list: PublicArtisan[]): number {
-  return new Set(list.map((a) => a.craft).filter(Boolean)).size;
-}
+// ─── Helpers de comptage ────────────────────────────────────────
+// (le nombre de métiers affiché suit la nomenclature MAG, pas les libellés en base)
 
 /**
  * Nombre de communes distinctes de la liste reçue (l'accueil passe les

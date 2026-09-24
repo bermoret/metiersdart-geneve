@@ -104,6 +104,10 @@ const articlesArchives = [
   },
 ];
 
+// Régénération horaire : une miniature Vimeo manquée (délai, 429) est retentée
+// dans l'heure ; les réponses oEmbed réussies restent en cache 24 h.
+export const revalidate = 3600;
+
 export default async function MediasPage() {
   // Miniatures en parallèle (oEmbed Vimeo mis en cache 24 h) ; null → affiche par défaut
   const [capsuleThumbs, interviewThumb] = await Promise.all([

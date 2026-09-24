@@ -48,7 +48,7 @@ const editionExtras: Record<string, EditionExtras> = {
     intro:
       "Les JEMA 2026 c'est fini... Mais elles reviennent chaque année. Démonstrations, ateliers d'initiation, conférences, visites guidées animent ce week-end dédié aux savoir-faire.",
     description:
-      "Pour cette 15ᵉ édition, les métiers d'art genevois ont déployé leurs trois parcours habituels : ouverture d'ateliers dans la ville avec 15 ateliers participants, Pavillon SICLI au cœur de l'événement rassemblant 31 artisan·e·s et 6 écoles formatrices, et parcours culturel dans 12 institutions. Les visiteurs ont pu découvrir la richesse des savoir-faire locaux, du textile à l'horlogerie en passant par la sculpture sur pierre. Un week-end intense où 145 artisan·e·s genevois·e·s ont partagé leurs gestes, leurs techniques et leurs passions avec un public venu nombreux.",
+      "Pour cette 15ᵉ édition, les métiers d'art genevois ont déployé leurs trois parcours habituels : ouverture d'ateliers dans la ville, Pavillon SICLI au cœur de l'événement rassemblant 31 artisan·e·s et 6 écoles formatrices, et parcours culturel dans 12 institutions. Les visiteurs ont pu découvrir la richesse des savoir-faire locaux, du textile à l'horlogerie en passant par la sculpture sur pierre. Un week-end intense où les artisan·e·s genevois·e·s ont partagé leurs gestes, leurs techniques et leurs passions avec un public venu nombreux.",
     videos: [
       {
         platform: "vimeo",
@@ -165,7 +165,10 @@ export async function generateMetadata({ params }: { params: Promise<{ year: str
   if (!ed) return { title: "Édition introuvable" };
   return {
     title: `${ed.title} — JEMA Genève`,
-    description: editionExtras[year]?.intro || ed.description || undefined,
+    description:
+      editionExtras[year]?.intro ||
+      ed.description ||
+      `Retour sur les JEMA ${ed.year} à Genève : chiffres, vidéos et programme de l'édition.`,
   };
 }
 

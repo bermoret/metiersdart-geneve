@@ -107,7 +107,7 @@ export default async function HomePage() {
 
               <Reveal delay={0.3}>
                 <Link
-                  href="/repertoire"
+                  href="#carte"
                   className="group btn-fill mt-8 inline-flex items-center gap-2 rounded-full bg-mag-red px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-mag-red/20 hover:shadow-xl hover:shadow-mag-red/30 transition-shadow"
                 >
                   Trouver les artisanes et artisans proches de chez vous

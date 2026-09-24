@@ -2,6 +2,26 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-24 — Code review (xhigh) du chantier « retours MAG » : reports
+
+Corrigés : texte JEMA 2026 sans chiffres contradictoires, /medias régénéré toutes les heures,
+backfill sans correspondance par mots-clés, description de repli des éditions (2022),
+positions des pastilles stables au filtre, légende / texte lecteur d'écran fusionnés comme la
+carte (`mergeCommunes`), liseré des pastilles, bouton « proches de chez vous » → `#carte`,
+`countCrafts` retiré, `dbConfigured` partagé.
+
+Reportés :
+- **Alias « Perly »** dans `communeKey` : corriger la donnée (fiche en « Perly » →
+  « Perly-Certoux », écriture en base) et faire choisir la commune dans la liste des 45 dans
+  l'admin artisan au lieu d'un champ libre ; retirer ensuite l'alias.
+- **Textes « À propos » vides** : le test ne couvre que les données statiques ; contrôle en
+  base = `npx tsx scripts/backfill-descriptions.ts` à blanc (« 0 sans texte »). À brancher
+  dans un contrôle périodique si des fiches sont créées sans texte.
+- **Qui sommes-nous** charge toute la liste des artisan·e·s pour en déduire les communes :
+  une requête `SELECT DISTINCT commune` suffirait (gain négligeable à 145 fiches).
+- Métiers = 53 (constante) et photos de mineur·e·s : voir ci-dessous (migration à accorder,
+  consentement à confirmer par MAG).
+
 ## 2026-09-23 — Retours de l'équipe MAG (mail « MAG: Retour nouveau site internet »)
 
 ### Fait (code)

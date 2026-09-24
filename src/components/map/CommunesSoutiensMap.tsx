@@ -7,7 +7,7 @@ import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson"
 import { communeKey } from "@/lib/utils";
 // Territoires des 45 communes (swisstopo) — généré par scripts/build-communes-geo.ts.
 import geCommunes from "@/lib/ge-communes.json";
-import { COMMUNE_COLORS, COMMUNE_LABELS } from "./communes-palette";
+import { COMMUNE_COLORS, COMMUNE_LABELS, mergeCommunes } from "./communes-palette";
 
 export type MapCommune = {
   id: string;
@@ -103,23 +103,8 @@ export default function CommunesSoutiensMap({ communes }: Props) {
     layersRef.current.forEach((l) => l.remove());
     layersRef.current = [];
 
-    // Deux fiches pour la même commune (« Grand-Saconnex » et « Le Grand-Saconnex »,
-    // que l'unicité du nom en base laisse passer) : il suffit que l'une soutienne.
-    const byKey = new Map<string, MapCommune>();
-    for (const c of communes) {
-      const k = communeKey(c.name);
-      const prev = byKey.get(k);
-      byKey.set(
-        k,
-        prev
-          ? {
-              ...prev,
-              soutientMag: prev.soutientMag || c.soutientMag,
-              hasArtisans: prev.hasArtisans || c.hasArtisans,
-            }
-          : c,
-      );
-    }
+    // Doublons de commune fusionnés (même liste que la légende).
+    const byKey = mergeCommunes(communes);
     const matched = new Set<string>();
 
     const data: FeatureCollection<Polygon | MultiPolygon, CommuneProps> = {

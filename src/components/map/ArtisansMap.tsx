@@ -143,26 +143,25 @@ export default function ArtisansMap({ artisans, selectedCategory }: Props) {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    const filtered = selectedCategory
-      ? artisans.filter(
-          (a) => a.category?.name === selectedCategory || !a.category,
-        )
-      : artisans;
+    // Positions réparties sur la liste complète, puis filtrées : une pastille
+    // garde sa place dans le cercle quel que soit le domaine sélectionné.
+    const positioned = spreadOverlapping(
+      artisans.filter((a) => a.latitude !== 0 && a.longitude !== 0 && !isNaN(a.latitude)),
+    );
+    const withCoords = selectedCategory
+      ? positioned.filter((a) => a.category?.name === selectedCategory || !a.category)
+      : positioned;
 
     // Filtrer les artisans hors canton de Genève pour le centrage
     // Genève : lat ~46.13-46.26, lon ~6.05-6.27
     const isInGeneva = (lat: number, lng: number) =>
       lat >= 46.12 && lat <= 46.27 && lng >= 6.04 && lng <= 6.28;
 
-    const withCoords = filtered.filter(
-      (a) => a.latitude !== 0 && a.longitude !== 0 && !isNaN(a.latitude),
-    );
-
     if (withCoords.length === 0) return;
 
     const bounds = L.latLngBounds([]);
 
-    spreadOverlapping(withCoords).forEach((artisan) => {
+    withCoords.forEach((artisan) => {
       const { lat, lng } = artisan;
       const icon = getIcon(artisan.category?.color);
 
