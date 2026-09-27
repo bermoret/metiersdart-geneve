@@ -17,3 +17,16 @@ export function formatShortRange(start: Date | null, end: Date | null): string {
   }
   return `${start.getDate()}-${end.getDate()} ${month(start)} ${end.getFullYear()}`;
 }
+
+const zurichParts = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Europe/Zurich",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Jour civil à Genève (« AAAA-MM-JJ »), comparable comme chaîne. */
+export function zurichDay(d: Date): string {
+  const p = Object.fromEntries(zurichParts.formatToParts(d).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}

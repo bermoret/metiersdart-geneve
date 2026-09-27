@@ -18,7 +18,7 @@
 import { cache } from "react";
 import { db } from "@/db";
 import { artisans, categories, communes, jemaEditions } from "@/db/schema";
-import { and, eq, asc, desc } from "drizzle-orm";
+import { and, eq, asc, desc, isNotNull, isNull, notInArray, or } from "drizzle-orm";
 import {
   artisans as staticArtisans,
   categories as allStaticCategories,
@@ -28,6 +28,7 @@ import {
 } from "./data";
 import { getArtisanDetail } from "./artisan-details";
 import { communeKey, sortByName } from "./utils";
+import { zurichDay } from "./dates";
 
 // ─── Types publics ──────────────────────────────────────────────
 
@@ -233,6 +234,34 @@ export const getArtisansOnly = cache(async (): Promise<PublicArtisan[]> => {
 });
 
 /**
+ * Communes distinctes où exercent les artisan·e·s publié·e·s (même périmètre
+ * que `getArtisansOnly`), sans charger les fiches : `SELECT DISTINCT`.
+ * Noms bruts, non triés — à rapprocher via `communeKey`.
+ */
+export const getArtisanCommunes = cache(async (): Promise<string[]> => {
+  if (!dbConfigured()) {
+    const list = staticToPublicArtisans().filter((a) => !isNonArtisan(a.type));
+    return [...new Set(list.map((a) => a.commune).filter((c): c is string => !!c))];
+  }
+  try {
+    const rows = await db
+      .selectDistinct({ commune: artisans.commune })
+      .from(artisans)
+      .where(
+        and(
+          eq(artisans.published, true),
+          isNotNull(artisans.commune),
+          // type NULL = artisan (cf. toPublicArtisan)
+          or(isNull(artisans.type), notInArray(artisans.type, NON_ARTISAN_TYPES)),
+        ),
+      );
+    return rows.map((r) => r.commune).filter((c): c is string => !!c);
+  } catch (err) {
+    return dbError("getArtisanCommunes", err);
+  }
+});
+
+/**
  * Catégories de domaines d'art uniquement (exclut les catégories
  * institutionnelles). Une catégorie n'est retenue que si elle a au moins
  * un artisan publié rattaché.
@@ -377,20 +406,35 @@ export const getJemaEditions = cache(async (): Promise<PublicJemaEdition[]> => {
 });
 
 /**
- * Répartit les éditions JEMA :
- * - `upcoming` : la prochaine édition à venir (l'année la plus proche) ;
- * - `past` : les éditions marquées « passée » et non « à venir », la plus
- *   récente d'abord. Une édition ni passée ni à venir (brouillon) n'apparaît pas.
- * Source unique pour la page /jema, les pages /jema/[année] et le sitemap.
+ * Édition terminée : son dernier jour (`endDate`, à défaut `startDate`) est
+ * antérieur à aujourd'hui, jour civil à Genève. Sans date → non terminée.
  */
-export function splitJemaEditions(editions: PublicJemaEdition[]): {
+function isEditionOver(e: PublicJemaEdition, now: Date): boolean {
+  const last = e.endDate ?? e.startDate;
+  return !!last && zurichDay(last) < zurichDay(now);
+}
+
+/**
+ * Répartit les éditions JEMA :
+ * - `upcoming` : la prochaine édition à venir (l'année la plus proche). Une
+ *   édition restée cochée « à venir » après ses dates n'est plus à venir ;
+ * - `past` : les éditions marquées « passée », ou restées cochées « à venir »
+ *   après leurs dates, la plus récente d'abord. Une édition ni passée ni à
+ *   venir (brouillon) n'apparaît pas.
+ * Source unique pour l'accueil, la page /jema, les pages /jema/[année] et le sitemap.
+ */
+export function splitJemaEditions(
+  editions: PublicJemaEdition[],
+  now: Date = new Date(),
+): {
   upcoming: PublicJemaEdition | null;
   past: PublicJemaEdition[];
 } {
+  const isUpcoming = (e: PublicJemaEdition) => !!e.isUpcoming && !isEditionOver(e, now);
   const upcoming =
-    editions.filter((e) => e.isUpcoming).sort((a, b) => a.year - b.year)[0] ?? null;
+    editions.filter(isUpcoming).sort((a, b) => a.year - b.year)[0] ?? null;
   const past = editions
-    .filter((e) => e.isPast && !e.isUpcoming)
+    .filter((e) => (e.isPast || (!!e.isUpcoming && isEditionOver(e, now))) && !isUpcoming(e))
     .sort((a, b) => b.year - a.year);
   return { upcoming, past };
 }
@@ -401,7 +445,7 @@ export function splitJemaEditions(editions: PublicJemaEdition[]): {
 /**
  * Nombre de communes distinctes de la liste reçue (l'accueil passe les
  * artisan·e·s seul·e·s, chiffre MAG). Même clé que la carte des communes :
- * « Perly » et « Perly-Certoux », « Vandœuvres » et « Vandoeuvres » comptent une fois.
+ * « Vandœuvres » et « Vandoeuvres » comptent une fois.
  */
 export function countCommunes(list: PublicArtisan[]): number {
   return new Set(list.map((a) => (a.commune ? communeKey(a.commune) : "")).filter(Boolean)).size;

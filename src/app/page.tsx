@@ -173,7 +173,7 @@ export default async function HomePage() {
               MAG en chiffres
             </h2>
           </Reveal>
-          <div className={`grid gap-4 ${STATS_GRID[stats.length] ?? STATS_GRID[4]}`}>
+          <div className={`grid gap-4 ${STATS_GRID[stats.length]}`}>
             {stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 0.12}>
                 <div className="bg-mag-red rounded-2xl p-8 text-center text-white card-hover shadow-lg shadow-mag-red/10">

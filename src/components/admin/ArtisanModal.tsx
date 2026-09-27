@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { findCommuneName } from "@/lib/commune-match";
 
 type Category = { id: string; name: string };
 
@@ -34,6 +35,8 @@ type Props = {
   open: boolean;
   artisan: Record<string, unknown> | null;
   categories: Category[];
+  /** Noms de la table communes (45 communes genevoises), triés. */
+  communes: string[];
   isNew: boolean;
   onClose: () => void;
   onSaved: () => void;
@@ -67,7 +70,7 @@ const EMPTY: ArtisanData = {
   jemaParticipant: false,
 };
 
-export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSaved }: Props) {
+export function ArtisanModal({ open, artisan, categories, communes, isNew, onClose, onSaved }: Props) {
   const [form, setForm] = useState<ArtisanData>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +90,11 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
             ...a,
             latitude: a.latitude ? String(a.latitude) : "",
             longitude: a.longitude ? String(a.longitude) : "",
+            // Autre graphie (« Carouge » / « Carouge (GE) ») ramenée au nom de la liste ;
+            // une valeur sans correspondance est gardée telle quelle (option « hors liste »).
+            commune: a.commune
+              ? findCommuneName(String(a.commune), communes) ?? String(a.commune)
+              : "",
           } as ArtisanData
         : EMPTY,
     );
@@ -228,7 +236,29 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
           />
 
           <Field label="Métier" value={form.craft} onChange={(v) => update("craft", v)} />
-          <Field label="Commune" value={form.commune} onChange={(v) => update("commune", v)} />
+          {/* Liste des communes indisponible (chargement en échec) : saisie libre
+              plutôt qu'un menu réduit à la valeur actuelle. */}
+          {communes.length === 0 ? (
+            <Field
+              label="Commune"
+              value={form.commune ?? ""}
+              onChange={(v) => update("commune", v)}
+              placeholder="Nom officiel, ex. Carouge"
+            />
+          ) : (
+            <SelectField
+              label="Commune"
+              value={form.commune ?? ""}
+              onChange={(v) => update("commune", v)}
+              options={[
+                { value: "", label: "— Aucune —" },
+                ...(form.commune && !communes.includes(form.commune)
+                  ? [{ value: form.commune, label: `${form.commune} (hors liste)` }]
+                  : []),
+                ...communes.map((c) => ({ value: c, label: c })),
+              ]}
+            />
+          )}
 
           {/* Adresse avec géocodage auto */}
           <div className="col-span-2">
@@ -270,6 +300,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
             <span className="text-xs font-medium text-mag-gray mb-1 block">Photo</span>
             <div className="flex items-start gap-4">
               {form.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- aperçu d'une URL libre (Blob ou saisie) : next/image exigerait chaque domaine dans remotePatterns
                 <img
                   src={form.imageUrl}
                   alt="Aperçu"
@@ -361,7 +392,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
               type="checkbox"
               checked={form.published}
               onChange={(e) => update("published", e.target.checked)}
-              className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
+              className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red"
             />
             <span className="text-sm text-mag-dark">Publié</span>
           </label>
@@ -371,7 +402,7 @@ export function ArtisanModal({ open, artisan, categories, isNew, onClose, onSave
               type="checkbox"
               checked={!!form.jemaParticipant}
               onChange={(e) => update("jemaParticipant", e.target.checked)}
-              className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
+              className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red"
             />
             <span className="text-sm text-mag-dark">
               A participé aux JEMA (mention sur la fiche publique)

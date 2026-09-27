@@ -4,7 +4,6 @@ import {
   artisans,
   artisansOnly,
   artisanCategories,
-  categories,
   getArtisansByCategory,
 } from "./data";
 

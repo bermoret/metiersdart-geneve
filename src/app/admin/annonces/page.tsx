@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type Annonce = {
   id: string;
@@ -24,7 +24,8 @@ export default function AdminAnnoncesPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
 
-  const loadData = () => {
+  // Recréée à chaque changement de filtre : l'effet ci-dessous recharge alors la liste.
+  const loadData = useCallback(() => {
     setLoading(true);
     fetch(`/api/admin/annonces?status=${filter}`)
       .then((r) => r.json())
@@ -36,11 +37,11 @@ export default function AdminAnnoncesPage() {
         setRows([]);
         setLoading(false);
       });
-  };
+  }, [filter]);
 
   useEffect(() => {
     loadData();
-  }, [filter]);
+  }, [loadData]);
 
   const handleAction = async (id: string, status: "published" | "rejected") => {
     try {

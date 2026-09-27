@@ -89,9 +89,10 @@ export function CategoryModal({ open, category, isNew, onClose, onSaved }: Props
       const payload = {
         name: form.name,
         slug: form.slug || undefined,
-        description: form.description || undefined,
-        icon: form.icon || undefined,
-        color: colorHex ?? undefined,
+        // Champ vidé → null : l'API remet la colonne à NULL (undefined la laisserait intacte).
+        description: form.description || null,
+        icon: form.icon || null,
+        color: colorHex,
         sortOrder: form.sortOrder ? Number(form.sortOrder) : 0,
       };
       const url = isNew ? "/api/admin/categories" : `/api/admin/categories/${form.id}`;

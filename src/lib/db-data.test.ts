@@ -8,6 +8,7 @@ import {
   getArtisanCategories,
   getArtisansByCategoryDb,
   getArtisanBySlugDb,
+  getArtisanCommunes,
   getJemaEditions,
   splitJemaEditions,
   countCommunes,
@@ -94,6 +95,13 @@ describe("db-data : comptages et filtres (fallback statique)", () => {
     assert.equal(countCommunes(all), new Set(artisans.map((a) => a.commune)).size);
   });
 
+  test("getArtisanCommunes : communes distinctes des artisan·e·s seul·e·s", async () => {
+    const communes = await getArtisanCommunes();
+    assert.equal(new Set(communes).size, communes.length, "doublons");
+    const expected = new Set((await getArtisansOnly()).map((a) => a.commune).filter(Boolean));
+    assert.deepEqual(new Set(communes), expected);
+  });
+
   test("getJemaEditions : pas d'éditions sans base", async () => {
     assert.deepEqual(await getJemaEditions(), []);
   });
@@ -143,13 +151,19 @@ describe("getArtisanDetail", () => {
 
 // ─── Éditions JEMA ─────────────────────────────────────────────
 
-function edition(year: number, isUpcoming: boolean, isPast: boolean): PublicJemaEdition {
+function edition(
+  year: number,
+  isUpcoming: boolean,
+  isPast: boolean,
+  startDate: Date | null = null,
+  endDate: Date | null = null,
+): PublicJemaEdition {
   return {
     id: String(year),
     year,
     title: `JEMA ${year}`,
-    startDate: null,
-    endDate: null,
+    startDate,
+    endDate,
     isUpcoming,
     isPast,
     description: null,
@@ -181,6 +195,58 @@ describe("splitJemaEditions", () => {
 
   test("aucune édition à venir → null", () => {
     assert.equal(splitJemaEditions([edition(2026, false, true)]).upcoming, null);
+  });
+
+  // Dates stockées à minuit UTC (timestamp sans fuseau) ; « now » en instants UTC.
+  const d = (iso: string) => new Date(`${iso}T00:00:00Z`);
+  const now = new Date("2026-09-27T10:00:00Z");
+
+  test("restée cochée « à venir » après sa date de fin → plus à venir", () => {
+    const { upcoming } = splitJemaEditions(
+      [edition(2026, true, false, d("2026-03-27"), d("2026-03-29"))],
+      now,
+    );
+    assert.equal(upcoming, null);
+  });
+
+  test("édition terminée ignorée : la suivante devient la prochaine", () => {
+    const { upcoming } = splitJemaEditions(
+      [
+        edition(2026, true, false, d("2026-03-27"), d("2026-03-29")),
+        edition(2027, true, false, d("2027-03-19"), d("2027-03-21")),
+      ],
+      now,
+    );
+    assert.equal(upcoming?.year, 2027);
+  });
+
+  test("sans date de fin : la date de début fait foi", () => {
+    const over = edition(2026, true, false, d("2026-09-26"));
+    const today = edition(2026, true, false, d("2026-09-27"));
+    assert.equal(splitJemaEditions([over], now).upcoming, null);
+    assert.equal(splitJemaEditions([today], now).upcoming?.year, 2026);
+  });
+
+  test("dernier jour = aujourd'hui (heure de Genève) → encore à venir", () => {
+    const e = edition(2026, true, false, d("2026-09-25"), d("2026-09-27"));
+    assert.equal(splitJemaEditions([e], now).upcoming?.year, 2026);
+    // 27.09 à 23h30 à Genève (21h30 UTC) : toujours le dernier jour
+    assert.equal(splitJemaEditions([e], new Date("2026-09-27T21:30:00Z")).upcoming?.year, 2026);
+    // 28.09 à 0h30 à Genève (22h30 UTC le 27) : terminée
+    assert.equal(splitJemaEditions([e], new Date("2026-09-27T22:30:00Z")).upcoming, null);
+  });
+
+  test("sans aucune date : la case « à venir » fait foi", () => {
+    assert.equal(splitJemaEditions([edition(2027, true, false)], now).upcoming?.year, 2027);
+  });
+
+  test("terminée, cochée « à venir » et « passée » → rejoint les passées", () => {
+    const { upcoming, past } = splitJemaEditions(
+      [edition(2026, true, true, d("2026-03-27"), d("2026-03-29"))],
+      now,
+    );
+    assert.equal(upcoming, null);
+    assert.deepEqual(past.map((e) => e.year), [2026]);
   });
 });
 

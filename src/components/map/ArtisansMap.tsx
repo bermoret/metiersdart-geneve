@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { artisanMarker, spreadOverlapping } from "@/lib/map-marker";
+import { escapeHtml } from "@/lib/html";
 
 export type MapArtisan = {
   id: string;
@@ -20,14 +21,6 @@ type Props = {
   artisans: MapArtisan[];
   selectedCategory?: string | null;
 };
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 // Usine à icônes — créées paresseusement et mises en cache
 const iconCache = new Map<string, L.DivIcon>();

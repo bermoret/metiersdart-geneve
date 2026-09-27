@@ -77,14 +77,14 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
       const payload = {
         year: yearNum,
         title: form.title || `JEMA ${yearNum}`,
-        startDate: form.startDate || undefined,
-        endDate: form.endDate || undefined,
+        // Champ vidé → null : l'API remet la colonne à NULL (undefined la laisserait intacte).
+        startDate: form.startDate || null,
+        endDate: form.endDate || null,
         isUpcoming: form.isUpcoming,
         isPast: form.isPast,
-        description: form.description || undefined,
-        // "" → null côté API : permet d'effacer le highlight
-        highlight: form.highlight ?? "",
-        programUrl: form.programUrl || undefined,
+        description: form.description || null,
+        highlight: form.highlight || null,
+        programUrl: (form.programUrl ?? "").trim() || null,
       };
       const url = isNew ? "/api/admin/jema" : `/api/admin/jema/${form.id}`;
       const method = isNew ? "POST" : "PATCH";
@@ -156,7 +156,7 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
               type="checkbox"
               checked={form.isUpcoming}
               onChange={(e) => update("isUpcoming", e.target.checked)}
-              className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
+              className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red"
             />
             <span className="text-sm text-mag-dark">À venir</span>
           </label>
@@ -165,7 +165,7 @@ export function JemaModal({ open, edition, isNew, onClose, onSaved }: Props) {
               type="checkbox"
               checked={form.isPast}
               onChange={(e) => update("isPast", e.target.checked)}
-              className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20"
+              className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red"
             />
             <span className="text-sm text-mag-dark">Passée</span>
           </label>

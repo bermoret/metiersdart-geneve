@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { escapeHtml } from "@/lib/html";
 
 type Props = {
   latitude: number;
@@ -78,8 +79,8 @@ export default function ArtisanMap({ latitude, longitude, name, address }: Props
     const marker = L.marker([latitude, longitude], { icon });
     const popupHtml = `
       <div style="min-width:180px;font-family:sans-serif">
-        <h3 style="font-weight:bold;font-size:14px;margin-bottom:4px;color:#b42c36">${name.replace(/</g, "&lt;")}</h3>
-        ${address ? `<p style="font-size:12px;color:#888;margin:0">${address.replace(/</g, "&lt;")}</p>` : ""}
+        <h3 style="font-weight:bold;font-size:14px;margin-bottom:4px;color:#b42c36">${escapeHtml(name)}</h3>
+        ${address ? `<p style="font-size:12px;color:#888;margin:0">${escapeHtml(address)}</p>` : ""}
       </div>
     `;
     marker.bindPopup(popupHtml);

@@ -5,14 +5,7 @@ import { eq, desc } from "drizzle-orm";
 import { Resend } from "resend";
 import { communauteAccess, noStore, submitLimiter } from "@/lib/communaute-access";
 import { clientIp } from "@/lib/communaute-token";
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+import { escapeHtml } from "@/lib/html";
 
 const reply = (body: unknown, status = 200) => noStore(NextResponse.json(body, { status }));
 

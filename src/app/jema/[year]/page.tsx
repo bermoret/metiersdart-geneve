@@ -4,6 +4,7 @@ import { VideoCapsule } from "@/components/ui/VideoCapsule";
 import { videoThumbnail } from "@/lib/video-thumbnails";
 import { getJemaEditions, splitJemaEditions } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
+import { isHttpUrl } from "@/lib/url";
 import { PageHero } from "@/components/ui/Editorial";
 import { PierreFocus } from "@/components/jema/PierreFocus";
 
@@ -198,7 +199,8 @@ export default async function EditionPage({
         thumbnailUrl: await videoThumbnail(v.platform, v.videoId),
       })),
     ),
-    programmeUrl: ed.programUrl || extras.programmeUrl,
+    // Lien admin affiché seulement en http(s) ; sinon repli sur le lien d'origine.
+    programmeUrl: isHttpUrl(ed.programUrl) ? ed.programUrl : extras.programmeUrl,
     stats:
       ed.stats && Object.keys(ed.stats).length > 0
         ? Object.entries(ed.stats).map(([label, value]) => ({ label, value }))

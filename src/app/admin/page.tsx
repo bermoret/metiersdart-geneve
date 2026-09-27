@@ -1,17 +1,52 @@
 import { db } from "@/db";
-import { artisans, categories, actualites, jemaEditions, medias } from "@/db/schema";
-import { count } from "drizzle-orm";
+import { artisans, categories, actualites, jemaEditions, medias, siteSettings } from "@/db/schema";
+import { and, count, eq, sql } from "drizzle-orm";
+import { requireAdmin } from "@/lib/admin";
 import { KeyFiguresEditor } from "@/components/admin/KeyFiguresEditor";
 import { CommunautePasswordEditor } from "@/components/admin/CommunautePasswordEditor";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const [artisanCount] = await db.select({ count: count() }).from(artisans);
-  const [categoryCount] = await db.select({ count: count() }).from(categories);
-  const [actuCount] = await db.select({ count: count() }).from(actualites);
-  const [jemaCount] = await db.select({ count: count() }).from(jemaEditions);
-  const [mediaCount] = await db.select({ count: count() }).from(medias);
+  // Le contrôle du layout ne couvre pas un rendu RSC partiel de la page :
+  // celle-ci lit le mot de passe Communauté, elle se protège elle-même.
+  await requireAdmin();
+
+  const [
+    [artisanCount],
+    [categoryCount],
+    [actuCount],
+    [jemaCount],
+    [mediaCount],
+    [missingAbout],
+    [settings],
+  ] = await Promise.all([
+    db.select({ count: count() }).from(artisans),
+    db.select({ count: count() }).from(categories),
+    db.select({ count: count() }).from(actualites),
+    db.select({ count: count() }).from(jemaEditions),
+    db.select({ count: count() }).from(medias),
+    // Fiches publiées sans texte « À propos » (contrôle périodique, cf. backlog).
+    db
+      .select({ count: count() })
+      .from(artisans)
+      .where(
+        and(
+          eq(artisans.published, true),
+          sql`coalesce(btrim(${artisans.longDescription}), '') = ''`,
+        ),
+      ),
+    // Ligne absente (seed pas encore lancé) → valeurs par défaut ci-dessous.
+    db
+      .select({
+        eventsCount: siteSettings.eventsCount,
+        craftsCount: siteSettings.craftsCount,
+        communautePassword: siteSettings.communautePassword,
+      })
+      .from(siteSettings)
+      .where(eq(siteSettings.id, "default"))
+      .limit(1),
+  ]);
 
   const stats = [
     { label: "Artisans", value: artisanCount.count, href: "/admin/artisans", icon: "fas fa-hammer", color: "text-mag-red" },
@@ -38,10 +73,25 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
+      {missingAbout.count > 0 && (
+        <p className="mt-4 text-sm text-amber-800 flex items-center gap-2">
+          <i className="fas fa-triangle-exclamation" aria-hidden />
+          {missingAbout.count === 1
+            ? "1 fiche publiée n'a pas de texte « À propos »."
+            : `${missingAbout.count} fiches publiées n'ont pas de texte « À propos ».`}{" "}
+          <a href="/admin/artisans" className="underline hover:text-mag-red">
+            Voir les artisans
+          </a>
+        </p>
+      )}
+
       {/* Chiffres saisis à la main : métiers et projets (« MAG en chiffres ») */}
       <div className="mt-6 max-w-md space-y-4">
-        <KeyFiguresEditor />
-        <CommunautePasswordEditor />
+        <KeyFiguresEditor
+          initialCraftsCount={settings?.craftsCount ?? null}
+          initialEventsCount={settings?.eventsCount ?? 0}
+        />
+        <CommunautePasswordEditor initialPassword={settings?.communautePassword ?? ""} />
       </div>
     </div>
   );

@@ -64,6 +64,16 @@ body {
   background: #701618;
 }
 
+/* Placeholders des champs : le défaut Tailwind v4 (currentColor à 50 %)
+   tombe à ≈ 2.75:1 sur blanc. mag-gray : ≥ 4.5:1 (AA) sur blanc. Dans le
+   layer base, après le preflight : un utilitaire placeholder:* garde la main. */
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-mag-gray);
+  }
+}
+
 /* Focus visible cohérent pour l'accessibilité */
 *:focus-visible {
   outline: 2px solid #b42c36;
@@ -274,8 +284,4 @@ footer *:focus-visible,
   line-height: 1.04;
   color: var(--color-mag-dark);
   font-size: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
-}
-/* Variante sur fond sombre */
-.h-section-inverse {
-  color: #ffffff;
 }

@@ -50,7 +50,7 @@ const cc: Record<string, [number, number]> = {
   Veyrier: [46.1656, 6.175], "Plan-les-Ouates": [46.1736, 6.1089], Bernex: [46.1744, 6.0758],
   Meinier: [46.2336, 6.2186], "Pregny-Chambésy": [46.2403, 6.1419], Cologny: [46.2153, 6.1769],
   Jussy: [46.25, 6.2667], Satigny: [46.2053, 6.0458], Vandoeuvres: [46.2472, 6.2014],
-  Perly: [46.1597, 6.0833], Puplinge: [46.2453, 6.22], Dardagny: [46.1833, 6.05],
+  "Perly-Certoux": [46.1597, 6.0833], Puplinge: [46.2453, 6.22], Dardagny: [46.1833, 6.05],
   "Aire-la-Ville": [46.1667, 6.0667], Bellevue: [46.2417, 6.15], Meyrin: [46.2247, 6.0833],
   Presinge: [46.2417, 6.225], Clarens: [46.45, 6.85],
 };
@@ -173,7 +173,7 @@ const rawArtisans: RawArtisan[] = [
   { name: "Jean-Philippe Naef", craft: "Restaurateur d'objets anciens", cat: "Arts appliqués", commune: "Bardonnex", lat: 46.1455572, lon: 6.1288867 },
 
   // Art du verre
-  { name: "Marina Buckel", craft: "Oculariste", cat: "Art du verre", commune: "Perly", lat: 46.1571297, lon: 6.0973373 },
+  { name: "Marina Buckel", craft: "Oculariste", cat: "Art du verre", commune: "Perly-Certoux", lat: 46.1571297, lon: 6.0973373 },
   { name: "Frédéric Taddeï", craft: "Verrier", cat: "Art du verre", commune: "Satigny" },
   { name: "Atelier du Verre — Wilma Besson", craft: "Verrier", cat: "Art du verre", commune: "Genève" },
 

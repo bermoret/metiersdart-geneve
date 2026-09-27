@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import { communeKey } from "@/lib/utils";
+import { escapeHtml } from "@/lib/html";
 // Territoires des 45 communes (swisstopo) — généré par scripts/build-communes-geo.ts.
 import geCommunes from "@/lib/ge-communes.json";
 import { COMMUNE_COLORS, COMMUNE_LABELS, mergeCommunes } from "./communes-palette";
@@ -188,12 +189,4 @@ function popupHtml(name: string, statut: Statut): string {
       ${mention}
     </div>
   `;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }

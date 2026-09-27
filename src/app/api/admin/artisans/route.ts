@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { resolveArtisanCommune } from "@/lib/artisan-commune";
 
 // GET /api/admin/artisans — liste tous les artisans
 export async function GET() {
@@ -50,6 +51,9 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
+  const commune = await resolveArtisanCommune(body.commune);
+  if ("error" in commune) return NextResponse.json({ error: commune.error }, { status: 400 });
+
   let categoryId = body.categoryId;
   if (!categoryId && body.categoryName) {
     const cat = await db
@@ -68,7 +72,7 @@ export async function POST(req: Request) {
       type: body.type || "artisan",
       craft: body.craft,
       categoryId,
-      commune: body.commune,
+      commune: commune.commune ?? null,
       address: body.address,
       latitude: body.latitude ? Number(body.latitude) : null,
       longitude: body.longitude ? Number(body.longitude) : null,

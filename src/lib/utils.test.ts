@@ -22,8 +22,8 @@ describe("communeKey", () => {
     assert.equal(communeKey("Vandœuvres"), communeKey("Vandoeuvres"));
     assert.equal(communeKey("Chêne-Bougeries"), "chene-bougeries");
   });
-  test("nom d'usage ramené à la commune officielle", () => {
-    assert.equal(communeKey("Perly"), communeKey("Perly-Certoux"));
+  test("pas d'alias de nom d'usage : « Perly » n'est pas Perly-Certoux", () => {
+    assert.notEqual(communeKey("Perly"), communeKey("Perly-Certoux"));
   });
   test("un « La » qui fait partie du nom est conservé", () => {
     assert.equal(communeKey("Lancy"), "lancy");

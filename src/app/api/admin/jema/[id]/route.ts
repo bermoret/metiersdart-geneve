@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { jemaEditions, jemaParcours } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { isHttpUrl } from "@/lib/url";
 
 // GET /api/admin/jema/[id] — une édition
 export async function GET(
@@ -38,6 +39,11 @@ export async function PATCH(
     if (typeof body.highlight === "string" && body.highlight.length > 255) {
       return NextResponse.json({ error: "Le temps fort ne doit pas dépasser 255 caractères." }, { status: 400 });
     }
+    // Lien public du programme : http(s) seulement ; vide ou null → effacé (NULL).
+    const programUrl = typeof body.programUrl === "string" ? body.programUrl.trim() : body.programUrl;
+    if (programUrl && !isHttpUrl(programUrl)) {
+      return NextResponse.json({ error: "L'URL du programme doit commencer par http:// ou https://." }, { status: 400 });
+    }
 
     const [updated] = await db
       .update(jemaEditions)
@@ -50,7 +56,7 @@ export async function PATCH(
         ...(body.isPast !== undefined && { isPast: Boolean(body.isPast) }),
         ...(body.description !== undefined && { description: body.description ? String(body.description) : null }),
         ...(body.highlight !== undefined && { highlight: body.highlight ? String(body.highlight) : null }),
-        ...(body.programUrl !== undefined && { programUrl: body.programUrl ? String(body.programUrl) : null }),
+        ...(programUrl !== undefined && { programUrl: programUrl || null }),
         ...(body.stats !== undefined && { stats: body.stats ?? null }),
         updatedAt: new Date(),
       })

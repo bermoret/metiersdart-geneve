@@ -167,6 +167,7 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
             <span className="text-xs font-medium text-mag-gray mb-1 block">Image</span>
             <div className="flex items-start gap-4">
               {form.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- aperçu d'une URL libre (Blob ou saisie) : next/image exigerait chaque domaine dans remotePatterns
                 <img src={form.imageUrl} alt="Aperçu" className="w-24 h-24 rounded-lg object-cover border border-mag-cream shrink-0" />
               )}
               <div className="flex flex-col gap-2">
@@ -202,11 +203,11 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
           <TextareaField label="Contenu complet" value={form.content} onChange={(v) => update("content", v)} rows={5} fullWidth />
 
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={form.published} onChange={(e) => update("published", e.target.checked)} className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20" />
+            <input type="checkbox" checked={form.published} onChange={(e) => update("published", e.target.checked)} className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red" />
             <span className="text-sm text-mag-dark">Publié</span>
           </label>
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={form.isArchived} onChange={(e) => update("isArchived", e.target.checked)} className="rounded border-mag-cream text-mag-red focus:ring-mag-red/20" />
+            <input type="checkbox" checked={form.isArchived} onChange={(e) => update("isArchived", e.target.checked)} className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red" />
             <span className="text-sm text-mag-dark">Archivé</span>
           </label>
         </div>

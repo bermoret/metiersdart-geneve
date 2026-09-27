@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getJemaEditions, splitJemaEditions } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
+import { isHttpUrl } from "@/lib/url";
 import { PageHero } from "@/components/ui/Editorial";
 
 export const metadata = {
@@ -119,7 +120,8 @@ export default async function JemaPage() {
                   {upcoming.description}
                 </p>
               )}
-              {upcoming.programUrl && (
+              {/* Lien saisi dans l'admin : rendu seulement en http(s). */}
+              {isHttpUrl(upcoming.programUrl) && (
                 <a
                   href={upcoming.programUrl}
                   target="_blank"

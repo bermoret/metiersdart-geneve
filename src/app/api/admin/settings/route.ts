@@ -1,86 +1,34 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
-import { PG_INT_MAX, parseCount } from "@/lib/utils";
+import { parseSettingsInput } from "@/lib/settings-input";
 
 const DEFAULT_ID = "default";
 
-// GET /api/admin/settings — récupère les paramètres du site
-export async function GET() {
-  const session = await requireAdminApi();
-  if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-
-  // SELECT simple : si la ligne n'existe pas (seed pas encore lancé),
-  // on retourne des valeurs par défaut sans l'upserter — sinon le seed
-  // avec onConflictDoNothing ne pourrait plus écrire communautePassword.
-  const [row] = await db
-    .select()
-    .from(siteSettings)
-    .where(eq(siteSettings.id, DEFAULT_ID))
-    .limit(1);
-
-  if (!row) {
-    return NextResponse.json({
-      id: DEFAULT_ID,
-      eventsCount: 0,
-      craftsCount: null,
-      communautePassword: null,
-    });
-  }
-
-  return NextResponse.json(row);
-}
+// Lecture : le tableau de bord (admin/page.tsx) lit la ligne côté serveur.
 
 // PUT /api/admin/settings — met à jour les paramètres du site
 export async function PUT(req: Request) {
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
-  }
-
   // Mise à jour partielle : seuls les champs envoyés sont modifiés (enregistrer
   // le mot de passe Communauté remettait le nombre de projets à 0).
-  const eventsCount = parseCount(body.eventsCount);
-  const craftsCount = parseCount(body.craftsCount);
-  if (eventsCount === null || craftsCount === null) {
-    return NextResponse.json(
-      { error: `Les chiffres doivent être des entiers entre 0 et ${PG_INT_MAX.toLocaleString("fr-CH")}` },
-      { status: 400 },
-    );
-  }
+  const parsed = parseSettingsInput(await req.json().catch(() => null));
+  if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { patch } = parsed;
 
-  const communautePassword =
-    typeof body.communautePassword === "string" && body.communautePassword.trim()
-      ? body.communautePassword.trim().slice(0, 255)
-      : undefined;
-  if (eventsCount === undefined && craftsCount === undefined && communautePassword === undefined) {
-    return NextResponse.json({ error: "Aucun paramètre à modifier" }, { status: 400 });
-  }
-
+  // Ligne absente : les champs non envoyés prennent leur DEFAULT (events_count = 0).
   const [row] = await db
     .insert(siteSettings)
-    .values({
-      id: DEFAULT_ID,
-      eventsCount: eventsCount ?? 0,
-      ...(craftsCount !== undefined ? { craftsCount } : {}),
-      ...(communautePassword !== undefined ? { communautePassword } : {}),
-    })
+    .values({ id: DEFAULT_ID, ...patch })
     .onConflictDoUpdate({
       target: siteSettings.id,
-      set: {
-        ...(eventsCount !== undefined ? { eventsCount } : {}),
-        ...(craftsCount !== undefined ? { craftsCount } : {}),
-        ...(communautePassword !== undefined ? { communautePassword } : {}),
-        updatedAt: sql`now()`,
-      },
+      set: { ...patch, updatedAt: sql`now()` },
     })
     .returning();
 
   return NextResponse.json(row);
 }
-

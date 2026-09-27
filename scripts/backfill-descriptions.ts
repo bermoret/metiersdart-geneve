@@ -13,22 +13,12 @@
  * Usage :
  *   npx tsx scripts/backfill-descriptions.ts          → à blanc (transaction en lecture seule)
  *   npx tsx scripts/backfill-descriptions.ts --apply  → écrit, en une transaction
- * (DATABASE_URL, sinon lu dans .env.local)
+ * Connexion à l'endpoint direct de Neon (DATABASE_URL_UNPOOLED, POSTGRES_URL_NON_POOLING
+ * ou DATABASE_URL sans `-pooler`, .env.local lu si DATABASE_URL absent) : scripts/lib/db-script.ts.
  */
-import { existsSync } from "node:fs";
-import { Client } from "pg";
 import { artisans as staticArtisans } from "../src/lib/data";
 import { artisanDetails, getArtisanDetail } from "../src/lib/artisan-details";
-
-const apply = process.argv.includes("--apply");
-
-if (!process.env.DATABASE_URL && existsSync(".env.local")) {
-  process.loadEnvFile(".env.local");
-}
-if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL requis");
-  process.exit(1);
-}
+import { apply, runDbScript } from "./lib/db-script";
 
 /**
  * Texte de la fiche : via le nom statique du même slug, sinon via le nom exact
@@ -42,14 +32,8 @@ function descriptionFor(slug: string, name: string): string | null {
   return detail?.description?.trim() || null;
 }
 
-async function main() {
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-  try {
-    // À blanc : transaction READ ONLY (ROLLBACK en fin de script). Pas de SET de
-    // session : derrière le pooler Neon, il resterait sur une connexion partagée.
-    await client.query(apply ? "BEGIN" : "BEGIN TRANSACTION READ ONLY");
-
+runDbScript({
+  async run(client) {
     const { rows } = await client.query<{ id: string; slug: string; name: string; published: boolean }>(
       `SELECT id, slug, name, published FROM artisans
         WHERE coalesce(btrim(long_description), '') = ''
@@ -66,34 +50,26 @@ async function main() {
     }
     for (const r of missing) console.log(`sans texte  ${r.slug}`);
 
-    if (apply) {
-      let updated = 0;
-      for (const r of todo) {
-        const res = await client.query(
-          `UPDATE artisans SET long_description = $1, updated_at = now()
-            WHERE id = $2 AND coalesce(btrim(long_description), '') = ''`,
-          [r.text, r.id],
-        );
-        updated += res.rowCount ?? 0;
-      }
-      await client.query("COMMIT");
-      console.log(`\n${updated} fiche(s) complétée(s), ${missing.length} sans texte.`);
-    } else {
-      await client.query("ROLLBACK");
+    if (!apply) {
       console.log(
         `\nÀ blanc : ${todo.length} fiche(s) à compléter, ${missing.length} sans texte.` +
           (todo.length ? " Relancer avec --apply pour écrire." : ""),
       );
+      return { updated: 0, missing: missing.length };
     }
-  } catch (err) {
-    await client.query("ROLLBACK").catch(() => {});
-    throw err;
-  } finally {
-    await client.end();
-  }
-}
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+    let updated = 0;
+    for (const r of todo) {
+      const res = await client.query(
+        `UPDATE artisans SET long_description = $1, updated_at = now()
+          WHERE id = $2 AND coalesce(btrim(long_description), '') = ''`,
+        [r.text, r.id],
+      );
+      updated += res.rowCount ?? 0;
+    }
+    return { updated, missing: missing.length };
+  },
+  afterCommit(_client, { updated, missing }) {
+    console.log(`\n${updated} fiche(s) complétée(s), ${missing} sans texte.`);
+  },
 });

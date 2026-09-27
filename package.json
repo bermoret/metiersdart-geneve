@@ -11,7 +11,7 @@
     "db:push:dry": "bash scripts/db-push-dry.sh",
     "db:seed": "tsx src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test": "tsx --test src/lib/data.test.ts src/lib/db-data.test.ts src/lib/utils.test.ts src/lib/map-marker.test.ts src/lib/communaute-token.test.ts"
+    "test": "tsx --test src/lib/data.test.ts src/lib/db-data.test.ts src/lib/utils.test.ts src/lib/map-marker.test.ts src/lib/communaute-token.test.ts src/lib/settings-input.test.ts src/lib/url.test.ts src/lib/commune-match.test.ts src/lib/html.test.ts src/lib/db-data-error.test.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

@@ -1,4 +1,4 @@
-import { getArtisansOnly, getCommunesForMap } from "@/lib/db-data";
+import { getArtisanCommunes, getCommunesForMap } from "@/lib/db-data";
 import { communeKey } from "@/lib/utils";
 import { Reveal } from "@/components/ui/Reveal";
 import { CommunesMapSection } from "@/components/qui-sommes-nous/CommunesMapSection";
@@ -82,9 +82,9 @@ const secrétariat = [
 ];
 
 export default async function QuiSommesNousPage() {
-  const [communes, artisansOnly] = await Promise.all([getCommunesForMap(), getArtisansOnly()]);
+  const [communes, artisanCommunes] = await Promise.all([getCommunesForMap(), getArtisanCommunes()]);
   // Une commune partenaire sans artisan·e au répertoire est « en recherche d'artisan·e·s ».
-  const withArtisans = new Set(artisansOnly.map((a) => communeKey(a.commune ?? "")));
+  const withArtisans = new Set(artisanCommunes.map(communeKey));
   const mapCommunes = communes.map((c) => ({ ...c, hasArtisans: withArtisans.has(communeKey(c.name)) }));
   return (
     <>

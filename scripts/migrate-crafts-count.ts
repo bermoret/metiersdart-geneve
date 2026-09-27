@@ -13,34 +13,18 @@
  * Usage :
  *   npx tsx scripts/migrate-crafts-count.ts          → à blanc (transaction en lecture seule)
  *   npx tsx scripts/migrate-crafts-count.ts --apply  → écrit, en une transaction
- * (DATABASE_URL, sinon lu dans .env.local)
+ * Connexion à l'endpoint direct de Neon (DATABASE_URL_UNPOOLED, POSTGRES_URL_NON_POOLING
+ * ou DATABASE_URL sans `-pooler`, .env.local lu si DATABASE_URL absent) : scripts/lib/db-script.ts.
  */
-import { existsSync } from "node:fs";
-import { Client } from "pg";
+import { apply, runDbScript } from "./lib/db-script";
 
 const INITIAL_CRAFTS_COUNT = 53;
-const apply = process.argv.includes("--apply");
 
-if (!process.env.DATABASE_URL && existsSync(".env.local")) {
-  process.loadEnvFile(".env.local");
-}
-if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL requis");
-  process.exit(1);
-}
-
-async function main() {
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-  // client.host plutôt que new URL(DATABASE_URL) : l'erreur d'une chaîne que pg
-  // accepte mais que WHATWG refuse afficherait l'URL entière, mot de passe compris.
-  console.log(`Base : ${client.host}`);
-  let committed = false;
-  try {
-    // À blanc : transaction READ ONLY, puis ROLLBACK. Pas de SET de session :
-    // derrière le pooler Neon, il resterait sur une connexion partagée avec la prod.
-    await client.query(apply ? "BEGIN" : "BEGIN TRANSACTION READ ONLY");
-
+runDbScript({
+  // L'ALTER prend un verrou exclusif : abandonner après 5 s plutôt que bloquer
+  // toutes les lectures de site_settings derrière lui.
+  lockTimeout: "5s",
+  async run(client) {
     // to_regclass résout site_settings par le search_path, comme les requêtes
     // ci-dessous (current_schema() ne regarde que le premier schéma existant).
     const { rows: cols } = await client.query(
@@ -55,46 +39,29 @@ async function main() {
       const { rows } = await client.query(
         `SELECT events_count${exists ? ", crafts_count" : ""} FROM site_settings WHERE id = 'default'`,
       );
-      await client.query("ROLLBACK");
       console.log(`Ligne « default » : ${rows[0] ? JSON.stringify(rows[0]) : "absente (rien à initialiser)"}`);
       console.log(
         `À blanc : ${exists ? "" : "ALTER TABLE site_settings ADD COLUMN crafts_count integer ; "}` +
           `crafts_count = ${INITIAL_CRAFTS_COUNT} si vide. Relancer avec --apply pour écrire.`,
       );
-      return;
+      return 0;
     }
 
-    // L'ALTER prend un verrou exclusif : abandonner après 5 s plutôt que bloquer
-    // toutes les lectures de site_settings derrière lui. SET LOCAL ne vaut que
-    // pour cette transaction, donc sans risque derrière le pooler.
-    await client.query("SET LOCAL lock_timeout = '5s'");
     await client.query("ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS crafts_count integer");
     const res = await client.query(
       `UPDATE site_settings SET crafts_count = $1, updated_at = now()
         WHERE id = 'default' AND crafts_count IS NULL`,
       [INITIAL_CRAFTS_COUNT],
     );
-    await client.query("COMMIT");
-    committed = true;
-    console.log(`Appliqué : ${res.rowCount ?? 0} ligne(s) initialisée(s).`);
+    return res.rowCount ?? 0;
+  },
+  // Après le COMMIT, seule la relecture peut échouer : la migration est faite.
+  async afterCommit(client, initialized) {
+    console.log(`Appliqué : ${initialized} ligne(s) initialisée(s).`);
     const { rows } = await client.query(
       "SELECT events_count, crafts_count FROM site_settings WHERE id = 'default'",
     );
     console.log("État :", rows[0]);
-  } catch (err) {
-    // Après le COMMIT, seule la relecture a échoué : la migration est faite.
-    if (committed) {
-      console.error("Migration appliquée, mais relecture de l'état impossible :", err);
-      return;
-    }
-    await client.query("ROLLBACK").catch(() => {});
-    throw err;
-  } finally {
-    await client.end();
-  }
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  },
+  afterCommitError: "Migration appliquée, mais relecture de l'état impossible :",
 });

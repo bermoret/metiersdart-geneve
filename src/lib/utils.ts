@@ -31,21 +31,15 @@ export function sortByName<T extends { name: string }>(list: readonly T[]): T[] 
 /**
  * Clé de rapprochement d'un nom de commune entre la base et les limites
  * swisstopo : « Le Grand-Saconnex » = « Grand-Saconnex », « Carouge (GE) » =
- * « Carouge », « Vandœuvres » = « Vandoeuvres ». Les fiches du répertoire
- * écrivent parfois le nom d'usage (« Perly » pour Perly-Certoux).
+ * « Carouge », « Vandœuvres » = « Vandoeuvres ».
  */
 export function communeKey(name: string): string {
-  const key = slugify(
+  return slugify(
     name
       .replace(/œ/gi, "oe")
       .replace(/\s*\([a-z]{2}\)\s*$/i, ""),
   ).replace(/^(le|la|les)-/, "");
-  return COMMUNE_ALIASES[key] ?? key;
 }
-
-const COMMUNE_ALIASES: Record<string, string> = {
-  perly: "perly-certoux",
-};
 
 // Helper: latitude/longitude stockées en microdegrés (int) -> degres decimaux
 export function latFromDB(microdeg: number | null): number | null {

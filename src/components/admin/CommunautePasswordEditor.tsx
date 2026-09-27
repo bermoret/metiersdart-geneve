@@ -1,27 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-export function CommunautePasswordEditor() {
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(true);
+/** Mot de passe actuel, lu côté serveur par le tableau de bord ("" si aucun). */
+export function CommunautePasswordEditor({ initialPassword }: { initialPassword: string }) {
+  const [password, setPassword] = useState(initialPassword);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/settings")
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      })
-      .then((data) => {
-        if (data?.communautePassword) setPassword(data.communautePassword);
-      })
-      // Un champ vide laisserait croire qu'aucun mot de passe n'est défini.
-      .catch(() => setError("Impossible de charger le mot de passe actuel"))
-      .finally(() => setLoading(false));
-  }, []);
 
   async function handleSave() {
     setSaving(true);
@@ -42,8 +28,6 @@ export function CommunautePasswordEditor() {
       setSaving(false);
     }
   }
-
-  if (loading) return null;
 
   return (
     <div className="rounded-xl border border-mag-cream bg-white p-6">

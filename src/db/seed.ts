@@ -11,67 +11,92 @@ import {
 } from "@/db/schema";
 import { users } from "@/db/auth-schema";
 import { eq } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
 import { seedData } from "./seed-data";
 
+// Le seed n'initialise QUE les tables vides : tout ce qu'il insère est ensuite
+// éditable (ou supprimable) dans l'admin, et le relancer ne doit ni recréer une
+// fiche supprimée ou renommée (un artisan revenait sous son ancien slug, publié),
+// ni doubler les tables sans clé naturelle (partenaires, comité, Manufacto).
+// --force : complète quand même les tables non vides, sans rien écraser (lignes
+// déjà présentes — même slug, année, nom… — ignorées), en connaissance de cause.
+const force = process.argv.includes("--force");
+
+/** true si la table reçoit le seed ; sinon l'annonce et renvoie false. */
+async function shouldSeed(table: PgTable, label: string): Promise<boolean> {
+  const [row] = await db.select().from(table).limit(1);
+  if (!row) return true;
+  if (force) {
+    console.log(`… ${label} : table non vide, complétée (--force) sans écraser l'existant`);
+    return true;
+  }
+  console.log(`⏭  ${label} : table non vide, ignorée (--force pour compléter)`);
+  return false;
+}
+
 async function main() {
-  console.log("🌱 Début du seed…");
+  console.log(`🌱 Début du seed…${force ? " (--force)" : ""}`);
 
   // Catégories
-  for (const cat of seedData.categories) {
-    await db.insert(categories).values({
-      name: cat.name,
-      slug: cat.slug,
-      description: cat.description,
-      icon: cat.icon,
-      color: cat.color,
-      sortOrder: cat.sortOrder ?? 0,
-    }).onConflictDoNothing({ target: categories.slug });
+  if (await shouldSeed(categories, "Catégories")) {
+    for (const cat of seedData.categories) {
+      await db.insert(categories).values({
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        icon: cat.icon,
+        color: cat.color,
+        sortOrder: cat.sortOrder ?? 0,
+      }).onConflictDoNothing({ target: categories.slug });
+    }
+    console.log(`✓ ${seedData.categories.length} catégories traitées`);
   }
-  console.log(`✓ ${seedData.categories.length} catégories insérées`);
-
-  // Résolution nom de catégorie → id (nécessaire pour le JOIN côté public)
-  const allCats = await db.select().from(categories);
-  const catIdByName = new Map(allCats.map((c) => [c.name, c.id]));
-  let catLinked = 0;
 
   // Artisans — insertion seule : une fiche existante (même slug) n'est JAMAIS
   // modifiée, pour ne pas écraser les corrections faites par MAG dans l'admin.
   // (La correction ponctuelle des coordonnées ×1e6 et l'injection des champs
   // enrichis ont été faites par le seed du 2026-09-18.)
-  for (const a of seedData.artisans) {
-    const categoryId = catIdByName.get(a.categoryName) ?? null;
-    if (categoryId) catLinked++;
-    await db
-      .insert(artisans)
-      .values({
-        name: a.name,
-        slug: a.slug,
-        type: a.type,
-        craft: a.craft,
-        categoryId,
-        commune: a.commune,
-        latitude: a.latitude,
-        longitude: a.longitude,
-        shortDescription: a.shortDescription,
-        imageUrl: a.imageUrl,
-        longDescription: a.longDescription,
-        address: a.address,
-        website: a.website,
-        video: a.video,
-        phone: a.phone,
-        email: a.email,
-        autre: a.autre,
-        poinconType: a.poinconType,
-        poinconModalText: a.poinconModalText,
-        poinconModalLink: a.poinconModalLink,
-        jemaParticipant: true,
-        published: true,
-      })
-      .onConflictDoNothing({ target: artisans.slug });
+  if (await shouldSeed(artisans, "Artisans")) {
+    // Résolution nom de catégorie → id (nécessaire pour le JOIN côté public)
+    const allCats = await db.select().from(categories);
+    const catIdByName = new Map(allCats.map((c) => [c.name, c.id]));
+    let catLinked = 0;
+
+    for (const a of seedData.artisans) {
+      const categoryId = catIdByName.get(a.categoryName) ?? null;
+      if (categoryId) catLinked++;
+      await db
+        .insert(artisans)
+        .values({
+          name: a.name,
+          slug: a.slug,
+          type: a.type,
+          craft: a.craft,
+          categoryId,
+          commune: a.commune,
+          latitude: a.latitude,
+          longitude: a.longitude,
+          shortDescription: a.shortDescription,
+          imageUrl: a.imageUrl,
+          longDescription: a.longDescription,
+          address: a.address,
+          website: a.website,
+          video: a.video,
+          phone: a.phone,
+          email: a.email,
+          autre: a.autre,
+          poinconType: a.poinconType,
+          poinconModalText: a.poinconModalText,
+          poinconModalLink: a.poinconModalLink,
+          jemaParticipant: true,
+          published: true,
+        })
+        .onConflictDoNothing({ target: artisans.slug });
+    }
+    console.log(
+      `✓ ${seedData.artisans.length} artisans traités — nouveaux insérés, existants conservés (${catLinked} liés à une catégorie)`,
+    );
   }
-  console.log(
-    `✓ ${seedData.artisans.length} artisans traités — nouveaux insérés, existants conservés (${catLinked} liés à une catégorie)`,
-  );
 
   // Éditions JEMA — insertion seule : descriptions, highlights, dates…
   // sont éditables depuis l'admin et ne sont jamais écrasés par le seed.
@@ -133,48 +158,59 @@ async function main() {
     },
   ];
 
-  for (const ed of jemaSeed) {
-    await db
-      .insert(jemaEditions)
-      .values(ed)
-      .onConflictDoNothing({ target: jemaEditions.year });
-  }
-  console.log(`✓ ${jemaSeed.length} éditions JEMA traitées — nouvelles insérées, existantes conservées`);
-
-  // Partenaires
-  for (const p of seedData.partenaires) {
-    await db.insert(partenaires).values(p).onConflictDoNothing();
+  if (await shouldSeed(jemaEditions, "Éditions JEMA")) {
+    for (const ed of jemaSeed) {
+      await db
+        .insert(jemaEditions)
+        .values(ed)
+        .onConflictDoNothing({ target: jemaEditions.year });
+    }
+    console.log(`✓ ${jemaSeed.length} éditions JEMA traitées — nouvelles insérées, existantes conservées`);
   }
 
-  // Comité
-  for (const m of seedData.comite) {
-    await db.insert(comiteMembers).values(m).onConflictDoNothing();
+  // Partenaires, comité, Manufacto : pas de contrainte d'unicité hors id, donc
+  // onConflictDoNothing() n'évite rien — avec --force, on écarte à la main les
+  // lignes dont le nom (ou l'année) existe déjà.
+  if (await shouldSeed(partenaires, "Partenaires")) {
+    const existing = new Set((await db.select({ name: partenaires.name }).from(partenaires)).map((r) => r.name));
+    const rows = seedData.partenaires.filter((p) => !existing.has(p.name));
+    if (rows.length) await db.insert(partenaires).values(rows);
+    console.log(`✓ ${rows.length} partenaire(s) inséré(s)`);
   }
-  console.log("✓ Partenaires et comité insérés");
 
-  // Manufacto éditions
-  for (const ed of seedData.manufacto) {
-    await db.insert(manufactoEditions).values({
-      year: ed.year,
-      schools: ed.schools,
-    }).onConflictDoNothing();
+  if (await shouldSeed(comiteMembers, "Comité")) {
+    const existing = new Set((await db.select({ name: comiteMembers.name }).from(comiteMembers)).map((r) => r.name));
+    const rows = seedData.comite.filter((m) => !existing.has(m.name));
+    if (rows.length) await db.insert(comiteMembers).values(rows);
+    console.log(`✓ ${rows.length} membre(s) du comité inséré(s)`);
   }
-  console.log("✓ Manufacto inséré");
 
-  // Communes
-  for (const c of seedData.communes) {
-    await db.insert(communes).values({
-      name: c.name,
-      slug: c.slug,
-      latitude: c.latitude,
-      longitude: c.longitude,
-      soutientMag: c.soutientMag,
-      sortOrder: c.sortOrder ?? 0,
-    }).onConflictDoNothing({ target: communes.slug });
+  if (await shouldSeed(manufactoEditions, "Éditions Manufacto")) {
+    const existing = new Set((await db.select({ year: manufactoEditions.year }).from(manufactoEditions)).map((r) => r.year));
+    const rows = seedData.manufacto
+      .filter((ed) => !existing.has(ed.year))
+      .map((ed) => ({ year: ed.year, schools: ed.schools }));
+    if (rows.length) await db.insert(manufactoEditions).values(rows);
+    console.log(`✓ ${rows.length} édition(s) Manufacto insérée(s)`);
   }
-  console.log(`✓ ${seedData.communes.length} communes insérées`);
 
-  // Paramètres du site — mot de passe Communauté par défaut
+  // Communes (soutien MAG, coordonnées… éditables dans l'admin)
+  if (await shouldSeed(communes, "Communes")) {
+    for (const c of seedData.communes) {
+      await db.insert(communes).values({
+        name: c.name,
+        slug: c.slug,
+        latitude: c.latitude,
+        longitude: c.longitude,
+        soutientMag: c.soutientMag,
+        sortOrder: c.sortOrder ?? 0,
+      }).onConflictDoNothing({ target: communes.slug });
+    }
+    console.log(`✓ ${seedData.communes.length} communes traitées`);
+  }
+
+  // Paramètres du site — ligne unique « default », créée seulement si absente
+  // (jamais modifiée) ; mot de passe Communauté par défaut
   await db.insert(siteSettings).values({
     id: "default",
     eventsCount: 0,

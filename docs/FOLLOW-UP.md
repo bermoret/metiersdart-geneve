@@ -2,6 +2,40 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-27 — Backlog traité (branche `chore/backlog-2026-09-27`)
+
+Fait en prod (accord Bernard du 27.09) :
+- `crafts_count` créée, 53 (`migrate-crafts-count.ts --apply`) ; « Perly » → « Perly-Certoux »
+  (`fix-perly-commune.ts --apply`, fiche marina-buckel) ; photos de l'ancien site Joomla
+  copiées sur Vercel Blob (`migrate-images-to-blob.ts`, store `yemBb8auYuh5E2PU`, sauvegardes
+  et journal dans `backups/`, hors dépôt ; retour arrière : `--rollback <…>.applied.json`).
+
+Fait en code : PUT des paramètres (`parseSettingsInput`, testé), tableau de bord admin
+(`requireAdmin`, requêtes en parallèle, valeurs initiales en props, alerte « fiches sans texte
+À propos »), couleur / champs JEMA vidables, `programUrl` en http(s) seulement, commune
+d'artisan choisie parmi la table `communes`, nom de commune validé contre les 45 territoires,
+cases à cocher `accent-mag-red`, /qui-sommes-nous en `SELECT DISTINCT`, édition JEMA terminée
+jamais « à venir » (et rangée dans les passées), code mort de la refonte retiré, `escapeHtml`
+unique (`src/lib/html.ts`, 4e copie partielle trouvée dans `ArtisanMap.tsx`), Marquee avec
+bouton pause et `prefers-reduced-motion`, placeholders à 5.5:1, `src/app/error.tsx`, test du
+chemin « base en erreur », CSP en Report-Only (+ `/api/csp-report`), alias « Perly » retiré,
+socle `scripts/lib/db-script.ts` (endpoint direct), seed qui ne recrée plus ce que l'admin a
+supprimé (et ne duplique plus partenaires / comité / Manufacto), warnings ESLint soldés.
+Mises à jour : branche `chore/upgrade-next16-webauthn14` (next 16, proxy limité à `/admin`,
+SimpleWebAuthn retiré car inutilisé) — voir sa propre section.
+
+Reste ouvert :
+- **CSP** : lire les rapports (`[csp-report]` dans les logs Vercel) quelques jours, compléter
+  la liste, puis passer en `Content-Security-Policy` bloquante.
+- **Liens vers l'ancien site** non migrés (pages, pas des fichiers) : 128
+  `artisans.poincon_modal_link`, 2 `medias.external_url` — à rediriger ou retirer avant
+  l'arrêt de Joomla. Garder Joomla en ligne ≥ 1 h après la migration des photos (cache ISR).
+- `src/db/seed-actu-medias.ts` réinsère des URLs Joomla : à mettre à jour ou retirer.
+- Communes : pas de contrôle de doublon au POST (nom / slug uniques → 500) ; renommage
+  possible par l'API seulement (pas de champ nom dans l'admin).
+- Décisions MAG / Bernard listées plus bas (textes, liens, photos de mineur·e·s, 🚩 demandes
+  hors périmètre, secret « Protection Bypass », base pour les previews, vérifs admin en prod).
+
 ## 2026-09-27 — Espace Communauté : accès privé par cookie signé
 
 Décision Bernard : contenu **privé**, soumission réservée aux membres aussi. Avant, le mot de
@@ -50,7 +84,7 @@ Reportés / à vérifier :
   (previews), `/api/communaute/verify` en 400 sur corps invalide, scripts (`lock_timeout`,
   relecture après COMMIT, `to_regclass`, hôte affiché sans l'URL, backfill `--apply` qui
   n'annonce plus « À blanc »).
-- Reportés (mineurs de review) :
+- Reportés (mineurs de review) — **tous traités le 27.09**, voir ci-dessus :
   - PUT des paramètres : liste des champs écrite deux fois (`values` / `set`) ;
     `const patch = {…}` suffirait (drizzle ignore les `undefined`).
   - Tableau de bord admin : deux GET identiques de `/api/admin/settings` (un par carte).
@@ -110,13 +144,13 @@ carte (`mergeCommunes`), liseré des pastilles, bouton « proches de chez vous �
 `countCrafts` retiré, `dbConfigured` partagé.
 
 Reportés :
-- **Alias « Perly »** dans `communeKey` : corriger la donnée (fiche en « Perly » →
+- ~~**Alias « Perly »**~~ (fait le 27.09) dans `communeKey` : corriger la donnée (fiche en « Perly » →
   « Perly-Certoux », écriture en base) et faire choisir la commune dans la liste des 45 dans
   l'admin artisan au lieu d'un champ libre ; retirer ensuite l'alias.
-- **Textes « À propos » vides** : le test ne couvre que les données statiques ; contrôle en
+- ~~**Textes « À propos » vides**~~ (alerte sur le tableau de bord admin, 27.09) : le test ne couvre que les données statiques ; contrôle en
   base = `npx tsx scripts/backfill-descriptions.ts` à blanc (« 0 sans texte »). À brancher
   dans un contrôle périodique si des fiches sont créées sans texte.
-- **Qui sommes-nous** charge toute la liste des artisan·e·s pour en déduire les communes :
+- ~~**Qui sommes-nous**~~ (fait le 27.09) charge toute la liste des artisan·e·s pour en déduire les communes :
   une requête `SELECT DISTINCT commune` suffirait (gain négligeable à 145 fiches).
 - Photos de mineur·e·s : consentement à confirmer par MAG (voir ci-dessous).
 
@@ -201,15 +235,15 @@ vérifié en prod : 9 partenaires, 37 projets, édition 2022 en ligne, mention J
 - ~~Bandeau JEMA~~ : remis au style ancien (entre les domaines et « Notre mission »),
   branché sur la prochaine édition de l'admin ; photo = fiche de Frédéric Taddeï (recherche par
   nom, repli `/artisan-tools.jpg`). Portraits d'artisan·e·s non remis.
-- Une édition restée cochée « à venir » après ses dates s'affiche encore en « Prochaine
+- ~~Une édition restée cochée « à venir » après ses dates~~ (corrigé le 27.09) s'affiche encore en « Prochaine
   édition » (accueil et /jema) : `splitJemaEditions` ne regarde que `isUpcoming`. Piste :
   ignorer une édition dont `endDate` est passée, dans `src/lib/db-data.ts`.
-- Textes client de l'ancien accueil : « proche de chez vous » (→ proches), « oeuvrons »
+- ~~Textes client de l'ancien accueil~~ (faits les 23-24.09) : « proche de chez vous » (→ proches), « oeuvrons »
   (→ œuvrons), badge « {n}+ artisans référencés » (« + » alors que le nombre est exact,
   non inclusif). À corriger avec l'accord de MAG.
-- « Métiers MAG » (`countCrafts`, règle LOT 1) compte « A • B » comme un métier, le bandeau
+- ~~« Métiers MAG » (`countCrafts`, règle LOT 1)~~ (`countCrafts` retiré le 24.09) compte « A • B » comme un métier, le bandeau
   les sépare : deux définitions, à trancher.
-- Code devenu inutilisé : `Marquee` variante `band`, `SectionHeader` (`ui/Editorial.tsx`),
+- ~~Code devenu inutilisé~~ (retiré le 27.09, accueil refonte abandonné) : `Marquee` variante `band`, `SectionHeader` (`ui/Editorial.tsx`),
   `.h-section-inverse`. À nettoyer si la refonte de l'accueil est abandonnée pour de bon.
 
 ## 2026-09-23 — Retours d'Elsa (mail du 19.09) : sur-titre (MAG) + liens orientation.ch
@@ -249,18 +283,18 @@ vérifié en prod : 9 partenaires, 37 projets, édition 2022 en ligne, mention J
 
 ### À vérifier / décider
 
-- **Aucune commune n'est marquée « soutient MAG » en base (45/45 à `false`)** : la carte est
+- ~~**Aucune commune n'est marquée « soutient MAG » en base**~~ (9 partenaires depuis le 23.09) (45/45 à `false`)** : la carte est
   entièrement grise tant que MAG ne coche pas ses communes dans l'admin.
 - Millésime 2015 choisi pour avoir les communes **sans le lac** : dès 2016, swisstopo inclut la
   part de Léman de chaque commune riveraine (Genève couvrirait la Rade). Limites terrestres
   quasi inchangées depuis. Pour la version officielle avec le lac :
   `npx tsx scripts/build-communes-geo.ts 2026`.
-- Renommer une commune dans l'admin (ex. « Ville de Genève ») la fait tomber en repli point sans
+- ~~Renommer une commune~~ (nom validé contre les 45 territoires le 27.09) dans l'admin (ex. « Ville de Genève ») la fait tomber en repli point sans
   signal. Piste : stocker le n° OFS en base, ou choisir le nom parmi les 45 dans l'admin.
 
 ### Skippé / hors périmètre
 
-- `escapeHtml` existe en 3 exemplaires (`ArtisansMap.tsx`, `api/annonces/route.ts`,
+- ~~`escapeHtml` existe en 3 exemplaires~~ (factorisé le 27.09) (`ArtisansMap.tsx`, `api/annonces/route.ts`,
   `CommunesSoutiensMap.tsx`) : à factoriser dans `src/lib` avec un test (précédent XSS).
 
 ## 2026-09-23 — Soft 404 sur les routes dynamiques — corrigé
@@ -293,7 +327,7 @@ Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `S
 
 - ~~Accroche « Genève, à la main. »~~ et ~~artisan·e·s mis·es en avant codé·e·s en dur~~ :
   caducs, l'accueil est revenu à l'ancienne version (voir « Accueil : retour à l'ancienne version »).
-- Photos des fiches encore servies depuis metiersdart-geneve.ch (Joomla) : à migrer vers Blob
+- ~~Photos des fiches encore servies depuis metiersdart-geneve.ch~~ (migrées sur Blob le 27.09) (Joomla) : à migrer vers Blob
   avant l'arrêt de l'ancien site. `canOptimizeImage()` passe en `unoptimized` tout hôte non déclaré.
 - Écart assumé au design system : photos à coins quasi francs (4px) au lieu de 24px.
 - Vérifié en HTTP seulement (preview + prod : pages 200, 50/50 images) ; **rendu visuel pas
@@ -359,9 +393,9 @@ C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:pus
 
 ### Skippé / hors périmètre
 
-- **Pas de Content-Security-Policy** : une CSP `script-src` sans `unsafe-inline` aurait
+- **Pas de Content-Security-Policy** (Report-Only posée le 27.09) : une CSP `script-src` sans `unsafe-inline` aurait
   neutralisé ce `onclick`. À étudier avec GTM / Stape / CookieScript (scripts inline).
-- **Impossible de vider la couleur** d'une catégorie depuis l'admin : un champ vide part en
+- ~~**Impossible de vider la couleur**~~ (corrigé le 27.09) d'une catégorie depuis l'admin : un champ vide part en
   `undefined`, le PATCH ne touche pas la colonne (même motif que `JemaModal`). Antérieur.
 - **Catégorie sans couleur** : la page catégorie affiche désormais un dégradé rouge MAG
   (`#b42c36`) au lieu d'aucun fond. Sans effet aujourd'hui (les 16 catégories ont une couleur).
@@ -391,10 +425,10 @@ puces domaine lisibles via `chipColors()`.
 
 ### Skippé / hors périmètre
 
-- **Marquee** : défilement automatique sans pause > 5 s (WCAG 2.2.2, niveau A) ; framer-motion
+- ~~**Marquee**~~ (bouton pause + mouvement réduit, 27.09) : défilement automatique sans pause > 5 s (WCAG 2.2.2, niveau A) ; framer-motion
   ignore la règle CSS `prefers-reduced-motion` → `useReducedMotion()` à brancher.
-- **Placeholders** des champs : `currentColor` à 50 % ≈ 2.75:1 sur blanc (défaut Tailwind v4).
-- **Cases à cocher admin** (`ActuModal`, `ArtisanModal`, `JemaModal`) : `border-mag-cream`,
+- ~~**Placeholders**~~ (mag-gray, 27.09) des champs : `currentColor` à 50 % ≈ 2.75:1 sur blanc (défaut Tailwind v4).
+- ~~**Cases à cocher admin**~~ (27.09) (`ActuModal`, `ArtisanModal`, `JemaModal`) : `border-mag-cream`,
   `text-mag-red`, `focus:ring` n'ont aucun effet sans `@tailwindcss/forms` → `accent-mag-red`.
 - **Couleurs de domaine en base** inchangées : les puces sont corrigées à l'affichage ; les
   marqueurs de carte (objets graphiques, 3:1) gardent la teinte d'origine (normalisée, non assombrie).
@@ -441,19 +475,19 @@ CookieScript et GA4 (`G-S9P7VJHKRL`) sont dans le conteneur. Chargé uniquement 
 
 ### Skippé / hors périmètre
 
-- **Seed qui recrée ce que l'admin a supprimé** : `onConflictDoNothing` n'écrase plus
+- ~~**Seed qui recrée ce que l'admin a supprimé**~~ (tables remplies seulement si vides, `--force`, 27.09) : `onConflictDoNothing` n'écrase plus
   les modifications, mais une édition JEMA supprimée revient au prochain seed, et un
   artisan dont le slug a changé est réinséré sous l'ancien slug (`published: true`).
   Piste : ne seeder artisans / éditions JEMA que si la table est vide, ou flag `--force`.
-- **Pas de `src/app/error.tsx`** : une erreur DB sur une page rendue à la demande
+- ~~**Pas de `src/app/error.tsx`**~~ (ajouté le 27.09) : une erreur DB sur une page rendue à la demande
   (slug ou année pas encore en cache) affiche la page d'erreur brute de Next.
-- **Soft 404** : `notFound()` répond HTTP 200 (page 404 + `noindex`) parce que
+- ~~**Soft 404**~~ (corrigé le 23.09) : `notFound()` répond HTTP 200 (page 404 + `noindex`) parce que
   `src/app/loading.tsx` à la racine lance le streaming avant. Ex. `/artisans/slug-inexistant`,
   `/jema/2027`. Comportement antérieur à ce chantier.
-- **JemaModal** : `description` et `programUrl` ne peuvent pas être vidés (`|| undefined`).
-- **`programUrl` en `href`** sans validation `^https?://` (React 19 bloque déjà `javascript:`).
-- **Pas de test du chemin « base configurée mais en erreur »** (nécessite un mock de `@/db`).
-- **`jemaParticipant`** n'est pas éditable dans l'admin (le bandeau JEMA des fiches en dépend).
+- ~~**JemaModal**~~ (27.09) : `description` et `programUrl` ne peuvent pas être vidés (`|| undefined`).
+- ~~**`programUrl` en `href`**~~ (validé à l'écriture et au rendu, 27.09) sans validation `^https?://` (React 19 bloque déjà `javascript:`).
+- ~~**Pas de test du chemin « base configurée mais en erreur »**~~ (`db-data-error.test.ts`, 27.09) (nécessite un mock de `@/db`).
+- ~~**`jemaParticipant`**~~ (case ajoutée le 24.09) n'est pas éditable dans l'admin (le bandeau JEMA des fiches en dépend).
 
 ### À vérifier
 

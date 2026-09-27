@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { resolveArtisanCommune } from "@/lib/artisan-commune";
 
 // GET /api/admin/artisans/[id] — un artisan
 export async function GET(
@@ -60,6 +61,22 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
+  let commune = await resolveArtisanCommune(body.commune);
+  if ("error" in commune) {
+    // Valeur historique hors liste renvoyée telle quelle : on la laisse, pour ne
+    // pas bloquer l'enregistrement du reste de la fiche.
+    const [current] = await db
+      .select({ commune: artisans.commune })
+      .from(artisans)
+      .where(eq(artisans.id, id))
+      .limit(1);
+    if (!current) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+    if (typeof body.commune !== "string" || body.commune.trim() !== current.commune) {
+      return NextResponse.json({ error: commune.error }, { status: 400 });
+    }
+    commune = { commune: undefined };
+  }
+
   let categoryId = body.categoryId;
   if (categoryId === undefined && body.categoryName) {
     const cat = await db
@@ -78,7 +95,7 @@ export async function PATCH(
       ...(body.type !== undefined && { type: body.type }),
       ...(body.craft !== undefined && { craft: body.craft }),
       ...(categoryId !== undefined && { categoryId }),
-      ...(body.commune !== undefined && { commune: body.commune }),
+      ...(commune.commune !== undefined && { commune: commune.commune }),
       ...(body.address !== undefined && { address: body.address }),
       ...(body.latitude !== undefined && { latitude: body.latitude ? Number(body.latitude) : null }),
       ...(body.longitude !== undefined && { longitude: body.longitude ? Number(body.longitude) : null }),

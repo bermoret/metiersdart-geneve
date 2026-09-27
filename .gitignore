@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sauvegardes des reprises de données (URLs avant/après), hors dépôt
+/backups/

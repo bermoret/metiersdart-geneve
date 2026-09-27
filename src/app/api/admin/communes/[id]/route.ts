@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { communes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { OFFICIAL_COMMUNE_ERROR, officialCommuneName } from "@/lib/ge-commune-names";
 
 // GET /api/admin/communes/[id] — une commune
 export async function GET(
@@ -28,11 +29,19 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
+  // Renommer vers un nom sans tracé ferait retomber la commune en simple point
+  // sur la carte : seuls les noms officiels (graphie tolérée via communeKey),
+  // enregistrés sous leur forme officielle.
+  let name: string | undefined;
+  if (body.name !== undefined) {
+    name = typeof body.name === "string" ? officialCommuneName(body.name) : undefined;
+    if (!name) return NextResponse.json({ error: OFFICIAL_COMMUNE_ERROR }, { status: 400 });
+  }
 
   const [updated] = await db
     .update(communes)
     .set({
-      ...(body.name !== undefined && { name: body.name }),
+      ...(name !== undefined && { name }),
       ...(body.soutientMag !== undefined && { soutientMag: body.soutientMag }),
       ...(body.latitude !== undefined && { latitude: Number(body.latitude) }),
       ...(body.longitude !== undefined && { longitude: Number(body.longitude) }),
