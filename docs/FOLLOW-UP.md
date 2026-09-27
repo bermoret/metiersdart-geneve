@@ -2,6 +2,40 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-27 — Espace Communauté : accès privé par cookie signé
+
+Décision Bernard : contenu **privé**, soumission réservée aux membres aussi. Avant, le mot de
+passe n'était vérifié que côté client : `GET /api/annonces` livrait toutes les annonces
+publiées à n'importe qui. Désormais :
+
+- Verify OK → cookie `mag_communaute` httpOnly, Secure (prod), SameSite=Lax, 30 jours, signé
+  HMAC (clé dérivée d'`AUTH_SECRET`) sur l'expiration + le mot de passe **courant**. Changer
+  le mot de passe dans l'admin déconnecte tous les membres (voulu, à dire à MAG au
+  renouvellement annuel).
+- `GET` et `POST /api/annonces` → 401 sans cookie valide, 503 si la base est injoignable.
+- Verify durci : corps invalide → 400, comparaison à temps constant, 10 tentatives / 15 min
+  par IP (comptées avant tout `await`, une rafale parallèle ne passe pas) → 429 + `Retry-After`.
+  Soumissions : 5 / heure par IP (chacune envoie un mail à MAG).
+
+Reportés / à vérifier :
+- **Connexion réussie non testée de bout en bout** (pas de mot de passe de test hors prod) :
+  à faire une fois en prod — se connecter, voir les annonces, recharger (session gardée),
+  Quitter. Soumission : ne pas tester en prod sans prévenir MAG (mail + annonce en attente).
+- **Mot de passe commun** : le seed met « MAG 2026 ». Un mot de passe du type « MAG + année »
+  se devine en quelques essais, quel que soit le limiteur. Choisir un mot de passe moins
+  prévisible au prochain renouvellement (décision MAG / Bernard).
+- **Limiteurs en mémoire, par instance serverless** : un frein, pas une limite globale. Si abus
+  constaté : règle de rate limit Vercel Firewall sur `/api/communaute/verify`, ou stockage
+  partagé (Upstash).
+- IPv6 non regroupées par /64 dans le limiteur (une machine peut tourner sur ses adresses).
+- Cookie sans préfixe `__Host-` (refusé en http local) : l'ajouter en prod si des
+  sous-domaines de metiersdart-geneve.ch hébergent un jour du contenu tiers.
+- Mot de passe stocké en clair dans `site_settings` (l'admin doit pouvoir le relire pour le
+  communiquer) : le hacher = changement de schéma + perte de la relecture, pas prévu.
+- Catégorie d'annonce non validée côté serveur contre la liste (liste côté client seulement).
+- Pas de tests des routes (`communauteAccess`, verify) : seul `communaute-token` est testé ;
+  routes contrôlées à la main en local (401 / 400 / 429 / cookie effacé).
+
 ## 2026-09-24 — Contrôle en prod des retours MAG du 23.09 (avant réponse au mail)
 
 Tous les points du mail vérifiés en prod (textes, chiffres, liens, 14 artisans de la carte à

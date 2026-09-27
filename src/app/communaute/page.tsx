@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Reveal } from "@/components/ui/Reveal";
 
 type Annonce = {
@@ -25,7 +25,7 @@ const CATEGORIES = [
 ];
 
 export default function CommunautePage() {
-  const [authed, setAuthed] = useState(false);
+  const [status, setStatus] = useState<"checking" | "anon" | "authed">("checking");
   const [password, setPassword] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -41,21 +41,40 @@ export default function CommunautePage() {
   const [fEmail, setFEmail] = useState("");
   const [fContent, setFContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [submitMsg, setSubmitMsg] = useState<string | null>(null);
+  const [submitMsg, setSubmitMsg] = useState<{ text: string; error: boolean } | null>(null);
 
+  // Charge la liste ; "denied" si la session n'est pas (ou plus) valide
+  const loadAnnonces = useCallback(async (): Promise<"ok" | "denied" | "error"> => {
+    try {
+      const res = await fetch("/api/annonces", { cache: "no-store" });
+      if (res.status === 401) return "denied";
+      const data = res.ok ? await res.json() : [];
+      setAnnonces(Array.isArray(data) ? data : []);
+      return res.ok ? "ok" : "error";
+    } catch {
+      setAnnonces([]);
+      return "error";
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Au montage, la liste sert de contrôle de session (cookie httpOnly)
   useEffect(() => {
-    if (!authed) return;
-    fetch("/api/annonces")
-      .then((r) => r.json())
-      .then((data) => {
-        setAnnonces(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setAnnonces([]);
-        setLoading(false);
-      });
-  }, [authed]);
+    loadAnnonces().then((r) => {
+      setStatus(r === "ok" ? "authed" : "anon");
+      if (r === "error") setAuthError("Service momentanément indisponible, réessayez plus tard");
+    });
+  }, [loadAnnonces]);
+
+  const refresh = async () => {
+    setLoading(true);
+    if ((await loadAnnonces()) === "denied") {
+      // Mot de passe accepté mais cookie absent au retour : cookies bloqués
+      setStatus("anon");
+      setAuthError("Impossible d'ouvrir la session (cookies bloqués ?)");
+    }
+  };
 
   const handleVerify = async () => {
     setVerifying(true);
@@ -67,9 +86,10 @@ export default function CommunautePage() {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        setAuthed(true);
+        setStatus("authed");
+        void refresh();
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         setAuthError(data.error || "Accès refusé");
       }
     } catch {
@@ -77,6 +97,23 @@ export default function CommunautePage() {
     } finally {
       setVerifying(false);
     }
+  };
+
+  const handleQuit = async () => {
+    const ok = await fetch("/api/communaute/verify", { method: "DELETE" })
+      .then((r) => r.ok)
+      .catch(() => false);
+    // Cookie non effacé : on reste dans l'espace plutôt que de feindre la sortie
+    if (!ok) {
+      setSubmitMsg({ text: "Déconnexion impossible, réessayez.", error: true });
+      return;
+    }
+    setStatus("anon");
+    setAnnonces([]);
+    setPassword("");
+    setShowForm(false);
+    setSubmitMsg(null);
+    setAuthError(null);
   };
 
   const handleSubmit = async () => {
@@ -95,8 +132,15 @@ export default function CommunautePage() {
           content: fContent,
         }),
       });
-      if (res.ok) {
-        setSubmitMsg("Votre annonce a été soumise. Elle sera visible après validation par MAG.");
+      if (res.status === 401) {
+        setStatus("anon");
+        setAuthError("Session expirée, saisissez à nouveau le mot de passe");
+        setShowForm(false);
+      } else if (res.ok) {
+        setSubmitMsg({
+          text: "Votre annonce a été soumise. Elle sera visible après validation par MAG.",
+          error: false,
+        });
         setFTitle("");
         setFCategory(CATEGORIES[0]);
         setFAuthor("");
@@ -104,17 +148,34 @@ export default function CommunautePage() {
         setFContent("");
         setShowForm(false);
       } else {
-        setSubmitMsg("Erreur lors de la soumission.");
+        const data = await res.json().catch(() => ({}));
+        setSubmitMsg({ text: data.error || "Erreur lors de la soumission.", error: true });
       }
     } catch {
-      setSubmitMsg("Erreur de connexion");
+      setSubmitMsg({ text: "Erreur de connexion", error: true });
     } finally {
       setSubmitting(false);
     }
   };
 
+  // ─── Vérification de session ────────────────────────────────
+  if (status === "checking") {
+    return (
+      <section className="py-20 bg-mag-sand grain-overlay min-h-[60vh] flex items-center">
+        <div className="mx-auto max-w-md w-full px-4">
+          <div className="rounded-2xl border border-mag-cream bg-white p-8 shadow-lg">
+            <h1 className="text-4xl font-black tracking-tight text-mag-dark font-serif mb-3 text-center">
+              Espace Communauté
+            </h1>
+            <p className="text-sm text-mag-gray text-center">Vérification…</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   // ─── Écran de connexion ─────────────────────────────────────
-  if (!authed) {
+  if (status === "anon") {
     return (
       <section className="py-20 bg-mag-sand grain-overlay min-h-[60vh] flex items-center">
         <div className="mx-auto max-w-md w-full px-4">
@@ -172,7 +233,7 @@ export default function CommunautePage() {
               </p>
             </div>
             <button
-              onClick={() => setAuthed(false)}
+              onClick={handleQuit}
               className="shrink-0 inline-flex items-center gap-2 rounded-full border border-mag-cream bg-white px-4 py-2 text-sm font-medium text-mag-dark/70 hover:border-mag-red hover:text-mag-red transition-colors cursor-pointer"
             >
               <i className="fas fa-sign-out-alt" /> Quitter
@@ -197,8 +258,14 @@ export default function CommunautePage() {
           </div>
 
           {submitMsg && (
-            <div className="mb-6 rounded-xl bg-green-50 border border-green-200 px-5 py-4 text-sm text-green-700">
-              {submitMsg}
+            <div
+              className={`mb-6 rounded-xl border px-5 py-4 text-sm ${
+                submitMsg.error
+                  ? "bg-red-50 border-red-200 text-red-700"
+                  : "bg-green-50 border-green-200 text-green-700"
+              }`}
+            >
+              {submitMsg.text}
             </div>
           )}
 
