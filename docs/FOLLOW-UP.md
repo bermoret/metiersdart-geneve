@@ -40,6 +40,55 @@ coordonnées. **À lancer avec `--apply` après le deploy du code `hasCoords`, a
 - 🚩 Partie non visible (statistiques, sections MAG seulement) : MAG demande une offre et un
   RDV — décision Bernard.
 
+## 2026-09-27 — Next 16 + retrait de SimpleWebAuthn (suite de l'audit npm du 23.09)
+
+Branche `chore/upgrade-next16-webauthn14`, construite sur `feat/metiers-editables`.
+
+### Fait
+
+- `next` 15.5.25 → **16.3.6**, `eslint-config-next` 16.3.4 → **16.3.6** (enfin alignés) ;
+  `react` / `react-dom` restent en 19.2.8 (Next 16 accepte `^19`). `next-auth` 5.0.0-beta.32
+  déclare `next ^16` en peer : inchangé. `@vercel/analytics`, `framer-motion`, `react-leaflet` :
+  peers satisfaits, rien à toucher.
+- `src/middleware.ts` → **`src/proxy.ts`** (convention Next 16, fonction `proxy`, runtime
+  Node.js). Logique identique : présence du cookie de session NextAuth, sans requête en base ;
+  les pages et route handlers gardent `requireAdmin*()`.
+- `next.config.ts` : bloc `webpack` (fallback `pg-native`) supprimé — Turbopack est le bundler
+  par défaut et `next build` refuse une clé `webpack`. `pg` reste en `serverExternalPackages`,
+  donc `pg-native` n'est jamais résolu par le bundler : build sans avertissement.
+- `tsconfig.json` : `jsx` passé de `preserve` à `react-jsx`, modification imposée par
+  `next build` (commitée pour garder l'arbre propre).
+- **`@simplewebauthn/server` et `/browser` retirés** au lieu d'être montés en v14. Prémisse
+  du relevé du 23.09 (« passkeys admin ») fausse : le provider Passkey a été enlevé le 09.09
+  (`a76e214`, erreur UnknownAction d'Auth.js beta), plus aucun import dans `src/`, et
+  `@auth/core` 0.41.3 (dernière publiée) exige toujours `^9` en peer — une v14 aurait créé un
+  conflit de peers sans rien sécuriser. Connexion admin = lien magique Resend uniquement.
+  Table `authenticator` conservée (l'adapter la référence), présumée vide en prod.
+- Défauts Next 16 acceptés sans code : `images.minimumCacheTTL` 60 s → 4 h (images Blob à
+  URL immuable), `images.qualities` → `[75]` (aucune prop `quality` dans le code),
+  `imageSizes` sans 16 px, `maximumRedirects` 3. Pas de `scroll-behavior: smooth` global, pas
+  de `next lint` (le script `lint` appelle déjà ESLint), pas d'API de requête synchrone.
+- Vérifié en local : `tsc`, `eslint` (0 erreur, 6 avertissements antérieurs), `npm test`
+  (71/71), `next build` statique sans `DATABASE_URL` (194 pages, ISR 1 min sur l'accueil),
+  puis `next start` + `scripts/check-deploy.sh` : 200 sur les pages publiques, vrais 404,
+  `/admin` → 307 vers `/auth/signin`, `Cache-Control: s-maxage=60` sur l'accueil.
+- `npm audit` après : **4 modérés, tous dev-only** — `drizzle-kit` 0.31 → `@esbuild-kit` →
+  `esbuild` ≤ 0.24.2 (serveur de dev d'esbuild, non utilisé ici). Le « fix » proposé est une
+  rétrogradation en drizzle-kit 0.18 : refusé. `postcss`, `next`, `@auth/core` / `next-auth`
+  et SimpleWebAuthn ont disparu du rapport.
+
+### À vérifier (après deploy)
+
+- Node ≥ 20.9 sur le projet Vercel (exigé par Next 16) ; premier build Turbopack en preview.
+- `scripts/check-deploy.sh` sur la preview puis la prod (nouvelle entrée « ƒ Proxy » dans le
+  build ; les logs Vercel doivent montrer le proxy sur `/admin`).
+- Connexion admin par lien magique (Bernard), puis un enregistrement dans l'admin.
+- Un coup d'œil sur `/qui-sommes-nous` (carte Leaflet, composant client) et `/repertoire`
+  (framer-motion) : mêmes bundles, mais nouveau bundler.
+- Rien à tester côté passkeys : la fonctionnalité n'existe pas en prod. Si on veut la
+  réactiver un jour, attendre un `@auth/core` compatible SimpleWebAuthn ≥ 13 et rouvrir le
+  UnknownAction du 09.09.
+
 ## 2026-09-27 — Backlog traité (branche `chore/backlog-2026-09-27`)
 
 Fait en prod (accord Bernard du 27.09) :
@@ -418,6 +467,10 @@ C'est pour ça que la contrainte CHECK a été passée en SQL et pas par `db:pus
 `@auth/drizzle-adapter` compatible.
 
 ### Relevé en passant : `npm audit`, extrait (2026-09-23, antérieur, inchangé par la mise à jour)
+
+**Traité le 2026-09-27** (section dédiée en tête de fichier) : Next 16 installé, SimpleWebAuthn
+retiré (jamais utilisé : provider Passkey enlevé le 09.09), `eslint-config-next` aligné. Reste
+uniquement `esbuild` via drizzle-kit 0.31 (dev only). Relevé d'origine conservé ci-dessous :
 
 - **`@simplewebauthn/server` ≤ 13.3.1** (projet en ^9, passkeys admin) : chaîne des certificats
   d'attestation insuffisamment vérifiée (GHSA-6hxq-p678-4hr2). Correctif = v14, cassant ; à évaluer

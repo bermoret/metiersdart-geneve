@@ -74,7 +74,10 @@ const CSP = Object.entries(CSP_DIRECTIVES)
 
 const nextConfig: NextConfig = {
   // Marque pg comme package externe côté serveur pour éviter
-  // qu'il soit bundlé dans le code client/edge.
+  // qu'il soit bundlé dans le code client/edge. Comme pg n'est plus bundlé,
+  // son import optionnel de `pg-native` n'est plus résolu par le bundler :
+  // l'ancien fallback webpack (`pg-native: false`) est devenu inutile, et
+  // Next 16 (Turbopack par défaut) refuse de builder avec une clé `webpack`.
   serverExternalPackages: ["pg"],
 
   images: {
@@ -104,16 +107,6 @@ const nextConfig: NextConfig = {
       permanent: true,
       ...(r.has ? { has: r.has } : {}),
     }));
-  },
-
-  // Silencer le warning pg-native en build de production (webpack)
-  webpack: (config) => {
-    config.resolve = config.resolve ?? {};
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      "pg-native": false,
-    };
-    return config;
   },
 };
 
