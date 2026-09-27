@@ -7,14 +7,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Routes protégées par authentification
-const protectedPaths = ["/admin", "/api/admin"];
-
+// Le proxy ne tourne que sur /admin (voir `matcher`) : en Next 16 il s'exécute
+// en Node, il ne doit pas précéder chaque page publique servie depuis le cache.
+// Les routes /api/admin vérifient elles-mêmes la session (requireAdminApi).
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
-  if (!isProtected) return NextResponse.next();
 
   // Vérifier la présence du cookie de session NextAuth
   const sessionToken =
@@ -31,7 +28,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/admin", "/admin/:path*"],
 };

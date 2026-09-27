@@ -79,7 +79,9 @@ Branche `chore/upgrade-next16-webauthn14`, construite sur `feat/metiers-editable
 
 ### À vérifier (après deploy)
 
-- Node ≥ 20.9 sur le projet Vercel (exigé par Next 16) ; premier build Turbopack en preview.
+- ~~Node ≥ 20.9 sur le projet Vercel~~ : Node.js 24.x (vérifié), exigence figée dans `engines`.
+  Premier build Turbopack à regarder en preview. Le proxy ne tourne plus que sur `/admin`
+  (en Next 16 il s'exécute en Node : inutile devant chaque page publique).
 - `scripts/check-deploy.sh` sur la preview puis la prod (nouvelle entrée « ƒ Proxy » dans le
   build ; les logs Vercel doivent montrer le proxy sur `/admin`).
 - Connexion admin par lien magique (Bernard), puis un enregistrement dans l'admin.
