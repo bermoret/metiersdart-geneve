@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
-import { parseCount } from "@/lib/utils";
+import { PG_INT_MAX, parseCount } from "@/lib/utils";
 
 const DEFAULT_ID = "default";
 
@@ -48,7 +48,10 @@ export async function PUT(req: Request) {
   const eventsCount = parseCount(body.eventsCount);
   const craftsCount = parseCount(body.craftsCount);
   if (eventsCount === null || craftsCount === null) {
-    return NextResponse.json({ error: "Les chiffres doivent être des entiers positifs" }, { status: 400 });
+    return NextResponse.json(
+      { error: `Les chiffres doivent être des entiers entre 0 et ${PG_INT_MAX.toLocaleString("fr-CH")}` },
+      { status: 400 },
+    );
   }
 
   const communautePassword =

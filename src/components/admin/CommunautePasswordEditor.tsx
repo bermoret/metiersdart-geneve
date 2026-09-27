@@ -11,11 +11,15 @@ export function CommunautePasswordEditor() {
 
   useEffect(() => {
     fetch("/api/admin/settings")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
       .then((data) => {
         if (data?.communautePassword) setPassword(data.communautePassword);
       })
-      .catch(() => {})
+      // Un champ vide laisserait croire qu'aucun mot de passe n'est défini.
+      .catch(() => setError("Impossible de charger le mot de passe actuel"))
       .finally(() => setLoading(false));
   }, []);
 

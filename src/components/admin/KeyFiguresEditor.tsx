@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { PG_INT_MAX, parseCount } from "@/lib/utils";
 
 /** Chiffres de « MAG en chiffres » (accueil) saisis à la main par MAG. */
 type Figures = { craftsCount: number; eventsCount: number };
+/** Saisie brute de chaque champ : convertie seulement à l'enregistrement. */
+type Drafts = Record<keyof Figures, string>;
 
 const FIELDS: { key: keyof Figures; label: string; help: string }[] = [
   {
@@ -18,15 +21,26 @@ const FIELDS: { key: keyof Figures; label: string; help: string }[] = [
   },
 ];
 
+const SAVE_ERROR = "Erreur lors de la sauvegarde";
+
+/** Valeurs de la base → champs (vide si NULL). */
+function toDrafts(data: Partial<Record<keyof Figures, number | null>> | null): Drafts {
+  return {
+    craftsCount: data?.craftsCount == null ? "" : String(data.craftsCount),
+    eventsCount: data?.eventsCount == null ? "" : String(data.eventsCount),
+  };
+}
+
 export function KeyFiguresEditor() {
-  const [figures, setFigures] = useState<Figures>({ craftsCount: 0, eventsCount: 0 });
+  // Valeurs lues (puis enregistrées) en base. Tant que la lecture n'a pas
+  // abouti, pas de formulaire : on écraserait les vrais chiffres.
+  const [stored, setStored] = useState<Drafts | null>(null);
+  const [drafts, setDrafts] = useState<Drafts>({ craftsCount: "", eventsCount: "" });
   const [loading, setLoading] = useState(true);
-  // Tant que les valeurs n'ont pas été lues, pas d'enregistrement possible :
-  // on écraserait les vrais chiffres par des 0.
-  const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -35,35 +49,61 @@ export function KeyFiguresEditor() {
         return r.json();
       })
       .then((data) => {
-        setFigures({
-          craftsCount: data?.craftsCount ?? 0,
-          eventsCount: data?.eventsCount ?? 0,
-        });
-        setLoaded(true);
+        const values = toDrafts(data);
+        setStored(values);
+        setDrafts(values);
       })
       .catch(() => setError("Impossible de charger les paramètres"))
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleSave() {
-    setSaving(true);
-    setError(null);
-    setSaved(false);
+  function showNotice(text: string) {
+    clearTimeout(noticeTimer.current);
+    setNotice(text);
+    noticeTimer.current = setTimeout(() => setNotice(null), 2500);
+  }
 
+  async function handleSave() {
+    if (!stored) return;
+    setError(null);
+    setNotice(null);
+
+    // Seuls les champs modifiés depuis la lecture partent : l'autre chiffre,
+    // peut-être changé entre-temps dans un autre onglet, n'est pas réécrit.
+    const changes: Partial<Figures> = {};
+    for (const f of FIELDS) {
+      if (drafts[f.key] === stored[f.key]) continue;
+      const raw = drafts[f.key].trim();
+      const value = raw === "" ? null : parseCount(Number(raw));
+      if (value == null) {
+        setError(`${f.label} : nombre entier entre 0 et ${PG_INT_MAX.toLocaleString("fr-CH")} attendu`);
+        return;
+      }
+      changes[f.key] = value;
+    }
+    if (Object.keys(changes).length === 0) {
+      showNotice("Aucune modification");
+      return;
+    }
+
+    setSaving(true);
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(figures),
+        body: JSON.stringify(changes),
       });
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(typeof data?.error === "string" ? data.error : "Erreur lors de la sauvegarde");
+        setError(typeof data?.error === "string" ? data.error : SAVE_ERROR);
+        return;
       }
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur lors de la sauvegarde");
+      const values = toDrafts(data);
+      setStored(values);
+      setDrafts(values);
+      showNotice("Enregistré");
+    } catch {
+      setError(SAVE_ERROR);
     } finally {
       setSaving(false);
     }
@@ -87,53 +127,62 @@ export function KeyFiguresEditor() {
       </div>
       <p className="text-sm text-mag-gray mb-4">
         Chiffres saisis manuellement pour la page d&apos;accueil (les artisan·e·s et
-        les communes sont calculés automatiquement). À 0, le chiffre n&apos;est pas affiché.
+        les communes sont calculés automatiquement). Vide ou à 0, le chiffre n&apos;est pas affiché.
       </p>
-      <div className="space-y-4">
-        {FIELDS.map((f) => (
-          <div key={f.key}>
-            <label htmlFor={`figure-${f.key}`} className="block text-sm font-semibold text-mag-dark">
-              {f.label}
-            </label>
-            <p id={`figure-${f.key}-help`} className="text-xs text-mag-gray mb-1">
-              {f.help}
-            </p>
-            <input
-              id={`figure-${f.key}`}
-              type="number"
-              min={0}
-              max={2147483647}
-              step={1}
-              disabled={!loaded}
-              value={figures[f.key]}
-              aria-describedby={`figure-${f.key}-help`}
-              onChange={(e) =>
-                setFigures((prev) => ({ ...prev, [f.key]: Math.max(0, Math.floor(Number(e.target.value) || 0)) }))
-              }
-              className="w-24 rounded-lg border border-mag-field px-3 py-2 text-lg font-bold text-mag-dark focus:border-mag-red focus:outline-none"
-            />
+      {stored ? (
+        <>
+          <div className="space-y-4">
+            {FIELDS.map((f) => (
+              <div key={f.key}>
+                <label htmlFor={`figure-${f.key}`} className="block text-sm font-semibold text-mag-dark">
+                  {f.label}
+                </label>
+                <p id={`figure-${f.key}-help`} className="text-xs text-mag-gray mb-1">
+                  {f.help}
+                </p>
+                <input
+                  id={`figure-${f.key}`}
+                  type="number"
+                  min={0}
+                  max={PG_INT_MAX}
+                  step={1}
+                  disabled={saving}
+                  value={drafts[f.key]}
+                  aria-describedby={`figure-${f.key}-help`}
+                  onChange={(e) => setDrafts((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                  className="w-24 rounded-lg border border-mag-field px-3 py-2 text-lg font-bold text-mag-dark focus:border-mag-red focus:outline-none"
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="mt-4 flex items-center gap-3">
-        <button
-          onClick={handleSave}
-          disabled={saving || !loaded}
-          className="rounded-full bg-mag-red px-5 py-2 text-sm font-semibold text-white hover:bg-mag-red/90 transition-colors disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? "Sauvegarde…" : "Enregistrer"}
-        </button>
-        {saved && (
-          <span role="status" className="text-sm text-green-700 font-medium flex items-center gap-1">
-            <i className="fas fa-check" aria-hidden /> Enregistré
-          </span>
-        )}
-        {error && (
-          <span role="alert" className="text-sm text-red-700">
-            {error}
-          </span>
-        )}
-      </div>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="rounded-full bg-mag-red px-5 py-2 text-sm font-semibold text-white hover:bg-mag-red/90 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? "Sauvegarde…" : "Enregistrer"}
+            </button>
+            {/* Région live toujours présente : seul son texte change, pour être annoncée. */}
+            <span role="status" className="text-sm text-green-700 font-medium flex items-center gap-1">
+              {notice && (
+                <>
+                  <i className="fas fa-check" aria-hidden /> {notice}
+                </>
+              )}
+            </span>
+            {error && (
+              <span role="alert" className="text-sm text-red-700">
+                {error}
+              </span>
+            )}
+          </div>
+        </>
+      ) : (
+        <p role="alert" className="text-sm text-red-700">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

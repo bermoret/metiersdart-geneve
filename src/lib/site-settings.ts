@@ -1,6 +1,9 @@
 // Paramètres saisis par MAG dans l'admin (table singleton site_settings),
-// lus côté public. Une panne de lecture ne doit pas faire tomber la page qui
-// les affiche : on retourne null et la page se passe du chiffre.
+// lus côté public. Même règle que db-data : sans base, valeurs statiques ;
+// base configurée mais en erreur → on logue et on relance. En ISR, Next garde
+// alors la dernière page valide au lieu de mettre en cache un accueil sans ses
+// chiffres, et le build échoue (le déploiement précédent reste en ligne) si une
+// colonne manque — par exemple crafts_count avant scripts/migrate-crafts-count.ts.
 
 import { cache } from "react";
 import { eq } from "drizzle-orm";
@@ -15,8 +18,12 @@ export type PublicSiteSettings = {
   craftsCount: number | null;
 };
 
+/** Sans base (previews, dev statique) : « Métiers » selon la nomenclature MAG
+    (Stat_GLOBALES, 01.09.2026), la valeur affichée avant la saisie admin. */
+const STATIC_SETTINGS: PublicSiteSettings = { eventsCount: null, craftsCount: 53 };
+
 export const getSiteSettings = cache(async (): Promise<PublicSiteSettings | null> => {
-  if (!dbConfigured()) return null;
+  if (!dbConfigured()) return STATIC_SETTINGS;
   try {
     const [row] = await db
       .select({ eventsCount: siteSettings.eventsCount, craftsCount: siteSettings.craftsCount })
@@ -26,6 +33,6 @@ export const getSiteSettings = cache(async (): Promise<PublicSiteSettings | null
     return row ?? null;
   } catch (err) {
     console.error("[site-settings] lecture impossible :", err);
-    return null;
+    throw err;
   }
 });

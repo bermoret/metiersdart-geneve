@@ -36,6 +36,35 @@ Reportés / à vérifier :
 - Pas de tests des routes (`communauteAccess`, verify) : seul `communaute-token` est testé ;
   routes contrôlées à la main en local (401 / 400 / 429 / cookie effacé).
 
+## 2026-09-27 — Code review (max) du chantier « Métiers éditables » : corrections et reports
+
+- **Migration avant deploy, désormais imposée** : `getSiteSettings` relance l'erreur (comme
+  db-data) → tant que `crafts_count` manque, le prerender de l'accueil échoue et le build de
+  prod aussi (le déploiement précédent reste en ligne). En dev local (base = prod), l'accueil
+  plante aussi tant que la migration n'est pas appliquée. État au 27.09 : colonne absente en
+  prod (lecture à blanc du script), ligne `default` à 37 projets.
+- Corrigés : saisie brute des chiffres (plus de retour forcé à 0), envoi des seuls champs
+  modifiés, plage 0 – 2 147 483 647 contrôlée et annoncée, champs bloqués pendant
+  l'enregistrement, messages d'erreur en français, région « Enregistré » annoncée, échec de
+  lecture signalé (plus de 0/0 ni de mot de passe vide trompeurs), « Métiers » à 53 sans base
+  (previews), `/api/communaute/verify` en 400 sur corps invalide, scripts (`lock_timeout`,
+  relecture après COMMIT, `to_regclass`, hôte affiché sans l'URL, backfill `--apply` qui
+  n'annonce plus « À blanc »).
+- Reportés (mineurs de review) :
+  - PUT des paramètres : liste des champs écrite deux fois (`values` / `set`) ;
+    `const patch = {…}` suffirait (drizzle ignore les `undefined`).
+  - Tableau de bord admin : deux GET identiques de `/api/admin/settings` (un par carte).
+    Passer les valeurs initiales en props demande un `requireAdmin()` dans `admin/page.tsx` :
+    le layout ne protège pas un rendu RSC partiel.
+  - Scripts : chargement d'env, client `pg` et transaction à blanc dupliqués, et écritures de
+    prod via le pooler → helper commun sur l'endpoint direct au prochain script.
+  - Aucun test ne couvre le PUT partiel (le mot de passe ne remet plus les projets à 0).
+  - Ligne vide en fin de `route.ts` ; repli `?? STATS_GRID[4]` inatteignable.
+- À vérifier : annonce de « Enregistré » aux lecteurs d'écran (NVDA + Chrome, VoiceOver +
+  Safari).
+- Lecture publique de `/api/annonces` et essais illimités sur `/api/communaute/verify` :
+  chantier séparé lancé le 27.09.
+
 ## 2026-09-24 — Métiers éditables dans l'admin (« MAG en chiffres »)
 
 - Colonne `site_settings.crafts_count` (déclarée dans `src/db/schema.ts`), créée et initialisée

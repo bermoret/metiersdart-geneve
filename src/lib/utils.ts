@@ -148,7 +148,7 @@ export function canOptimizeImage(src: string): boolean {
 // ─── Chiffres saisis dans l'admin ──────────────────────────────
 
 /** Plus grand entier d'une colonne Postgres `integer`. */
-const PG_INT_MAX = 2_147_483_647;
+export const PG_INT_MAX = 2_147_483_647;
 
 /**
  * Chiffre saisi dans l'admin (« MAG en chiffres ») : champ absent → undefined

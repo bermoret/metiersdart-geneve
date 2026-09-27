@@ -32,16 +32,21 @@ if (!process.env.DATABASE_URL) {
 async function main() {
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
-  console.log(`Base : ${new URL(process.env.DATABASE_URL!).hostname}`);
+  // client.host plutôt que new URL(DATABASE_URL) : l'erreur d'une chaîne que pg
+  // accepte mais que WHATWG refuse afficherait l'URL entière, mot de passe compris.
+  console.log(`Base : ${client.host}`);
+  let committed = false;
   try {
     // À blanc : transaction READ ONLY, puis ROLLBACK. Pas de SET de session :
     // derrière le pooler Neon, il resterait sur une connexion partagée avec la prod.
     await client.query(apply ? "BEGIN" : "BEGIN TRANSACTION READ ONLY");
 
+    // to_regclass résout site_settings par le search_path, comme les requêtes
+    // ci-dessous (current_schema() ne regarde que le premier schéma existant).
     const { rows: cols } = await client.query(
-      `SELECT 1 FROM information_schema.columns
-        WHERE table_schema = current_schema() AND table_name = 'site_settings'
-          AND column_name = 'crafts_count'`,
+      `SELECT 1 FROM pg_attribute
+        WHERE attrelid = to_regclass('site_settings') AND attname = 'crafts_count'
+          AND NOT attisdropped`,
     );
     const exists = cols.length > 0;
     console.log(`Colonne crafts_count : ${exists ? "déjà présente" : "absente"}`);
@@ -59,6 +64,10 @@ async function main() {
       return;
     }
 
+    // L'ALTER prend un verrou exclusif : abandonner après 5 s plutôt que bloquer
+    // toutes les lectures de site_settings derrière lui. SET LOCAL ne vaut que
+    // pour cette transaction, donc sans risque derrière le pooler.
+    await client.query("SET LOCAL lock_timeout = '5s'");
     await client.query("ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS crafts_count integer");
     const res = await client.query(
       `UPDATE site_settings SET crafts_count = $1, updated_at = now()
@@ -66,11 +75,18 @@ async function main() {
       [INITIAL_CRAFTS_COUNT],
     );
     await client.query("COMMIT");
+    committed = true;
+    console.log(`Appliqué : ${res.rowCount ?? 0} ligne(s) initialisée(s).`);
     const { rows } = await client.query(
       "SELECT events_count, crafts_count FROM site_settings WHERE id = 'default'",
     );
-    console.log(`Appliqué : ${res.rowCount ?? 0} ligne(s) initialisée(s). État :`, rows[0]);
+    console.log("État :", rows[0]);
   } catch (err) {
+    // Après le COMMIT, seule la relecture a échoué : la migration est faite.
+    if (committed) {
+      console.error("Migration appliquée, mais relecture de l'état impossible :", err);
+      return;
+    }
     await client.query("ROLLBACK").catch(() => {});
     throw err;
   } finally {
