@@ -96,8 +96,8 @@ Reportés / à vérifier :
   - Ligne vide en fin de `route.ts` ; repli `?? STATS_GRID[4]` inatteignable.
 - À vérifier : annonce de « Enregistré » aux lecteurs d'écran (NVDA + Chrome, VoiceOver +
   Safari).
-- Lecture publique de `/api/annonces` et essais illimités sur `/api/communaute/verify` :
-  chantier séparé lancé le 27.09.
+- ~~Lecture publique de `/api/annonces` et essais illimités sur `/api/communaute/verify`~~ :
+  réglé le 27.09 (« Espace Communauté : accès privé par cookie signé », `7298abe`).
 
 ## 2026-09-24 — Métiers éditables dans l'admin (« MAG en chiffres »)
 
@@ -330,7 +330,7 @@ Nouveau vocabulaire partagé : `src/components/ui/Editorial.tsx` (`PageHero`, `S
 - ~~Photos des fiches encore servies depuis metiersdart-geneve.ch~~ (migrées sur Blob le 27.09) (Joomla) : à migrer vers Blob
   avant l'arrêt de l'ancien site. `canOptimizeImage()` passe en `unoptimized` tout hôte non déclaré.
 - Écart assumé au design system : photos à coins quasi francs (4px) au lieu de 24px.
-- Vérifié en HTTP seulement (preview + prod : pages 200, 50/50 images) ; **rendu visuel pas
+- ~~Vérifié en HTTP seulement~~ (rendu vérifié au navigateur le 27.09, desktop + mobile) (preview + prod : pages 200, 50/50 images) ; **rendu visuel pas
   encore passé au navigateur** (desktop + mobile).
 - `vercel curl` a généré un secret « Protection Bypass for Automation » dans les réglages du
   projet Vercel (Deployment Protection) : garder ou révoquer.
@@ -445,7 +445,7 @@ puces domaine lisibles via `chipColors()`.
 
 ### À vérifier
 
-- **Rendu en prod** : liens du header plus sombres, survol blanc souligné dans le footer,
+- ~~**Rendu en prod**~~ (vérifié au navigateur le 27.09, desktop + mobile) : liens du header plus sombres, survol blanc souligné dans le footer,
   bordure des champs visible (connexion, répertoire, Espace Communauté, admin), puces domaine
   papier / horlogerie / verre assombries.
 
