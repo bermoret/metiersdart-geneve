@@ -2,6 +2,19 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-29 — Bascule DNS de metiersdart-geneve.ch vers Vercel
+
+- Zone Infomaniak mise à jour par Bernard (apex A 216.150.1.1, `www` CNAME Vercel ; `nlpd`
+  Stape, MX et TXT inchangés). Résolveurs publics OK ; caches locaux jusqu'à ~1 h.
+- Domaine principal = **apex** (`www` → apex en 308 via l'API Vercel), aligné sur
+  `metadataBase`, sitemap et robots. Redirections Joomla vérifiées via l'IP Vercel.
+
+### À vérifier
+- CookieScript, GTM et GA4 temps réel sur le domaine (voir « Suivi : GTM » plus bas).
+- Search Console : soumettre `https://metiersdart-geneve.ch/sitemap.xml`, surveiller les 404.
+- Retirer l'hôte Joomla de `next.config.ts` (`remotePatterns`, CSP) et de `canOptimizeImage`
+  quand plus rien n'y pointe ; relire les rapports CSP avant de passer en bloquant.
+
 ## 2026-09-29 — Derniers retours MAG + validation de la mise en ligne
 
 MAG valide la mise en ligne une fois ces deux points faits (branche `fix/retours-mag-29-09`) :
