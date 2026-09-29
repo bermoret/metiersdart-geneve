@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { actualites } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { parseActuInput } from "@/lib/actu-medias-input";
 
 // GET /api/admin/actualites/[id]
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/admin/actualites/[id]
+// PATCH /api/admin/actualites/[id] — seuls les champs envoyés sont modifiés
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -31,25 +32,14 @@ export async function PATCH(
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
+  const parsed = parseActuInput(await req.json().catch(() => null), "patch");
+  if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
+
   try {
     const { id } = await params;
-    const body = await req.json();
-
     const [updated] = await db
       .update(actualites)
-      .set({
-        ...(body.title !== undefined && { title: String(body.title) }),
-        ...(body.excerpt !== undefined && { excerpt: body.excerpt ?? null }),
-        ...(body.content !== undefined && { content: body.content ?? null }),
-        ...(body.category !== undefined && { category: body.category ? String(body.category) : null }),
-        ...(body.eventDate !== undefined && { eventDate: body.eventDate ? new Date(body.eventDate) : null }),
-        ...(body.eventEndDate !== undefined && { eventEndDate: body.eventEndDate ? new Date(body.eventEndDate) : null }),
-        ...(body.linkUrl !== undefined && { linkUrl: body.linkUrl ? String(body.linkUrl) : null }),
-        ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl ? String(body.imageUrl) : null }),
-        ...(body.isArchived !== undefined && { isArchived: Boolean(body.isArchived) }),
-        ...(body.published !== undefined && { published: Boolean(body.published) }),
-        updatedAt: new Date(),
-      })
+      .set({ ...parsed.values, updatedAt: new Date() })
       .where(eq(actualites.id, id))
       .returning();
 

@@ -11,7 +11,8 @@ import { allRedirects } from "./src/lib/redirects";
 // - @vercel/analytics (/_vercel/insights en prod, va.vercel-scripts.com en dev) ;
 // - tuiles Leaflet : Esri (server.arcgisonline.com) et OpenStreetMap ;
 // - images : Vercel Blob, ancien site Joomla, miniatures Vimeo / YouTube ;
-// - lecteurs vidéo intégrés (VideoCapsule) : Vimeo, YouTube.
+// - lecteurs vidéo intégrés (VideoCapsule) : Vimeo, YouTube ;
+// - admin : envoi direct des PDF vers l'API Vercel Blob (vercel.com/api/blob).
 const isDev = process.env.NODE_ENV === "development";
 const CSP_DIRECTIVES: Record<string, string[]> = {
   "default-src": ["'self'"],
@@ -55,6 +56,8 @@ const CSP_DIRECTIVES: Record<string, string[]> = {
     "https://*.googletagmanager.com",
     "https://*.cookie-script.com",
     "https://va.vercel-scripts.com",
+    // Envoi direct des PDF de l'admin vers Vercel Blob (MediaModal)
+    "https://vercel.com",
   ],
   "frame-src": [
     "https://player.vimeo.com",

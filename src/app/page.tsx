@@ -229,7 +229,8 @@ export default async function HomePage() {
       </section>
 
       {/* ─── Grille catégories ──────────────────────────────────── */}
-      <section className="py-20">
+      {/* id="domaines" : cible de /repertoire/artisans-par-domaine (src/lib/redirects.ts) */}
+      <section id="domaines" className="py-20 scroll-mt-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <h2 className="text-3xl sm:text-4xl font-bold text-mag-dark font-serif mb-2">

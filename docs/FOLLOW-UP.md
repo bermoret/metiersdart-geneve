@@ -8,21 +8,35 @@ MAG valide la mise en ligne une fois ces deux points faits (branche `fix/retours
 - Focus Léman Bleu 2026 → vimeo 1182668251 (le lien du 28.09 était une capsule pierre).
 - /l-actu : événement FER du 25 septembre retiré.
 
-### 🚩 Avant la bascule DNS de metiersdart-geneve.ch (bloquant)
-- Images servies par le Joomla (`metiersdart-geneve.ch/images/…`) encore en dur dans
-  `src/app/l-actu/page.tsx`, `src/app/medias/page.tsx`, `src/components/ui/PoinconBadge.tsx`,
-  `src/lib/artisan-details.ts` : à la bascule, ce domaine pointe sur Vercel → images cassées.
-  À migrer sur Blob (comme les 155 photos du 27.09). Idem en base : 128
-  `artisans.poincon_modal_link`, 2 `medias.external_url`.
-- Redirections 301 des anciennes URLs Joomla (`src/lib/redirects.ts`, fiches artisans et
-  domaines) : à compléter.
+### Avant la bascule DNS — traité le 29.09 (branche `feat/actu-medias-joomla`)
+- ~~Images Joomla en dur~~ : badges poinçon → `public/poincons/` ; `artisan-details.ts` → URL
+  Blob ; actu / médias → base + Blob (2 PDF presse copiés). Il ne reste l'hôte Joomla que
+  dans les tests.
+- ~~Redirections~~ : 475 règles (`src/lib/redirects.ts`, crawl de 197 pages) — menus,
+  12 domaines, 7 pages Page Builder, 150 articles (formes `/<id>-<alias>`, `?id=<id>[:alias]`,
+  `com_content&view=article`), replis `/repertoire` puis `/`. Test `redirects.test.ts`.
+- ~~`artisans.poincon_modal_link`~~ (128 → page Joomla 630 sans équivalent) : mis à NULL par
+  `scripts/migrate-joomla-links.ts` (sauvegarde `backups/joomla-links-2026-09-29*.json`).
+- ~~Accès admin de MAG~~ : `contact@` passé admin (`scripts/grant-admin.ts`, accord Bernard).
+- ~~/l-actu et /medias codées en dur~~ : lues en base (ISR 60 s, repli statique
+  `src/lib/actu-medias-static.ts`), éditables dans l'admin. Migration 5 colonnes + sync
+  appliqués (sauvegarde `backups/sync-actu-medias-2026-09-29*.json`). Envoi de PDF depuis
+  l'admin (direct navigateur → Blob, 50 Mo, `/api/admin/upload/pdf`).
 
-### À décider (Bernard)
-- **Accès admin de MAG** : `contact@metiersdart-geneve.ch` existe en base avec le rôle `user`
-  (connexion OK mais renvoi vers l'accueil). Passer en `admin` = décision d'accès.
-- **/l-actu et /medias codées en dur** : l'admin Actualités / Médias écrit en base, mais les
-  pages publiques ne la lisent pas (`src/lib/queries.ts` non branché). MAG ne peut donc pas
-  modifier l'Actu ni les Médias elle-même. À brancher (avant ou après ouverture).
+### À vérifier / décider
+- Page « Poinçons MAG » (Joomla id=630) : lien retiré, l'ancienne URL → /repertoire. Recréer
+  une page `/poincons` ? Question posée à Bernard.
+- Actus passées masquées automatiquement (dernier jour < aujourd'hui, Europe/Zurich) : à
+  confirmer avec MAG. Actus sans date : ordre d'ajout (pas de tri manuel).
+- Envoi PDF : contrôle `%PDF-` côté navigateur seulement (le fichier ne passe pas par le
+  serveur) ; test d'un vrai envoi > 30 Mo à faire en prod par un admin.
+- Redirections : Next recopie les paramètres Joomla sur la destination (`?catid=2&Itemid=…`),
+  cosmétique. Fichiers `/images/…` et `/presse/…` de l'ancien site : 404 après bascule.
+  Articles sans fiche (Ménestrandie, Watchmakers United, Atelier Maison Potter, Ugo Mighali,
+  Ylune) → /repertoire. Confronter à la Search Console avant la bascule.
+- `src/db/seed-actu-medias.ts` périmé (types, titres, URLs Joomla) : à supprimer.
+- `next.config.ts` (`remotePatterns`, CSP) et `canOptimizeImage` autorisent encore l'hôte
+  Joomla : à retirer après la bascule.
 
 ## 2026-09-28 — Retours de MAG avant ouverture (mail « Re: MAG: Retour nouveau site internet »)
 

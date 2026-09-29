@@ -135,15 +135,25 @@ export const metiersFormations = pgTable("metiers_formations", {
 
 // ─── Actualités ─────────────────────────────────────────────────
 
+// Cartes de /l-actu (voir src/lib/actu-medias.ts pour le rendu) :
+// `category` = étiquette rouge au-dessus du titre (« En ce moment »), `source` =
+// « par … », `excerpt` = texte de la carte, la date affichée est dérivée de
+// event_date / event_end_date, `time_label` = horaire libre (« 19h-20h30 »).
+// Colonnes source, subtitle, time_label, link_label : scripts/migrate-actu-medias.ts.
+
 export const actualites = pgTable("actualites", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: varchar("title", { length: 500 }).notNull(),
   excerpt: text("excerpt"),
-  content: text("content"),
-  category: varchar("category", { length: 100 }),
+  content: text("content"), // non affiché sur le site (réservé)
+  category: varchar("category", { length: 100 }), // étiquette (« En ce moment »)
+  source: varchar("source", { length: 255 }), // « par Métiers d'Art Genève »
+  subtitle: varchar("subtitle", { length: 255 }), // sous le titre (« Métiers du bois — Charpentier·ère »)
   eventDate: timestamp("event_date"),
   eventEndDate: timestamp("event_end_date"),
-  linkUrl: varchar("link_url", { length: 500 }),
+  timeLabel: varchar("time_label", { length: 100 }), // horaire libre (« 19h-20h30 »)
+  linkUrl: varchar("link_url", { length: 500 }), // http(s), mailto: ou chemin du site (« /jema »)
+  linkLabel: varchar("link_label", { length: 100 }), // « Plus d'info » par défaut, « Contact » pour un mailto
   imageUrl: varchar("image_url", { length: 500 }),
   isArchived: boolean("is_archived").default(false),
   published: boolean("published").default(true),
@@ -152,20 +162,27 @@ export const actualites = pgTable("actualites", {
 });
 
 // ─── Médias (capsules vidéo, presse) ────────────────────────────
+// `type` place le média dans une section de /medias (voir MEDIA_TYPES dans
+// src/lib/actu-medias.ts) : video (capsule), interview (vidéo « On parle des
+// métiers d'art »), article (lien de la même section), presse (revue de presse
+// JEMA en PDF), archive (article archivé, daté). `media_type` (vimeo / youtube)
+// est déduit de video_url à l'enregistrement. Colonne published :
+// scripts/migrate-actu-medias.ts.
 
 export const medias = pgTable("medias", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: varchar("title", { length: 500 }).notNull(),
-  type: varchar("type", { length: 50 }).notNull(), // "video" | "presse" | "article"
-  mediaType: varchar("media_type", { length: 50 }),
-  categoryId: uuid("category_id").references(() => categories.id),
+  type: varchar("type", { length: 50 }).notNull(), // "video" | "interview" | "article" | "presse" | "archive"
+  mediaType: varchar("media_type", { length: 50 }), // "vimeo" | "youtube", déduit de video_url
+  categoryId: uuid("category_id").references(() => categories.id), // non utilisé par le site
   videoUrl: varchar("video_url", { length: 500 }),
   externalUrl: varchar("external_url", { length: 500 }),
   pdfUrl: varchar("pdf_url", { length: 500 }),
   date: timestamp("date"),
-  source: varchar("source", { length: 255 }),
-  description: text("description"),
+  source: varchar("source", { length: 255 }), // sous-titre : domaine d'une capsule, média d'un article
+  description: text("description"), // non affiché sur le site (réservé)
   sortOrder: integer("sort_order").default(0),
+  published: boolean("published").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

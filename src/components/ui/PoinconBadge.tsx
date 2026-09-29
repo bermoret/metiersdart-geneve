@@ -17,17 +17,23 @@ const poinconLabels: Record<string, string> = {
   INSTITUTION: "Institution",
 };
 
+// Visuels des poinçons, copiés de l'ancien site Joomla (images/2025/05/…) :
+// servis par le site lui-même, ils survivent à la bascule DNS.
 const poinconImages: Record<string, string> = {
-  ATELIER: "https://metiersdart-geneve.ch/images/2025/05/21/atelier.png",
-  BOUTIQUE: "https://metiersdart-geneve.ch/images/2025/05/21/boutique.png",
-  ENTREPRISE: "https://metiersdart-geneve.ch/images/2025/05/21/entreprise.png",
-  INSTITUTION: "https://metiersdart-geneve.ch/images/2025/05/23/institutions.png",
+  ATELIER: "/poincons/atelier.png",
+  BOUTIQUE: "/poincons/boutique.png",
+  ENTREPRISE: "/poincons/entreprise.png",
+  INSTITUTION: "/poincons/institution.png",
 };
+
+/** Invite reprise de l'ancien site, sans objet quand la fiche n'a pas de lien. */
+const MORE_PROMPT = /\s*Cliquez ici pour en savoir plus\.?\s*$/i;
 
 export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: Props) {
   const [open, setOpen] = useState(false);
   const label = poinconLabels[type] ?? type;
   const imgSrc = poinconImages[type];
+  const text = modalLink ? modalText : modalText.replace(MORE_PROMPT, "");
 
   return (
     <>
@@ -57,7 +63,6 @@ export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: 
                 fill
                 sizes="200px"
                 className="object-contain p-4"
-                unoptimized
               />
             )}
           </div>
@@ -100,7 +105,6 @@ export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: 
                     width={56}
                     height={56}
                     className="object-contain"
-                    unoptimized
                   />
                 </div>
               )}
@@ -109,7 +113,7 @@ export function PoinconBadge({ type, modalText, modalLink, variant = "badge" }: 
               </h3>
             </div>
 
-            <p className="text-sm text-mag-dark/70 leading-relaxed">{modalText}</p>
+            <p className="text-sm text-mag-dark/70 leading-relaxed">{text}</p>
 
             {modalLink && (
               <a

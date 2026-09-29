@@ -2,15 +2,23 @@
 
 import { useState, useRef, useEffect } from "react";
 
+// Formulaire d'une carte de /l-actu : chaque champ correspond à un élément de
+// la carte (voir src/lib/actu-medias.ts). Tous les champs sont envoyés, une
+// chaîne vide vidant la colonne ; la validation est côté serveur
+// (src/lib/actu-medias-input.ts).
+
 type ActuData = {
   id?: string;
   title: string;
-  excerpt: string;
-  content: string;
   category: string;
+  source: string;
+  subtitle: string;
+  excerpt: string;
   eventDate: string;
   eventEndDate: string;
+  timeLabel: string;
   linkUrl: string;
+  linkLabel: string;
   imageUrl: string;
   published: boolean;
   isArchived: boolean;
@@ -26,16 +34,22 @@ type Props = {
 
 const EMPTY: ActuData = {
   title: "",
-  excerpt: "",
-  content: "",
   category: "",
+  source: "",
+  subtitle: "",
+  excerpt: "",
   eventDate: "",
   eventEndDate: "",
+  timeLabel: "",
   linkUrl: "",
+  linkLabel: "",
   imageUrl: "",
   published: true,
   isArchived: false,
 };
+
+const str = (v: unknown) => (typeof v === "string" ? v : "");
+const day = (v: unknown) => (typeof v === "string" && v ? new Date(v).toISOString().slice(0, 10) : "");
 
 export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
   const [form, setForm] = useState<ActuData>(EMPTY);
@@ -48,15 +62,25 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
   const formKey = (actu?.id as string) ?? "new";
   useEffect(() => {
     if (!open) return;
-    const a = actu as Record<string, unknown> | null;
+    const a = actu;
     setForm(
       a
         ? {
-            ...EMPTY,
-            ...a,
-            eventDate: a.eventDate ? new Date(a.eventDate as string).toISOString().slice(0, 10) : "",
-            eventEndDate: a.eventEndDate ? new Date(a.eventEndDate as string).toISOString().slice(0, 10) : "",
-          } as ActuData
+            id: str(a.id),
+            title: str(a.title),
+            category: str(a.category),
+            source: str(a.source),
+            subtitle: str(a.subtitle),
+            excerpt: str(a.excerpt),
+            eventDate: day(a.eventDate),
+            eventEndDate: day(a.eventEndDate),
+            timeLabel: str(a.timeLabel),
+            linkUrl: str(a.linkUrl),
+            linkLabel: str(a.linkLabel),
+            imageUrl: str(a.imageUrl),
+            published: a.published !== false,
+            isArchived: a.isArchived === true,
+          }
         : EMPTY,
     );
     setError(null);
@@ -91,17 +115,8 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
     setSaving(true);
     setError(null);
     try {
-      const payload = {
-        ...form,
-        eventDate: form.eventDate || undefined,
-        eventEndDate: form.eventEndDate || undefined,
-        linkUrl: form.linkUrl || undefined,
-        imageUrl: form.imageUrl || undefined,
-        excerpt: form.excerpt || undefined,
-        content: form.content || undefined,
-        category: form.category || undefined,
-      };
-      const url = isNew ? "/api/admin/actualites" : `/api/admin/actualites/${form.id}`;
+      const { id, ...payload } = form;
+      const url = isNew ? "/api/admin/actualites" : `/api/admin/actualites/${id}`;
       const method = isNew ? "POST" : "PATCH";
       const res = await fetch(url, {
         method,
@@ -155,12 +170,67 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Titre *" value={form.title} onChange={(v) => update("title", v)} fullWidth />
-          <Field label="Catégorie / Source" value={form.category} onChange={(v) => update("category", v)} placeholder="En ce moment, ACG, MAG…" />
 
-          <Field label="Date d'événement" value={form.eventDate} onChange={(v) => update("eventDate", v)} type="date" />
-          <Field label="Date de fin" value={form.eventEndDate} onChange={(v) => update("eventEndDate", v)} type="date" />
+          <Field
+            label="Étiquette"
+            value={form.category}
+            onChange={(v) => update("category", v)}
+            placeholder="En ce moment"
+            help="Petit texte rouge au-dessus du titre, pour une actualité sans date."
+          />
+          <Field
+            label="Source"
+            value={form.source}
+            onChange={(v) => update("source", v)}
+            placeholder="Métiers d'Art Genève"
+            help="Affichée « par … » sous le titre."
+          />
 
-          <Field label="Lien" value={form.linkUrl} onChange={(v) => update("linkUrl", v)} fullWidth placeholder="https://…" />
+          <Field
+            label="Sous-titre"
+            value={form.subtitle}
+            onChange={(v) => update("subtitle", v)}
+            placeholder="Métiers du bois — Charpentier·ère"
+            help="Petite ligne sous le titre, facultative."
+            fullWidth
+          />
+
+          <Field
+            label="Date de l'événement"
+            value={form.eventDate}
+            onChange={(v) => update("eventDate", v)}
+            type="date"
+            help="Affichée « 14 octobre » ; un événement passé disparaît de la page."
+          />
+          <Field
+            label="Date de fin"
+            value={form.eventEndDate}
+            onChange={(v) => update("eventEndDate", v)}
+            type="date"
+            help="Pour plusieurs jours : « du 19 au 21 mars 2027 »."
+          />
+          <Field
+            label="Horaire"
+            value={form.timeLabel}
+            onChange={(v) => update("timeLabel", v)}
+            placeholder="19h-20h30"
+            help="Texte libre, affiché à côté de la date."
+          />
+
+          <Field
+            label="Lien"
+            value={form.linkUrl}
+            onChange={(v) => update("linkUrl", v)}
+            placeholder="https://…"
+            help="https://…, mailto:adresse ou une page du site (/jema)."
+          />
+          <Field
+            label="Libellé du lien"
+            value={form.linkLabel}
+            onChange={(v) => update("linkLabel", v)}
+            placeholder="Plus d'info"
+            help="Vide : « Plus d'info », ou « Contact » pour une adresse e-mail."
+          />
 
           {/* Upload image */}
           <div className="col-span-2">
@@ -195,20 +265,20 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
                     Retirer l&apos;image
                   </button>
                 )}
+                <span className="text-[11px] text-mag-gray/80">Format 4:3 conseillé, 5 Mo au plus.</span>
               </div>
             </div>
           </div>
 
-          <TextareaField label="Extrait / description courte" value={form.excerpt} onChange={(v) => update("excerpt", v)} rows={3} fullWidth />
-          <TextareaField label="Contenu complet" value={form.content} onChange={(v) => update("content", v)} rows={5} fullWidth />
+          <TextareaField label="Texte de la carte" value={form.excerpt} onChange={(v) => update("excerpt", v)} rows={4} fullWidth />
 
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={form.published} onChange={(e) => update("published", e.target.checked)} className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red" />
-            <span className="text-sm text-mag-dark">Publié</span>
+            <span className="text-sm text-mag-dark">Publiée</span>
           </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={form.isArchived} onChange={(e) => update("isArchived", e.target.checked)} className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red" />
-            <span className="text-sm text-mag-dark">Archivé</span>
+            <span className="text-sm text-mag-dark">Archivée <span className="text-xs text-mag-gray">(retirée du site, gardée ici)</span></span>
           </label>
         </div>
 
@@ -247,8 +317,8 @@ export function ActuModal({ open, actu, isNew, onClose, onSaved }: Props) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", placeholder, fullWidth }: {
-  label: string; value: string | null; onChange: (v: string) => void; type?: string; placeholder?: string; fullWidth?: boolean;
+function Field({ label, value, onChange, type = "text", placeholder, help, fullWidth }: {
+  label: string; value: string | null; onChange: (v: string) => void; type?: string; placeholder?: string; help?: string; fullWidth?: boolean;
 }) {
   return (
     <label className={fullWidth ? "col-span-2" : ""}>
@@ -260,6 +330,7 @@ function Field({ label, value, onChange, type = "text", placeholder, fullWidth }
         placeholder={placeholder}
         className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
+      {help && <span className="mt-1 block text-[11px] text-mag-gray/80">{help}</span>}
     </label>
   );
 }

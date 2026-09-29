@@ -1,5 +1,9 @@
 import Image from "next/image";
 import { PageHero } from "@/components/ui/Editorial";
+import { getActualites } from "@/lib/db-data";
+import { actuLinkLabel, formatActuDate } from "@/lib/actu-medias";
+import { isExternalHref } from "@/lib/url";
+import { canOptimizeImage } from "@/lib/utils";
 
 export const metadata = {
   title: "L'actu des artisans",
@@ -7,79 +11,18 @@ export const metadata = {
     "Découvrez les dernières actualités de MAG et de la communauté des métiers d'art à Genève.",
 };
 
-type ActuCard = {
-  image: string;
-  badge?: string;
-  date?: string;
-  time?: string;
-  title: string;
-  source: string;
-  description: string;
-  linkText: string;
-  linkHref: string;
-  subtitle?: string;
-};
+// Contenu saisi dans l'admin (table actualites) : une modification est visible
+// dans la minute, comme sur les autres pages publiques.
+export const revalidate = 60;
 
-const actualites: ActuCard[] = [
-  {
-    image: "https://metiersdart-geneve.ch/images/2026/06/30/sondage-locaux_post-052.png",
-    badge: "En ce moment",
-    title: "SONDAGE LOCAUX",
-    source: "Métiers d'Art Genève",
-    description:
-      "MAG réalise une enquête afin de mieux cerner les besoins des artisan·e·s en matière de locaux d'activité. Les résultats serviront à orienter les futures actions à mener. Participez au sondage ci-dessous.",
-    linkText: "Plus d'info",
-    linkHref:
-      "https://docs.google.com/forms/d/e/1FAIpQLSfLZO6jc-8Z_XP1cjMf1g87ZyPCztUqKBU0t3Axs9rM69WSkw/viewform?usp=dialog",
-  },
-  {
-    image:
-      "https://metiersdart-geneve.ch/images/2026/02/03/pexels-norma-mortenson-8456147.jpg",
-    badge: "En ce moment",
-    title: "SONDAGE ÉCOLES & ARTISANS",
-    source: "Métiers d'Art Genève",
-    description:
-      "MAG lance un nouveau projet visant à mettre en relation des artisan·e·s et avec des classes, toujours dans une démarche de partage de savoir-faire. Si vous êtes intéressé·e, merci de remplir le formulaire ci-dessous.",
-    linkText: "Plus d'info",
-    linkHref:
-      "https://docs.google.com/forms/d/e/1FAIpQLSdRv72gXhfyU__rhqUBWLrga2OtfZiQv-_LEf_Tv7BoNmOpBQ/viewform?usp=header",
-  },
-  {
-    image:
-      "https://metiersdart-geneve.ch/images/2026/02/03/pexels-fauxels-3183172.jpg",
-    date: "14 octobre",
-    time: "19h-20h30",
-    title: "CONSEIL DES ARTISANS",
-    source: "Métiers d'Art Genève",
-    description:
-      "Ce groupe de travail, se regroupant quatre fois par an, a pour objectif d'échanger autour des réalités du terrain et des enjeux liés aux métiers d'art. Les artisan·e·s MAG souhaitant prendre part à la prochaine séance sont invités à nous contacter.",
-    linkText: "Contact",
-    linkHref: "mailto:contact@metiersdart-geneve.ch",
-  },
-  {
-    image: "https://metiersdart-geneve.ch/images/2026/08/31/112060-02.png",
-    date: "30 octobre",
-    title: "PRIX DE L'ARTISANAT — APPEL À CANDIDATURE",
-    source: "ACG",
-    subtitle: "Métiers du bois — Charpentier·ère",
-    description:
-      "Le Prix de l'Artisanat s'adresse à toutes les entreprises artisanales ainsi qu'aux artisan·e·s indépendants identifiés comme faisant partie des métiers répondant à la définition de l'artisanat et issus d'un secteur d'activités particulier.",
-    linkText: "Plus d'info",
-    linkHref: "https://www.prix-artisanat-geneve.ch/prix-de-lartisanat-concours-2027",
-  },
-  {
-    image: "https://metiersdart-geneve.ch/images/2026/03/12/jema27_carre_affiche.png",
-    date: "du 19 au 21 mars 2027",
-    title: "JOURNÉES EUROPÉENNES DES MÉTIERS D'ART 2027",
-    source: "Métiers d'Art Genève",
-    description:
-      "Réservez déjà votre week-end pour venir à la rencontre des professionnelles et des professionnels des métiers d'art à Genève.",
-    linkText: "Plus d'info",
-    linkHref: "/jema",
-  },
-];
+/** Lien externe : nouvel onglet ; mailto et pages du site : même onglet. */
+function linkProps(href: string) {
+  return isExternalHref(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
+}
 
-export default function ActuPage() {
+export default async function ActuPage() {
+  const actualites = await getActualites();
+
   return (
     <>
       <PageHero
@@ -112,75 +55,88 @@ export default function ActuPage() {
       {/* Cartes d'actualité */}
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {actualites.length === 0 && (
+            <p className="text-mag-dark/70">Aucune actualité pour le moment.</p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14">
-            {actualites.map((actu, i) => (
-              <article
-                key={i}
-                className="group flex flex-col border-t-2 border-mag-dark pt-5 bg-white"
-              >
-                {/* Image cliquable */}
-                <a
-                  href={actu.linkHref}
-                  target={actu.linkHref.startsWith("http") ? "_blank" : undefined}
-                  rel={actu.linkHref.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="relative aspect-[4/3] overflow-hidden rounded bg-mag-cream block group/img"
+            {actualites.map((actu) => {
+              const date = formatActuDate(actu.eventDate, actu.eventEndDate);
+              const imageClass =
+                "relative aspect-[4/3] overflow-hidden rounded bg-mag-cream block group/img";
+              const image = actu.imageUrl && (
+                <Image
+                  src={actu.imageUrl}
+                  alt={actu.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-700 group-hover/img:scale-105"
+                  unoptimized={!canOptimizeImage(actu.imageUrl)}
+                />
+              );
+              return (
+                <article
+                  key={actu.id}
+                  className="group flex flex-col border-t-2 border-mag-dark pt-5 bg-white"
                 >
-                  <Image
-                    src={actu.image}
-                    alt={actu.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover/img:scale-105"
-                    unoptimized
-                  />
-                </a>
+                  {/* Image cliquable */}
+                  {actu.linkUrl ? (
+                    <a href={actu.linkUrl} {...linkProps(actu.linkUrl)} className={imageClass}>
+                      {image}
+                    </a>
+                  ) : (
+                    <div className={imageClass}>{image}</div>
+                  )}
 
-                {/* Contenu */}
-                <div className="pt-5 flex flex-col flex-1">
-                  {actu.badge && (
-                    <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "#ba372a" }}>
-                      {actu.badge}
-                    </p>
-                  )}
-                  {actu.date && (
-                    <p className="text-sm">
-                      <span className="font-semibold text-mag-red">{actu.date}</span>
-                      {actu.time && (
-                        <span className="text-mag-gray"> {actu.time}</span>
-                      )}
-                    </p>
-                  )}
-                  <h3 className="mt-2 font-serif font-bold text-mag-dark text-2xl leading-tight">
-                    {actu.title}
-                  </h3>
-                  {actu.subtitle && (
-                    <p className="mt-1 text-xs font-medium text-mag-dark/70">
-                      {actu.subtitle}
-                    </p>
-                  )}
-                  <p className="mt-1 text-xs italic text-mag-gray">
-                    par {actu.source}
-                  </p>
-                  <p className="mt-3 text-sm text-mag-dark/70 leading-relaxed flex-1">
-                    {actu.description}
-                  </p>
-                  <a
-                    href={actu.linkHref}
-                    target={actu.linkHref.startsWith("http") ? "_blank" : undefined}
-                    rel={actu.linkHref.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-mag-red hover:underline self-start"
-                  >
-                    {actu.linkText}
-                    <span aria-hidden>→</span>
-                  </a>
-                </div>
-              </article>
-            ))}
+                  {/* Contenu */}
+                  <div className="pt-5 flex flex-col flex-1">
+                    {actu.badge && (
+                      <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "#ba372a" }}>
+                        {actu.badge}
+                      </p>
+                    )}
+                    {date && (
+                      <p className="text-sm">
+                        <span className="font-semibold text-mag-red">{date}</span>
+                        {actu.timeLabel && (
+                          <span className="text-mag-gray"> {actu.timeLabel}</span>
+                        )}
+                      </p>
+                    )}
+                    <h3 className="mt-2 font-serif font-bold text-mag-dark text-2xl leading-tight">
+                      {actu.title}
+                    </h3>
+                    {actu.subtitle && (
+                      <p className="mt-1 text-xs font-medium text-mag-dark/70">
+                        {actu.subtitle}
+                      </p>
+                    )}
+                    {actu.source && (
+                      <p className="mt-1 text-xs italic text-mag-gray">
+                        par {actu.source}
+                      </p>
+                    )}
+                    {actu.description && (
+                      <p className="mt-3 text-sm text-mag-dark/70 leading-relaxed flex-1">
+                        {actu.description}
+                      </p>
+                    )}
+                    {actu.linkUrl && (
+                      <a
+                        href={actu.linkUrl}
+                        {...linkProps(actu.linkUrl)}
+                        className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-mag-red hover:underline self-start"
+                      >
+                        {actuLinkLabel(actu)}
+                        <span aria-hidden>→</span>
+                      </a>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
-
-
     </>
   );
 }

@@ -4,6 +4,7 @@ import { artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
 import { resolveArtisanCommune } from "@/lib/artisan-commune";
+import { isPublicHref } from "@/lib/url";
 
 // GET /api/admin/artisans/[id] — un artisan
 export async function GET(
@@ -61,6 +62,12 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
+  // Lien « En savoir plus » du poinçon : finit dans un href public (PoinconBadge).
+  const poinconModalLink = typeof body.poinconModalLink === "string" ? body.poinconModalLink.trim() : body.poinconModalLink;
+  if (poinconModalLink && !isPublicHref(poinconModalLink)) {
+    return NextResponse.json({ error: "Le lien du poinçon doit commencer par http://, https://, mailto: ou / (page du site)." }, { status: 400 });
+  }
+
   let commune = await resolveArtisanCommune(body.commune);
   if ("error" in commune) {
     // Valeur historique hors liste renvoyée telle quelle : on la laisse, pour ne
@@ -109,7 +116,7 @@ export async function PATCH(
       ...(body.autre !== undefined && { autre: body.autre || null }),
       ...(body.poinconType !== undefined && { poinconType: body.poinconType || null }),
       ...(body.poinconModalText !== undefined && { poinconModalText: body.poinconModalText || null }),
-      ...(body.poinconModalLink !== undefined && { poinconModalLink: body.poinconModalLink || null }),
+      ...(poinconModalLink !== undefined && { poinconModalLink: poinconModalLink || null }),
       ...(body.published !== undefined && { published: body.published }),
       ...(typeof body.jemaParticipant === "boolean" && { jemaParticipant: body.jemaParticipant }),
       updatedAt: new Date(),

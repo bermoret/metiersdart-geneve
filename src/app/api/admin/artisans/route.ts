@@ -4,6 +4,7 @@ import { artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
 import { resolveArtisanCommune } from "@/lib/artisan-commune";
+import { isPublicHref } from "@/lib/url";
 
 // GET /api/admin/artisans — liste tous les artisans
 export async function GET() {
@@ -51,6 +52,12 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
+  // Lien « En savoir plus » du poinçon : finit dans un href public (PoinconBadge).
+  const poinconModalLink = typeof body.poinconModalLink === "string" ? body.poinconModalLink.trim() : body.poinconModalLink;
+  if (poinconModalLink && !isPublicHref(poinconModalLink)) {
+    return NextResponse.json({ error: "Le lien du poinçon doit commencer par http://, https://, mailto: ou / (page du site)." }, { status: 400 });
+  }
+
   const commune = await resolveArtisanCommune(body.commune);
   if ("error" in commune) return NextResponse.json({ error: commune.error }, { status: 400 });
 
@@ -88,7 +95,7 @@ export async function POST(req: Request) {
       autre: body.autre || null,
       poinconType: body.poinconType || null,
       poinconModalText: body.poinconModalText || null,
-      poinconModalLink: body.poinconModalLink || null,
+      poinconModalLink: poinconModalLink || null,
     })
     .returning();
 

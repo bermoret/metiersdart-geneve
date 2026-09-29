@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { medias } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { parseMediaInput } from "@/lib/actu-medias-input";
 
 // GET /api/admin/medias/[id]
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/admin/medias/[id]
+// PATCH /api/admin/medias/[id] — seuls les champs envoyés sont modifiés
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -31,25 +32,14 @@ export async function PATCH(
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
+  const parsed = parseMediaInput(await req.json().catch(() => null), "patch");
+  if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
+
   try {
     const { id } = await params;
-    const body = await req.json();
-
     const [updated] = await db
       .update(medias)
-      .set({
-        ...(body.title !== undefined && { title: String(body.title) }),
-        ...(body.type !== undefined && { type: String(body.type) }),
-        ...(body.mediaType !== undefined && { mediaType: body.mediaType ? String(body.mediaType) : null }),
-        ...(body.categoryId !== undefined && { categoryId: body.categoryId || null }),
-        ...(body.videoUrl !== undefined && { videoUrl: body.videoUrl ? String(body.videoUrl) : null }),
-        ...(body.externalUrl !== undefined && { externalUrl: body.externalUrl ? String(body.externalUrl) : null }),
-        ...(body.pdfUrl !== undefined && { pdfUrl: body.pdfUrl ? String(body.pdfUrl) : null }),
-        ...(body.date !== undefined && { date: body.date ? new Date(body.date) : null }),
-        ...(body.source !== undefined && { source: body.source ? String(body.source) : null }),
-        ...(body.description !== undefined && { description: body.description ?? null }),
-        ...(body.sortOrder !== undefined && { sortOrder: Number(body.sortOrder) || 0 }),
-      })
+      .set(parsed.values)
       .where(eq(medias.id, id))
       .returning();
 

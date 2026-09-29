@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { actualites } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
+import { parseActuInput } from "@/lib/actu-medias-input";
 
 export async function GET() {
   const session = await requireAdminApi();
@@ -16,21 +17,18 @@ export async function POST(req: Request) {
   const session = await requireAdminApi();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const body = await req.json();
-  const [created] = await db
-    .insert(actualites)
-    .values({
-      title: body.title,
-      excerpt: body.excerpt,
-      content: body.content,
-      category: body.category,
-      eventDate: body.eventDate ? new Date(body.eventDate) : null,
-      eventEndDate: body.eventEndDate ? new Date(body.eventEndDate) : null,
-      linkUrl: body.linkUrl,
-      imageUrl: body.imageUrl,
-      published: body.published ?? true,
-    })
-    .returning();
+  // Validation (liens en http(s) / mailto / page du site, longueurs, dates) : src/lib/actu-medias-input.ts
+  const parsed = parseActuInput(await req.json().catch(() => null), "create");
+  if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
-  return NextResponse.json(created, { status: 201 });
+  try {
+    const [created] = await db
+      .insert(actualites)
+      .values({ ...parsed.values, title: parsed.values.title! })
+      .returning();
+    return NextResponse.json(created, { status: 201 });
+  } catch (e) {
+    console.error("POST actualites:", e);
+    return NextResponse.json({ error: "Erreur lors de la création" }, { status: 500 });
+  }
 }

@@ -1,77 +1,119 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { upload } from "@vercel/blob/client";
+import { MEDIA_TYPES, type MediaType } from "@/lib/actu-medias";
+import { PDF_MAX_BYTES, hasPdfMagic, pdfPathname } from "@/lib/pdf-upload";
+
+// Formulaire d'un média de /medias : le type choisit la section de la page et
+// l'adresse demandée (vidéo, article ou PDF). La plateforme vidéo est déduite
+// de l'adresse par le serveur (src/lib/actu-medias-input.ts). Seule l'adresse
+// du type choisi est envoyée ; les autres sont vidées.
 
 type MediaData = {
   id?: string;
   title: string;
-  type: string;
-  mediaType: string;
-  categoryId: string;
+  type: MediaType;
   videoUrl: string;
   externalUrl: string;
   pdfUrl: string;
   date: string;
   source: string;
-  description: string;
   sortOrder: string;
+  published: boolean;
 };
-
-type Category = { id: string; name: string };
 
 type Props = {
   open: boolean;
   media: Record<string, unknown> | null;
-  categories: Category[];
   isNew: boolean;
   onClose: () => void;
   onSaved: () => void;
 };
 
-const MEDIA_TYPES = [
-  { value: "video", label: "Capsule vidéo" },
-  { value: "presse", label: "Revue de presse" },
-  { value: "article", label: "Article / lien externe" },
-];
-
-const PLATFORM_TYPES = [
-  { value: "", label: "— Aucune —" },
-  { value: "vimeo", label: "Vimeo" },
-  { value: "youtube", label: "YouTube" },
-];
-
 const EMPTY: MediaData = {
   title: "",
   type: "video",
-  mediaType: "",
-  categoryId: "",
   videoUrl: "",
   externalUrl: "",
   pdfUrl: "",
   date: "",
   source: "",
-  description: "",
   sortOrder: "0",
+  published: true,
 };
 
-export function MediaModal({ open, media, categories, isNew, onClose, onSaved }: Props) {
+/** Adresse et sous-titre attendus selon le type. */
+const HINTS: Record<MediaType, { url: "videoUrl" | "externalUrl" | "pdfUrl"; urlLabel: string; urlHelp: string; sourceLabel: string; sourcePlaceholder: string }> = {
+  video: {
+    url: "videoUrl",
+    urlLabel: "Adresse de la vidéo *",
+    urlHelp: "Lien Vimeo (https://vimeo.com/…) ou YouTube (https://www.youtube.com/watch?v=…).",
+    sourceLabel: "Domaine",
+    sourcePlaceholder: "Art du bois",
+  },
+  interview: {
+    url: "videoUrl",
+    urlLabel: "Adresse de la vidéo *",
+    urlHelp: "Lien Vimeo ou YouTube. Affichée dans « On parle des métiers d'art ».",
+    sourceLabel: "Sous-titre",
+    sourcePlaceholder: "Interview CCI Geneva",
+  },
+  article: {
+    url: "externalUrl",
+    urlLabel: "Adresse de l'article *",
+    urlHelp: "https://… — affiché dans « On parle des métiers d'art », à côté des vidéos.",
+    sourceLabel: "Média",
+    sourcePlaceholder: "Léman Bleu",
+  },
+  presse: {
+    url: "pdfUrl",
+    urlLabel: "Adresse du PDF *",
+    urlHelp: "https://… — bouton « Titre (PDF) » de la revue de presse JEMA.",
+    sourceLabel: "Source",
+    sourcePlaceholder: "JEMA",
+  },
+  archive: {
+    url: "externalUrl",
+    urlLabel: "Adresse de l'article *",
+    urlHelp: "https://… — liste « Articles archivés », classée par date.",
+    sourceLabel: "Média",
+    sourcePlaceholder: "24 heures / Tribune de Genève",
+  },
+};
+
+/** Types dont l'adresse peut être un PDF importé (revue de presse, article archivé). */
+const PDF_UPLOAD_TYPES: readonly MediaType[] = ["presse", "archive"];
+
+const isType = (v: unknown): v is MediaType => MEDIA_TYPES.some((t) => t.value === v);
+const str = (v: unknown) => (typeof v === "string" ? v : "");
+
+export function MediaModal({ open, media, isNew, onClose, onSaved }: Props) {
   const [form, setForm] = useState<MediaData>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset form when modal opens / data changes
   const formKey = (media?.id as string) ?? "new";
   useEffect(() => {
     if (!open) return;
-    const m = media as Record<string, unknown> | null;
+    const m = media;
     setForm(
       m
         ? {
-            ...EMPTY,
-            ...m,
+            id: str(m.id),
+            title: str(m.title),
+            type: isType(m.type) ? m.type : "video",
+            videoUrl: str(m.videoUrl),
+            externalUrl: str(m.externalUrl),
+            pdfUrl: str(m.pdfUrl),
             date: m.date ? new Date(m.date as string).toISOString().slice(0, 10) : "",
+            source: str(m.source),
             sortOrder: m.sortOrder != null ? String(m.sortOrder) : "0",
-          } as MediaData
+            published: m.published !== false,
+          }
         : EMPTY,
     );
     setError(null);
@@ -79,26 +121,62 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
 
   if (!open) return null;
 
-  const update = (key: keyof MediaData, value: string) => {
+  const update = (key: keyof MediaData, value: string | boolean) => {
     setForm((f) => ({ ...f, [key]: value }));
+  };
+
+  const hint = HINTS[form.type];
+  const canUploadPdf = PDF_UPLOAD_TYPES.includes(form.type);
+
+  // PDF envoyé directement du navigateur vers Blob (jeton : /api/admin/upload/pdf),
+  // les revues de presse dépassant la limite de 4,5 Mo d'une fonction Vercel.
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const field = hint.url;
+    setError(null);
+    if (file.size > PDF_MAX_BYTES) {
+      setError(`PDF trop volumineux (${PDF_MAX_BYTES / 1024 / 1024} Mo au plus).`);
+      return;
+    }
+    if (!hasPdfMagic(new Uint8Array(await file.slice(0, 5).arrayBuffer()))) {
+      setError("Ce fichier n'est pas un PDF.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const blob = await upload(pdfPathname(file.name), file, {
+        access: "public",
+        handleUploadUrl: "/api/admin/upload/pdf",
+        contentType: "application/pdf",
+        multipart: file.size > 5 * 1024 * 1024,
+      });
+      update(field, blob.url);
+    } catch (err) {
+      setError(err instanceof Error ? `Envoi du PDF impossible : ${err.message}` : "Envoi du PDF impossible");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
     setSaving(true);
     setError(null);
     try {
+      // Seule l'adresse du type choisi : une adresse restée d'un autre type
+      // (champ masqué) ne bloque pas l'enregistrement et n'est pas conservée.
+      const urlOf = (field: typeof hint.url) => (field === hint.url ? form[field] : null);
       const payload = {
         title: form.title,
         type: form.type,
-        mediaType: form.mediaType || undefined,
-        categoryId: form.categoryId || undefined,
-        videoUrl: form.videoUrl || undefined,
-        externalUrl: form.externalUrl || undefined,
-        pdfUrl: form.pdfUrl || undefined,
-        date: form.date || undefined,
-        source: form.source || undefined,
-        description: form.description || undefined,
+        videoUrl: urlOf("videoUrl"),
+        externalUrl: urlOf("externalUrl"),
+        pdfUrl: urlOf("pdfUrl"),
+        date: form.date,
+        source: form.source,
         sortOrder: Number(form.sortOrder) || 0,
+        published: form.published,
       };
       const url = isNew ? "/api/admin/medias" : `/api/admin/medias/${form.id}`;
       const method = isNew ? "POST" : "PATCH";
@@ -155,37 +233,81 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Titre *" value={form.title} onChange={(v) => update("title", v)} fullWidth />
 
-          <SelectField label="Type de média" value={form.type} onChange={(v) => update("type", v)} options={MEDIA_TYPES} />
           <SelectField
-            label="Plateforme vidéo"
-            value={form.mediaType}
-            onChange={(v) => update("mediaType", v)}
-            options={PLATFORM_TYPES}
+            label="Section de la page"
+            value={form.type}
+            onChange={(v) => isType(v) && update("type", v)}
+            options={MEDIA_TYPES}
+          />
+          <Field
+            label={hint.sourceLabel}
+            value={form.source}
+            onChange={(v) => update("source", v)}
+            placeholder={hint.sourcePlaceholder}
+            help="Affiché sous le titre."
           />
 
-          <SelectField
-            label="Domaine (catégorie)"
-            value={form.categoryId}
-            onChange={(v) => update("categoryId", v)}
-            options={[{ value: "", label: "— Aucun —" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+          {/* Adresse selon le type */}
+          <Field
+            key={hint.url}
+            label={hint.urlLabel}
+            value={form[hint.url]}
+            onChange={(v) => update(hint.url, v)}
+            fullWidth
+            placeholder="https://…"
+            help={hint.urlHelp}
           />
-          <Field label="Source / Auteur" value={form.source} onChange={(v) => update("source", v)} placeholder="Art du bois, Léman Bleu…" />
 
-          {/* Champs conditionnels selon le type */}
-          {form.type === "video" && (
-            <Field label="URL vidéo (Vimeo / YouTube)" value={form.videoUrl} onChange={(v) => update("videoUrl", v)} fullWidth placeholder="https://vimeo.com/… ou https://www.youtube.com/watch?v=…" />
-          )}
-          {form.type === "article" && (
-            <Field label="URL externe" value={form.externalUrl} onChange={(v) => update("externalUrl", v)} fullWidth placeholder="https://…" />
-          )}
-          {form.type === "presse" && (
-            <Field label="URL du PDF" value={form.pdfUrl} onChange={(v) => update("pdfUrl", v)} fullWidth placeholder="https://…/revue.pdf" />
+          {canUploadPdf && (
+            <div className="col-span-2 -mt-2 flex flex-wrap items-center gap-3">
+              <input ref={fileInputRef} type="file" accept="application/pdf,.pdf" onChange={handlePdfUpload} className="hidden" />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || saving}
+                className="inline-flex items-center gap-2 rounded-lg border border-mag-cream px-4 py-2 text-sm font-medium text-mag-dark hover:border-mag-red hover:text-mag-red transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {uploading ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-mag-gray/30 border-t-mag-red rounded-full animate-spin" />
+                    Envoi…
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-upload" />
+                    {form[hint.url] ? "Remplacer par un PDF" : "Importer un PDF"}
+                  </>
+                )}
+              </button>
+              <span className="text-[11px] text-mag-gray/80">
+                Remplit l&apos;adresse ci-dessus. {PDF_MAX_BYTES / 1024 / 1024} Mo au plus.
+              </span>
+            </div>
           )}
 
-          <Field label="Date" value={form.date} onChange={(v) => update("date", v)} type="date" />
-          <Field label="Ordre de tri" value={form.sortOrder} onChange={(v) => update("sortOrder", v)} type="number" />
+          {(form.type === "presse" || form.type === "archive") && (
+            <Field
+              label="Date"
+              value={form.date}
+              onChange={(v) => update("date", v)}
+              type="date"
+              help={form.type === "presse" ? "Classe les revues, la plus récente d'abord." : "Affichée « 14.10.2021 », la plus récente d'abord."}
+            />
+          )}
+          {(form.type === "video" || form.type === "interview" || form.type === "article") && (
+            <Field
+              label="Ordre d'affichage"
+              value={form.sortOrder}
+              onChange={(v) => update("sortOrder", v)}
+              type="number"
+              help="Du plus petit au plus grand ; même ordre : le plus ancien d'abord."
+            />
+          )}
 
-          <TextareaField label="Description" value={form.description} onChange={(v) => update("description", v)} rows={3} fullWidth />
+          <label className="flex items-center gap-2 col-span-2">
+            <input type="checkbox" checked={form.published} onChange={(e) => update("published", e.target.checked)} className="h-4 w-4 accent-mag-red focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mag-red" />
+            <span className="text-sm text-mag-dark">Publié</span>
+          </label>
         </div>
 
         {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -202,7 +324,7 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
             </button>
             <button
               onClick={handleSave}
-              disabled={saving || !(form.title ?? "").trim()}
+              disabled={saving || uploading || !(form.title ?? "").trim()}
               className="inline-flex items-center gap-2 rounded-lg bg-mag-red px-5 py-2 text-sm font-semibold text-white hover:bg-mag-red-dark transition-colors disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
@@ -223,8 +345,8 @@ export function MediaModal({ open, media, categories, isNew, onClose, onSaved }:
   );
 }
 
-function Field({ label, value, onChange, type = "text", placeholder, fullWidth }: {
-  label: string; value: string | null; onChange: (v: string) => void; type?: string; placeholder?: string; fullWidth?: boolean;
+function Field({ label, value, onChange, type = "text", placeholder, help, fullWidth }: {
+  label: string; value: string | null; onChange: (v: string) => void; type?: string; placeholder?: string; help?: string; fullWidth?: boolean;
 }) {
   return (
     <label className={fullWidth ? "col-span-2" : ""}>
@@ -236,12 +358,13 @@ function Field({ label, value, onChange, type = "text", placeholder, fullWidth }
         placeholder={placeholder}
         className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
       />
+      {help && <span className="mt-1 block text-[11px] text-mag-gray/80">{help}</span>}
     </label>
   );
 }
 
 function SelectField({ label, value, onChange, options }: {
-  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[];
+  label: string; value: string; onChange: (v: string) => void; options: readonly { value: string; label: string }[];
 }) {
   return (
     <label>
@@ -253,22 +376,6 @@ function SelectField({ label, value, onChange, options }: {
       >
         {options.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
       </select>
-    </label>
-  );
-}
-
-function TextareaField({ label, value, onChange, rows = 3, fullWidth }: {
-  label: string; value: string | null; onChange: (v: string) => void; rows?: number; fullWidth?: boolean;
-}) {
-  return (
-    <label className={fullWidth ? "col-span-2" : ""}>
-      <span className="text-xs font-medium text-mag-gray mb-1 block">{label}</span>
-      <textarea
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
-      />
     </label>
   );
 }

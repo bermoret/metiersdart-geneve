@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { artisans, categories, actualites, jemaEditions, medias } from "@/db/schema";
+import { artisans, categories, jemaEditions } from "@/db/schema";
 import { eq, desc, asc } from "drizzle-orm";
 
 export type ArtisanRow = typeof artisans.$inferSelect;
@@ -38,11 +38,6 @@ export async function getAllArtisanSlugs() {
   return all.map((a) => ({ slug: a.slug }));
 }
 
-// Actualités
-export async function getActualites() {
-  return db.select().from(actualites).where(eq(actualites.published, true)).orderBy(desc(actualites.createdAt));
-}
-
 // JEMA
 export async function getJemaEditions() {
   return db.select().from(jemaEditions).orderBy(desc(jemaEditions.year));
@@ -51,9 +46,4 @@ export async function getJemaEditions() {
 export async function getJemaEdition(year: number) {
   const [ed] = await db.select().from(jemaEditions).where(eq(jemaEditions.year, year)).limit(1);
   return ed;
-}
-
-// Médias
-export async function getMedias() {
-  return db.select().from(medias).orderBy(desc(medias.sortOrder));
 }

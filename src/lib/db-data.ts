@@ -17,8 +17,10 @@
 
 import { cache } from "react";
 import { db } from "@/db";
-import { artisans, categories, communes, jemaEditions } from "@/db/schema";
+import { actualites, artisans, categories, communes, jemaEditions, medias } from "@/db/schema";
 import { and, eq, asc, desc, isNotNull, isNull, notInArray, or } from "drizzle-orm";
+import { isMediaType, visibleActualites, type PublicActu, type PublicMedia } from "./actu-medias";
+import { staticActualites, staticMedias } from "./actu-medias-static";
 import {
   artisans as staticArtisans,
   categories as allStaticCategories,
@@ -469,6 +471,78 @@ export function splitJemaEditions(
     .sort((a, b) => b.year - a.year);
   return { upcoming, past };
 }
+
+// ─── Actualités et médias ──────────────────────────────────────
+
+/**
+ * Cartes de /l-actu : publiées, non archivées, sans les événements passés,
+ * dans l'ordre de la page (`visibleActualites`). Repli statique sans base.
+ */
+export const getActualites = cache(async (): Promise<PublicActu[]> => {
+  if (!dbConfigured()) {
+    return visibleActualites(staticActualites.map((a, i) => ({ id: `static-${i + 1}`, ...a })));
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(actualites)
+      .where(and(eq(actualites.published, true), or(isNull(actualites.isArchived), eq(actualites.isArchived, false))))
+      .orderBy(asc(actualites.createdAt));
+    return visibleActualites(
+      rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        badge: r.category,
+        source: r.source,
+        subtitle: r.subtitle,
+        description: r.excerpt,
+        eventDate: r.eventDate,
+        eventEndDate: r.eventEndDate,
+        timeLabel: r.timeLabel,
+        linkUrl: r.linkUrl,
+        linkLabel: r.linkLabel,
+        imageUrl: r.imageUrl,
+      })),
+    );
+  } catch (err) {
+    return dbError("getActualites", err);
+  }
+});
+
+/**
+ * Médias publiés de /medias, par ordre de tri puis d'ajout ; les sections sont
+ * formées par `groupMedias`. Un type inconnu (hors MEDIA_TYPES) n'est pas
+ * affiché. Repli statique sans base.
+ */
+export const getMedias = cache(async (): Promise<PublicMedia[]> => {
+  if (!dbConfigured()) return staticMedias.map((m, i) => ({ id: `static-${i + 1}`, ...m }));
+  try {
+    const rows = await db
+      .select()
+      .from(medias)
+      .where(eq(medias.published, true))
+      .orderBy(asc(medias.sortOrder), asc(medias.createdAt));
+    return rows.flatMap((r) =>
+      isMediaType(r.type)
+        ? [
+            {
+              id: r.id,
+              title: r.title,
+              type: r.type,
+              videoUrl: r.videoUrl,
+              externalUrl: r.externalUrl,
+              pdfUrl: r.pdfUrl,
+              date: r.date,
+              source: r.source,
+              sortOrder: r.sortOrder ?? 0,
+            },
+          ]
+        : [],
+    );
+  } catch (err) {
+    return dbError("getMedias", err);
+  }
+});
 
 // ─── Helpers de comptage ────────────────────────────────────────
 // (le nombre de métiers affiché suit la nomenclature MAG, pas les libellés en base)

@@ -3,14 +3,50 @@
 import { useState, useEffect } from "react";
 import { AdminTable } from "@/components/admin/AdminTable";
 import { ActuModal } from "@/components/admin/ActuModal";
+import { formatActuDate, isActuPast } from "@/lib/actu-medias";
 
 type Actu = {
   id: string;
   title: string;
   category: string | null;
+  eventDate: string | null;
+  eventEndDate: string | null;
   published: boolean | null;
+  isArchived: boolean | null;
   createdAt: string;
 };
+
+const toDate = (v: unknown) => (typeof v === "string" && v ? new Date(v) : null);
+
+/** État de la carte sur le site : publiée, passée (date dépassée), archivée ou brouillon. */
+function Status({ row }: { row: Record<string, unknown> }) {
+  if (!row.published) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-mag-gray">
+        <i className="fas fa-circle" /> Brouillon
+      </span>
+    );
+  }
+  if (row.isArchived) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-mag-gray">
+        <i className="fas fa-box-archive" /> Archivée
+      </span>
+    );
+  }
+  if (isActuPast({ eventDate: toDate(row.eventDate), eventEndDate: toDate(row.eventEndDate) })) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-amber-700" title="Date dépassée : n'apparaît plus sur le site">
+        <i className="fas fa-clock" /> Passée
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-green-700">
+      <i className="fas fa-check-circle" /> Publiée
+    </span>
+  );
+}
 
 export default function AdminActualitesPage() {
   const [rows, setRows] = useState<Actu[]>([]);
@@ -64,35 +100,23 @@ export default function AdminActualitesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-mag-dark font-serif mb-6">
+      <h1 className="text-2xl font-bold text-mag-dark font-serif mb-2">
         Actualités ({rows.length})
       </h1>
+      <p className="text-sm text-mag-gray mb-6">
+        Cartes de la page L&apos;actu : d&apos;abord celles sans date, puis les événements par date.
+        Un événement dont la date est passée n&apos;apparaît plus sur le site.
+      </p>
       <AdminTable
         columns={[
           { key: "title", label: "Titre" },
-          { key: "category", label: "Catégorie" },
+          { key: "category", label: "Étiquette" },
           {
-            key: "published",
-            label: "Statut",
-            render: (row) =>
-              row.published ? (
-                <span className="inline-flex items-center gap-1 text-xs text-green-700">
-                  <i className="fas fa-check-circle" /> Publié
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-xs text-mag-gray">
-                  <i className="fas fa-circle" /> Brouillon
-                </span>
-              ),
+            key: "eventDate",
+            label: "Date",
+            render: (row) => formatActuDate(toDate(row.eventDate), toDate(row.eventEndDate)) || "—",
           },
-          {
-            key: "createdAt",
-            label: "Créé le",
-            render: (row) =>
-              row.createdAt
-                ? new Date(String(row.createdAt)).toLocaleDateString("fr-FR")
-                : "",
-          },
+          { key: "published", label: "Statut", render: (row) => <Status row={row} /> },
         ]}
         rows={rows}
         onEdit={handleEdit}

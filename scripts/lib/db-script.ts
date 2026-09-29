@@ -159,13 +159,14 @@ export interface AppliedRow {
   column: string;
   id: string;
   oldUrl: string;
-  newUrl: string;
+  /** null : lien retiré (page de l'ancien site sans équivalent). */
+  newUrl: string | null;
 }
 
 /**
  * Retour arrière d'une migration : pour chaque entrée de `file`,
- *   UPDATE <table> SET <column> = oldUrl WHERE id = <id> AND <column> = newUrl
- * — une valeur modifiée depuis (dans l'admin) n'est jamais écrasée, elle est
+ *   UPDATE <table> SET <column> = oldUrl WHERE id = <id> AND <column> IS NOT DISTINCT FROM newUrl
+ * (newUrl null : lien retiré, la colonne doit être restée NULL) — une valeur modifiée depuis (dans l'admin) n'est jamais écrasée, elle est
  * signalée. Sans --apply : lecture seule, compte ce qui serait restauré.
  * `allowed` borne les couples table/colonne acceptés : un fichier retouché à la
  * main ne peut pas viser une autre colonne.
@@ -180,7 +181,8 @@ export async function rollbackApplied(
   const str = (v: unknown) => typeof v === "string" && v.length > 0;
   for (const [i, r] of rows.entries()) {
     const ok =
-      r && typeof r === "object" && str(r.table) && str(r.column) && str(r.id) && str(r.oldUrl) && str(r.newUrl);
+      r && typeof r === "object" && str(r.table) && str(r.column) && str(r.id) && str(r.oldUrl) &&
+      (str(r.newUrl) || r.newUrl === null);
     if (!ok) throw new Error(`${file} : entrée ${i} incomplète (table, column, id, oldUrl, newUrl)`);
     if (!allowed.some((a) => a.table === r.table && a.column === r.column)) {
       throw new Error(`${file} : entrée ${i} vise ${r.table}.${r.column}, hors des colonnes de ce script`);
@@ -196,8 +198,12 @@ export async function rollbackApplied(
         const tbl = c.escapeIdentifier(r.table);
         const col = c.escapeIdentifier(r.column);
         const res = apply
-          ? await c.query(`UPDATE ${tbl} SET ${col} = $3 WHERE id = $1 AND ${col} = $2`, [r.id, r.newUrl, r.oldUrl])
-          : await c.query(`SELECT 1 FROM ${tbl} WHERE id = $1 AND ${col} = $2`, [r.id, r.newUrl]);
+          ? await c.query(`UPDATE ${tbl} SET ${col} = $3 WHERE id = $1 AND ${col} IS NOT DISTINCT FROM $2`, [
+              r.id,
+              r.newUrl,
+              r.oldUrl,
+            ])
+          : await c.query(`SELECT 1 FROM ${tbl} WHERE id = $1 AND ${col} IS NOT DISTINCT FROM $2`, [r.id, r.newUrl]);
         if (res.rowCount) restored++;
         else skipped.push(r);
       }
