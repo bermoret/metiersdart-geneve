@@ -279,6 +279,24 @@ export const EXCLUDED_CATEGORY_SLUGS = [
   "partenaires",
 ];
 
+/**
+ * Autres répertoires (hors artisans), comme sur l'ancien site
+ * (/repertoire/<slug>) : slug de la catégorie institutionnelle ↔ type
+ * d'entité. Nom et icône servent de repli si la catégorie manque en base.
+ */
+export const DIRECTORIES: {
+  slug: string;
+  type: ArtisanData["type"];
+  name: string;
+  icon: string;
+  unit: [singular: string, plural: string];
+}[] = [
+  { slug: "institutions-culturelles", type: "institution_culturelle", name: "Institutions culturelles", icon: "fas fa-university", unit: ["institution", "institutions"] },
+  { slug: "ecoles-formatrices", type: "ecole_formatrice", name: "Écoles formatrices", icon: "fas fa-school", unit: ["école", "écoles"] },
+  { slug: "associations-professionnelles", type: "association_professionnelle", name: "Associations professionnelles", icon: "fas fa-people-arrows", unit: ["association", "associations"] },
+  { slug: "partenaires", type: "partenaire", name: "Partenaires", icon: "fas fa-handshake", unit: ["partenaire", "partenaires"] },
+];
+
 /** Artisans réels uniquement (exclut écoles, associations, institutions, partenaires). */
 export const artisansOnly: ArtisanData[] = artisans.filter(
   (a) => !EXCLUDED_TYPES.includes(a.type),

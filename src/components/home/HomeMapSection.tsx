@@ -46,7 +46,7 @@ export function HomeMapSection({ artisans, categories }: Props) {
     [artisans, categories],
   );
 
-  // id="carte" : ancre du bouton « Voir la carte des artisan·e·s » (/repertoire) ;
+  // id="carte" : ancre de la carte (liens /#carte) ;
   // scroll-mt-20 = hauteur de l'en-tête collant (h-20).
   return (
     <section id="carte" className="py-16 bg-white scroll-mt-20">

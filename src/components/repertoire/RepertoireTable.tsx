@@ -24,6 +24,7 @@ export type RepertoireCategory = {
 
 type Props = {
   artisans: RepertoireItem[];
+  /** Domaines ; liste vide = pas de filtre ni de colonne « Domaine » (autres répertoires). */
   categories: RepertoireCategory[];
 };
 
@@ -38,6 +39,7 @@ export function RepertoireTable({ artisans, categories }: Props) {
     [artisans],
   );
 
+  const showDomain = categories.length > 0;
   const hasFilters = search || categoryFilter || communeFilter;
 
   const resetFilters = () => {
@@ -77,21 +79,23 @@ export function RepertoireTable({ artisans, categories }: Props) {
             className="w-full rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
           />
         </label>
-        <label>
-          <span className="sr-only">Filtrer par domaine</span>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
-          >
-            <option value="">Tous les domaines</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {showDomain && (
+          <label>
+            <span className="sr-only">Filtrer par domaine</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="rounded-lg border border-mag-field bg-white px-4 py-2.5 text-sm focus:border-mag-red focus:outline-none"
+            >
+              <option value="">Tous les domaines</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
           <span className="sr-only">Filtrer par commune</span>
           <select
@@ -130,7 +134,9 @@ export function RepertoireTable({ artisans, categories }: Props) {
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Nom</th>
               <th scope="col" className="px-4 py-3 font-semibold hidden sm:table-cell">Métier</th>
-              <th scope="col" className="px-4 py-3 font-semibold hidden md:table-cell">Domaine</th>
+              {showDomain && (
+                <th scope="col" className="px-4 py-3 font-semibold hidden md:table-cell">Domaine</th>
+              )}
               <th scope="col" className="px-4 py-3 font-semibold">Commune</th>
             </tr>
           </thead>
@@ -150,16 +156,18 @@ export function RepertoireTable({ artisans, categories }: Props) {
                   <td className="px-4 py-3 text-mag-dark/70 hidden sm:table-cell">
                     {a.craft}
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    {cat && (
-                      <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                        style={chipColors(cat.color)}
-                      >
-                        <CategoryIcon icon={cat.icon ?? ""} /> {a.categoryName}
-                      </span>
-                    )}
-                  </td>
+                  {showDomain && (
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      {cat && (
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={chipColors(cat.color)}
+                        >
+                          <CategoryIcon icon={cat.icon ?? ""} /> {a.categoryName}
+                        </span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-3 text-mag-dark/70">{a.commune}</td>
                 </tr>
               );

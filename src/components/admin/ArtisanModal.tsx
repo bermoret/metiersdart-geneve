@@ -77,12 +77,16 @@ export function ArtisanModal({ open, artisan, categories, communes, isNew, onClo
   const [uploading, setUploading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Adresse à l'ouverture : une fiche retirée des cartes (coordonnées vidées,
+  // adresse gardée) n'est pas re-géocodée au simple passage dans le champ.
+  const openedAddress = useRef("");
 
   // Reset form when modal opens / data changes
   const formKey = (artisan?.id as string) ?? "new";
   useEffect(() => {
     if (!open) return;
     const a = artisan as Record<string, unknown> | null;
+    openedAddress.current = typeof a?.address === "string" ? a.address.trim() : "";
     setForm(
       a
         ? {
@@ -152,9 +156,10 @@ export function ArtisanModal({ open, artisan, categories, communes, isNew, onClo
     }
   };
 
-  // Auto-géocoder quand l'adresse perd le focus
+  // Auto-géocoder quand l'adresse, modifiée, perd le focus
   const handleAddressBlur = () => {
-    if ((form.address ?? "").trim() && !form.latitude) {
+    const address = (form.address ?? "").trim();
+    if (address && address !== openedAddress.current && !form.latitude) {
       handleGeocode();
     }
   };

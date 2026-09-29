@@ -12,10 +12,13 @@ import {
   getJemaEditions,
   splitJemaEditions,
   countCommunes,
+  countMagCommunes,
+  getDirectories,
+  type PublicArtisan,
   type PublicJemaEdition,
 } from "./db-data";
 import { formatShortRange } from "./dates";
-import { compareFr } from "./utils";
+import { communeKey, compareFr } from "./utils";
 
 // Sans base : db-data sert le fallback statique, sans aucune requête SQL.
 // Ces tests couvrent donc les règles LOT 1 telles que calculées par la
@@ -93,6 +96,53 @@ describe("db-data : comptages et filtres (fallback statique)", () => {
   test("countCommunes : communes distinctes de la liste reçue", async () => {
     const all = await getPublishedArtisans();
     assert.equal(countCommunes(all), new Set(artisans.map((a) => a.commune)).size);
+  });
+
+  test("countMagCommunes : artisan·e·s + écoles + institutions, sans associations ni partenaires", () => {
+    const entity = (type: string, commune: string | null): PublicArtisan =>
+      ({ type, commune }) as PublicArtisan;
+    const list = [
+      entity("artisan", "Genève"),
+      entity("atelier", "Vandœuvres"),
+      entity("artisan", "Vandoeuvres"), // même commune (clé communeKey)
+      entity("ecole_formatrice", "Jussy"),
+      entity("institution_culturelle", "Cologny"),
+      entity("institution_culturelle", null),
+      entity("association_professionnelle", "Clarens"),
+      entity("partenaire", "Bernex"),
+    ];
+    assert.equal(countMagCommunes(list), 4); // Genève, Vandœuvres, Jussy, Cologny
+    assert.equal(countCommunes(list), 6);
+  });
+
+  test("countMagCommunes : données statiques", async () => {
+    const all = await getPublishedArtisans();
+    const scope = all.filter(
+      (a) => a.type !== "association_professionnelle" && a.type !== "partenaire",
+    );
+    const keys = new Set(scope.flatMap((a) => (a.commune ? [communeKey(a.commune)] : [])));
+    assert.equal(countMagCommunes(all), keys.size);
+    assert.equal(countMagCommunes(all), 22); // 21 communes d'artisan·e·s + Cologny (Fondation Martin Bodmer)
+    // Au moins autant que les seul·e·s artisan·e·s
+    assert.ok(countMagCommunes(all) >= countCommunes(await getArtisansOnly()));
+  });
+
+  test("getDirectories : les 4 autres répertoires, entités retenues par type", async () => {
+    const dirs = await getDirectories();
+    assert.deepEqual(
+      dirs.map((d) => d.slug),
+      ["institutions-culturelles", "ecoles-formatrices", "associations-professionnelles", "partenaires"],
+    );
+    const all = await getPublishedArtisans();
+    for (const d of dirs) {
+      assert.ok(d.entities.length > 0, d.slug);
+      assert.ok(d.entities.every((a) => a.type === d.type), d.slug);
+      assert.equal(d.entities.length, all.filter((a) => a.type === d.type).length, d.slug);
+      assert.ok(d.icon, d.slug);
+    }
+    // Toutes les entités non-artisan sont dans un répertoire
+    const total = dirs.reduce((n, d) => n + d.entities.length, 0);
+    assert.equal(total, all.length - (await getArtisansOnly()).length);
   });
 
   test("getArtisanCommunes : communes distinctes des artisan·e·s seul·e·s", async () => {

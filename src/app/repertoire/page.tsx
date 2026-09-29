@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { RepertoireTable } from "@/components/repertoire/RepertoireTable";
 import { getArtisansOnly, getArtisanCategories } from "@/lib/db-data";
 import { PageHero } from "@/components/ui/Editorial";
@@ -9,7 +8,7 @@ export const revalidate = 60;
 export const metadata = {
   title: "Répertoire",
   description:
-    "Le répertoire complet des artisanes et artisans, ateliers, institutions et écoles des métiers d'art du canton de Genève.",
+    "Le répertoire complet des artisanes et artisans, ateliers et entreprises des métiers d'art du canton de Genève.",
 };
 
 export default async function RepertoirePage() {
@@ -18,34 +17,18 @@ export default async function RepertoirePage() {
     getArtisanCategories(),
   ]);
 
+  // En-tête compact, sans chapô ni bouton carte (retour MAG du 28.09) : la
+  // liste commence plus haut.
   return (
     <>
       <PageHero
+        compact
         eyebrow={<>Répertoire MAG</>}
         title={<>Répertoire</>}
         accent={<>complet</>}
-        lead={
-          <>
-            <p className="max-w-3xl text-mag-dark/80 leading-relaxed">
-            Ce répertoire contient uniquement la liste des artisanes et artisans,
-            des ateliers, des entreprises, des institutions culturelles et des
-            écoles professionnelles qui exercent ou forment aux métiers d&apos;art
-            sur le canton de Genève.
-          </p>
-          </>
-        }
-      >
-        {/* Carte des artisan·e·s : section « Trouvez votre artisan·e » de l'accueil */}
-        <Link
-          href="/#carte"
-          className="btn-fill inline-flex items-center gap-2 rounded-full bg-mag-red px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-mag-red/20 transition-shadow hover:shadow-xl"
-        >
-          <i className="fas fa-map-marker-alt" aria-hidden />
-          Voir la carte des artisan·e·s
-        </Link>
-      </PageHero>
+      />
 
-      <section className="py-16 sm:py-24">
+      <section className="pt-10 sm:pt-12 pb-16 sm:pb-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Composant client : on ne sérialise que les champs utiles au tableau
               (pas les descriptions, poinçons, contacts…) */}

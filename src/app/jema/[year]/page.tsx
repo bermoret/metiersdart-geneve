@@ -30,7 +30,7 @@ type EditionExtras = {
   intro?: string;
   /** Récit détaillé d'origine — prime sur la description (résumé) en base. */
   description?: string;
-  /** Vidéos (Best of…), affichées côte à côte. */
+  /** Vidéos (Best of, Focus Léman Bleu…), affichées côte à côte. */
   videos?: {
     platform: "vimeo" | "youtube";
     videoId: string;
@@ -56,6 +56,11 @@ const editionExtras: Record<string, EditionExtras> = {
         videoId: "1197627397",
         title: "Best of des JEMA 2026 par Raphaël Haab",
       },
+      {
+        platform: "vimeo",
+        videoId: "1191922591",
+        title: "Focus Léman Bleu : le domaine de la pierre se mobilise",
+      },
     ],
     programmeUrl: "https://issuu.com/bermoret/docs/programme_jema_2026_4a618116f09eec",
     stats: [
@@ -76,6 +81,11 @@ const editionExtras: Record<string, EditionExtras> = {
         platform: "vimeo",
         videoId: "1086757638",
         title: "JEMA 2025 - Best of, version courte",
+      },
+      {
+        platform: "vimeo",
+        videoId: "1076326732",
+        title: "JEMA 2025 - Focus Léman Bleu",
       },
     ],
     programmeUrl: "https://issuu.com/bermoret/docs/jema25_programme",
@@ -290,7 +300,7 @@ export default async function EditionPage({
         </section>
       )}
 
-      {/* Vidéos Best of (si disponibles) : côte à côte sur grand écran */}
+      {/* Vidéos Best of / Focus Léman Bleu (si disponibles) : côte à côte sur grand écran */}
       {edition.videos.length > 0 && (
         <section className="py-8">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">

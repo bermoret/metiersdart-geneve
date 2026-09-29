@@ -10,8 +10,10 @@ import {
   parseCount,
   readableOnTint,
   sortByName,
+  hasCoords,
+  pickByNames,
 } from "./utils";
-import { categories, communesList } from "./data";
+import { artisans, categories, communesList } from "./data";
 import geCommunes from "./ge-communes.json";
 
 describe("communeKey", () => {
@@ -158,5 +160,51 @@ describe("parseCount : chiffres saisis dans l'admin", () => {
     for (const bad of [null, true, "53", "", 1.5, -1, 2_147_483_648, 1e21, Infinity, NaN, [53], {}]) {
       assert.equal(parseCount(bad), null, String(bad));
     }
+  });
+});
+
+describe("hasCoords", () => {
+  test("coordonnées renseignées et finies uniquement", () => {
+    assert.equal(hasCoords({ latitude: 46.2, longitude: 6.14 }), true);
+    assert.equal(hasCoords({ latitude: null, longitude: null }), false);
+    assert.equal(hasCoords({ latitude: 46.2, longitude: null }), false);
+    assert.equal(hasCoords({ latitude: NaN, longitude: 6.14 }), false);
+  });
+});
+
+describe("pickByNames", () => {
+  const list = [
+    { name: "Atelier CAL'AS (Artisans Sculpteurs), Vincent Du Bois" },
+    { name: "Atelier Comte" },
+    { name: "Atelier Comte et Fils" },
+    { name: "Frédéric Taddeï" },
+  ];
+
+  test("exact d'abord, sinon tous les mots ; casse, accents et apostrophes neutralisés", () => {
+    assert.deepEqual(
+      pickByNames(list, ["atelier cal’as", "ATELIER COMTE", "Frederic Taddei"]).map((a) => a.name),
+      [list[0].name, "Atelier Comte", "Frédéric Taddeï"],
+    );
+  });
+
+  test("noms introuvables ignorés, pas de doublon, ordre des noms conservé", () => {
+    assert.deepEqual(
+      pickByNames(list, ["Inconnu", "Frédéric Taddeï", "Taddeï", ""]).map((a) => a.name),
+      ["Frédéric Taddeï"],
+    );
+  });
+
+  test("participant·e·s pierre JEMA 2026 : tous retrouvés dans les données statiques", () => {
+    const names = [
+      "Atelier Cal'As",
+      "Atelier Comte",
+      "Philippe Cartan",
+      "Daniel Estevez",
+      "Michel Gillabert",
+      "Mello & Fils SA",
+    ];
+    const found = pickByNames(artisans, names);
+    assert.equal(found.length, names.length);
+    assert.ok(found.every((a) => a.categoryName === "Art de la pierre"));
   });
 });

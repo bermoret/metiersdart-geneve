@@ -24,16 +24,10 @@ export default function ManufactoPage() {
   return (
     <>
       <PageHero
-        eyebrow={<>Fondation d&apos;entreprise Hermès × DIP × MAG</>}
-        title={
-          <>
-            Manufacto{" "}
-            {/* Sous-titre plus petit que `accent` (conçu pour un mot : « complet », « Genève ») */}
-            <span className="block mt-4 text-3xl sm:text-4xl lg:text-5xl leading-tight text-mag-red">
-              La fabrique des savoir-faire
-            </span>
-          </>
-        }
+        // Retour MAG du 28.09 : « La fabrique des savoir-faire » en sur-titre, à la
+        // place de la mention Hermès × DIP × MAG (détaillée dans le chapô).
+        eyebrow={<>La fabrique des savoir-faire</>}
+        title="Manufacto"
         image="/manufacto-atelier-cuir-eleves.jpg"
         imageAlt="Deux élèves découpent du cuir à l'aide d'un gabarit en papier lors d'un atelier Manufacto"
         lead={

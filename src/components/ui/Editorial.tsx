@@ -38,6 +38,8 @@ type PageHeroProps = {
   /** Légende posée en bas de la photo (nom, métier, commune). */
   caption?: ReactNode;
   children?: ReactNode;
+  /** Marges verticales réduites (répertoire : la liste doit commencer plus haut). */
+  compact?: boolean;
 };
 
 /**
@@ -53,6 +55,7 @@ export function PageHero({
   imageAlt = "",
   caption,
   children,
+  compact = false,
 }: PageHeroProps) {
   return (
     <section className="relative bg-mag-sand grain-overlay border-b border-mag-cream overflow-hidden">
@@ -62,7 +65,9 @@ export function PageHero({
         }`}
       >
         <div
-          className={`px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28 ${
+          className={`px-4 sm:px-6 lg:px-8 ${
+            compact ? "py-10 sm:py-12 lg:py-14" : "py-16 sm:py-20 lg:py-28"
+          } ${
             image ? "lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-16" : ""
           }`}
         >

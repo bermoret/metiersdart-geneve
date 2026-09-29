@@ -26,7 +26,7 @@ const parcours = [
     name: "Pavillon SICLI",
     icon: "fas fa-store-alt",
     description:
-      "Le point central de l'événement — 31 artisan·e·s, 6 écoles formatrices, 4 ateliers d'initiation, 4 conférences, 1 salle de projection, 1 MAG Café.",
+      "Le point central de l'événement : artisan·e·s, écoles formatrices, ateliers d'initiation, conférences, salle de projection et MAG Café.",
   },
   {
     name: "Parcours Culturel",

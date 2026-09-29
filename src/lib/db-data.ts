@@ -25,6 +25,7 @@ import {
   communesList as staticCommunes,
   EXCLUDED_TYPES as NON_ARTISAN_TYPES,
   EXCLUDED_CATEGORY_SLUGS,
+  DIRECTORIES,
 } from "./data";
 import { getArtisanDetail } from "./artisan-details";
 import { communeKey, sortByName } from "./utils";
@@ -378,6 +379,36 @@ export const getArtisansByCategoryDb = cache(
   },
 );
 
+/** Autre répertoire (institutions, écoles, associations, partenaires) et ses entités. */
+export type PublicDirectory = {
+  slug: string;
+  type: string;
+  name: string;
+  icon: string;
+  description: string | null;
+  unit: [singular: string, plural: string];
+  entities: PublicArtisan[];
+};
+
+/**
+ * Autres répertoires, dans l'ordre de l'ancien site. Nom, icône et
+ * description viennent de la catégorie institutionnelle (admin) ; les
+ * entités sont retenues par type, comme pour les compteurs.
+ */
+export const getDirectories = cache(async (): Promise<PublicDirectory[]> => {
+  const [cats, all] = await Promise.all([getAllCategories(), getPublishedArtisans()]);
+  return DIRECTORIES.map((d) => {
+    const cat = cats.find((c) => c.slug === d.slug);
+    return {
+      ...d,
+      name: cat?.name ?? d.name,
+      icon: cat?.icon || d.icon,
+      description: cat?.description ?? null,
+      entities: all.filter((a) => a.type === d.type),
+    };
+  });
+});
+
 /** Éditions JEMA, la plus récente d'abord. */
 export const getJemaEditions = cache(async (): Promise<PublicJemaEdition[]> => {
   // Pas d'éditions en statique : base non configurée → liste vide
@@ -443,10 +474,21 @@ export function splitJemaEditions(
 // (le nombre de métiers affiché suit la nomenclature MAG, pas les libellés en base)
 
 /**
- * Nombre de communes distinctes de la liste reçue (l'accueil passe les
- * artisan·e·s seul·e·s, chiffre MAG). Même clé que la carte des communes :
- * « Vandœuvres » et « Vandoeuvres » comptent une fois.
+ * Nombre de communes distinctes de la liste reçue. Même clé que la carte des
+ * communes : « Vandœuvres » et « Vandoeuvres » comptent une fois.
  */
 export function countCommunes(list: PublicArtisan[]): number {
   return new Set(list.map((a) => (a.commune ? communeKey(a.commune) : "")).filter(Boolean)).size;
+}
+
+/** Types hors du chiffre « Communes » de l'accueil (retour MAG du 28.09). */
+const COMMUNES_EXCLUDED_TYPES = ["association_professionnelle", "partenaire"];
+
+/**
+ * Chiffre « Communes » de « MAG en chiffres » : communes des artisan·e·s, des
+ * écoles formatrices et des institutions culturelles — pas des associations
+ * professionnelles ni des partenaires.
+ */
+export function countMagCommunes(all: PublicArtisan[]): number {
+  return countCommunes(all.filter((a) => !COMMUNES_EXCLUDED_TYPES.includes(a.type)));
 }

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import {
   getArtisanCategories,
   getArtisansOnly,
+  getDirectories,
   getJemaEditions,
   splitJemaEditions,
 } from "@/lib/db-data";
@@ -13,15 +14,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://metiersdart-geneve.ch";
   const now = new Date();
 
-  const [artisanCategories, artisansOnly, editions] = await Promise.all([
+  const [artisanCategories, artisansOnly, editions, directories] = await Promise.all([
     getArtisanCategories(),
     getArtisansOnly(),
     getJemaEditions(),
+    getDirectories(),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${baseUrl}/repertoire`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    // Autres répertoires (institutions, écoles, associations, partenaires), sauf vides
+    ...directories.filter((d) => d.entities.length > 0).map((d) => ({
+      url: `${baseUrl}/repertoire/${d.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     { url: `${baseUrl}/jema`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/metiers-et-formations`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/qui-sommes-nous`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },

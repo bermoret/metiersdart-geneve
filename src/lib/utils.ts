@@ -28,6 +28,37 @@ export function sortByName<T extends { name: string }>(list: readonly T[]): T[] 
   return [...list].sort((a, b) => compareFr(a.name, b.name));
 }
 
+/** Mots d'un nom, sans casse, accents ni ponctuation (« Cal’As » → cal as). */
+function nameTokens(name: string): string[] {
+  return slugify(name.replace(/œ/gi, "oe")).split("-").filter(Boolean);
+}
+
+/**
+ * Fiches correspondant à une liste de noms, dans l'ordre des noms ; les noms
+ * sans fiche sont ignorés. Pour chaque nom : correspondance exacte (hors casse,
+ * accents, apostrophes), sinon première fiche dont le nom contient tous ses
+ * mots (« Atelier Cal'As » → « Atelier CAL'AS (Artisans Sculpteurs), … »).
+ */
+export function pickByNames<T extends { name: string }>(
+  list: readonly T[],
+  names: readonly string[],
+): T[] {
+  const picked: T[] = [];
+  for (const name of names) {
+    const wanted = nameTokens(name);
+    if (wanted.length === 0) continue;
+    const key = wanted.join(" ");
+    const found =
+      list.find((a) => nameTokens(a.name).join(" ") === key) ??
+      list.find((a) => {
+        const tokens = new Set(nameTokens(a.name));
+        return wanted.every((t) => tokens.has(t));
+      });
+    if (found && !picked.includes(found)) picked.push(found);
+  }
+  return picked;
+}
+
 /**
  * Clé de rapprochement d'un nom de commune entre la base et les limites
  * swisstopo : « Le Grand-Saconnex » = « Grand-Saconnex », « Carouge (GE) » =
@@ -39,6 +70,22 @@ export function communeKey(name: string): string {
       .replace(/œ/gi, "oe")
       .replace(/\s*\([a-z]{2}\)\s*$/i, ""),
   ).replace(/^(le|la|les)-/, "");
+}
+
+/**
+ * Fiche localisable sur une carte : latitude et longitude renseignées et
+ * finies. Sans coordonnées (ex. artisan·e en recherche de locaux), la fiche
+ * reste hors des cartes au lieu d'être placée en (0, 0).
+ */
+export function hasCoords<T extends { latitude: number | null; longitude: number | null }>(
+  a: T,
+): a is T & { latitude: number; longitude: number } {
+  return (
+    a.latitude != null &&
+    a.longitude != null &&
+    Number.isFinite(a.latitude) &&
+    Number.isFinite(a.longitude)
+  );
 }
 
 // Helper: latitude/longitude stockées en microdegrés (int) -> degres decimaux

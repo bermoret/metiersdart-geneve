@@ -2,6 +2,44 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-28 — Retours de MAG avant ouverture (mail « Re: MAG: Retour nouveau site internet »)
+
+Branche `feat/retours-mag-28-09`.
+
+### Fait (code)
+- Accueil : bouton « Répertoire complet » → /repertoire ; « Communes » = artisans + écoles
+  formatrices + institutions culturelles (`countMagCommunes`, 22) ; ligne « Les autres
+  répertoires » → 4 pages statiques `/repertoire/<slug>` (mêmes URLs que l'ancien site) ;
+  visuel JEMA 2027 (`public/jema-2027.png`) ; « Trouver un atelier » masqué (commentaire en place).
+- Répertoire : paragraphe et bouton carte retirés (`PageHero compact`).
+- JEMA : Pavillon SICLI sans chiffres ; Focus Léman Bleu 2026 (vimeo 1191922591) et 2025
+  (1076326732) ; `PierreFocus` = 6 participants 2026 (`pickByNames`).
+- Manufacto : sur-titre « La fabrique des savoir-faire ».
+- Cartes : `hasCoords`, les fiches sans coordonnées ne partent plus en (0, 0).
+
+### Données de prod — `scripts/retours-mag-2026-09-28.ts` (à blanc : 3 lignes)
+JEMA 2022 = 1er – 3 avril 2022 ; Orthethic `jema_participant = false` ; Maïa Kvasnikova sans
+coordonnées. **À lancer avec `--apply` après le deploy du code `hasCoords`, accord Bernard.**
+
+### À vérifier / décider
+- Titres Vimeo sans mention de Léman Bleu (« Art de la pierre : Le domaine de la pierre se
+  mobilise ! », « Capsule - Journées Européennes des Métiers d'Art 2025 ») ; la vidéo 2026 est
+  aussi dans /medias — demandé à MAG.
+- Noms des 6 participants pierre : présents dans les données statiques, non vérifiés en base
+  (un nom sans fiche est ignoré silencieusement). Liste dupliquée dans `PierreFocus.tsx` et son test.
+- Maïa Kvasnikova : remettre ses coordonnées quand elle aura ses nouveaux locaux. Son
+  ancienne adresse reste affichée sur sa fiche (script : coordonnées seulement) — à vider si
+  MAG le souhaite. L'admin ne re-géocode plus une adresse inchangée (corrigé en review).
+- Admin : impossible de vider des coordonnées (`latitude: form.latitude || undefined` →
+  PATCH sans le champ). Seul un script retire une fiche des cartes.
+- **Affiche JEMA 2027 en dur** sur l'accueil (image + alt « 19-20-21 mars 2027 ») alors que le
+  texte suit l'édition à venir : à remplacer **après le 21.03.2027**.
+- Page `/repertoire/<slug>` : sur-titre avec deux pictos (✦ + icône) — à valider visuellement.
+- Anciennes URLs de domaine (`/repertoire/art-du-textile`…) et fiches Joomla : 404, les
+  redirections (`src/lib/redirects.ts`) restent à compléter **avant la bascule DNS**.
+- 🚩 Partie non visible (statistiques, sections MAG seulement) : MAG demande une offre et un
+  RDV — décision Bernard.
+
 ## 2026-09-27 — Backlog traité (branche `chore/backlog-2026-09-27`)
 
 Fait en prod (accord Bernard du 27.09) :
@@ -130,9 +168,10 @@ Focus Léman Bleu 2025 / 2026 (URLs à obtenir, déjà listé plus bas). Constat
   participants 2026 : question posée à MAG.
 - ~~Admin Communes « Soutient MAG »~~ : renommé « Commune partenaire » (+ rappel de la règle « en recherche d'artisan·e·s »).
 - ~~« oeuvrons »~~ → « œuvrons » sur l'accueil (accord Bernard).
-- /jema, « Merci à nos partenaires » : texte seul, aucun logo ni nom (jamais eu) — question à MAG.
+- ~~/jema, « Merci à nos partenaires » : logos ?~~ MAG (28.09) : pas de logo pour le moment.
 - Stat_GLOBALES vs site : « Au Bon Relieur » (Charles Duch, Vernier) absent du site ;
-  « Duo d'art » (Vernier) absent du tableau. Même entité ? Question à MAG.
+  « Duo d'art » (Vernier) absent du tableau. Même entité ? — MAG (28.09) : Au Bon Relieur =
+  Atelier ABR ; Duo d'art « visible dans le tableau » de leur côté → redemander leur dernière version.
 - Filtre commune du répertoire affiche « Perly » (alias `communeKey`, voir plus bas).
 
 ## 2026-09-24 — Code review (xhigh) du chantier « retours MAG » : reports
@@ -152,7 +191,7 @@ Reportés :
   dans un contrôle périodique si des fiches sont créées sans texte.
 - ~~**Qui sommes-nous**~~ (fait le 27.09) charge toute la liste des artisan·e·s pour en déduire les communes :
   une requête `SELECT DISTINCT commune` suffirait (gain négligeable à 145 fiches).
-- Photos de mineur·e·s : consentement à confirmer par MAG (voir ci-dessous).
+- ~~Photos de mineur·e·s : consentement à confirmer par MAG~~ : confirmé (28.09).
 
 ## 2026-09-23 — Retours de l'équipe MAG (mail « MAG: Retour nouveau site internet »)
 
@@ -201,14 +240,12 @@ vérifié en prod : 9 partenaires, 37 projets, édition 2022 en ligne, mention J
 
 ### À vérifier / décider (avec MAG)
 
-- **Focus Léman Bleu** 2025 et 2026 : URLs à obtenir (candidat 2026 : article Léman Bleu du
-  28.03.2026 « Entre tradition et modernité, les artisans se dévoilent aux JEMA », non confirmé).
-- Programme 2022 : document issuu `mise_en_page_finale_2_0393e91b4eab4c` (publié le 08.03.2022
-  par le même compte que les autres programmes) — à confirmer.
+- ~~**Focus Léman Bleu** 2025 et 2026 : URLs à obtenir~~ : fournies le 28.09 (voir retours du 28.09).
+- ~~Programme 2022 : document issuu `mise_en_page_finale_2_0393e91b4eab4c` — à confirmer~~ : confirmé (28.09).
 - Textes des éditions contredits par les nouveaux chiffres : 2026 (« 145 artisan·e·s »,
   « 15 ateliers participants » vs 68 participants), 2025 (12 institutions vs 6).
-- 🚩 Photos fournies (Manufacto : élèves ; Métiers et formations : adolescent) : droit à
-  l'image des mineur·e·s à confirmer par MAG.
+- ~~🚩 Photos fournies (Manufacto : élèves ; Métiers et formations : adolescent) : droit à
+  l'image des mineur·e·s à confirmer par MAG~~ : « tout est en ordre » (MAG, 28.09).
 - 43 descriptions déjà en base finissent par le texte du poinçon et « Cliquez ici pour en
   savoir plus. » (lien perdu) : à nettoyer avec l'accord de MAG.
 - Photos Manufacto / Métiers et formations publiées sans métadonnées EXIF.

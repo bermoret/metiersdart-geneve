@@ -3,12 +3,13 @@ import {
   getArtisansOnly,
   getPublishedArtisans,
   getArtisanCategories,
-  countCommunes,
+  getDirectories,
+  countMagCommunes,
   getJemaEditions,
   splitJemaEditions,
 } from "@/lib/db-data";
 import { formatShortRange } from "@/lib/dates";
-import { canOptimizeImage } from "@/lib/utils";
+import { hasCoords } from "@/lib/utils";
 import { getSiteSettings } from "@/lib/site-settings";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
@@ -21,11 +22,6 @@ import Link from "next/link";
 // modification dans l'admin, tout en restant servies depuis le cache.
 export const revalidate = 60;
 
-/* Photo du bandeau JEMA : celle de la fiche de cet artisan (recherche par nom),
-   à défaut une photo d'atelier locale. */
-const JEMA_ARTISAN = "Frédéric Taddeï";
-const JEMA_FALLBACK_IMAGE = "/artisan-tools.jpg";
-
 /* Grille « MAG en chiffres » selon le nombre de chiffres affichés (2 à 4). */
 const STATS_GRID: Record<number, string> = {
   2: "grid-cols-2 max-w-3xl mx-auto",
@@ -34,10 +30,11 @@ const STATS_GRID: Record<number, string> = {
 };
 
 export default async function HomePage() {
-  const [artisansOnly, allEntities, artisanCategories, jemaEditions, settings] = await Promise.all([
+  const [artisansOnly, allEntities, artisanCategories, directories, jemaEditions, settings] = await Promise.all([
     getArtisansOnly(),
     getPublishedArtisans(),
     getArtisanCategories(),
+    getDirectories(),
     // Une panne de la table JEMA ne doit pas faire tomber l'accueil : bandeau générique.
     getJemaEditions().catch(() => []),
     getSiteSettings(),
@@ -45,24 +42,22 @@ export default async function HomePage() {
 
   // Bandeau JEMA : prochaine édition saisie dans l'admin, sinon rendez-vous générique.
   const { upcoming } = splitJemaEditions(jemaEditions);
-  const jemaArtisan = allEntities.find(
-    (a) => a.imageUrl && a.name.toLowerCase().includes(JEMA_ARTISAN.toLowerCase()),
-  );
-  const jemaImage = jemaArtisan?.imageUrl ?? JEMA_FALLBACK_IMAGE;
 
   // « MAG en chiffres » selon le tableau de statistiques de MAG (retour du 23.09) :
-  // artisan·e·s et communes calculés (communes où exercent les artisan·e·s, sans
-  // les écoles ni les institutions) ; métiers (nomenclature MAG, les libellés en
-  // base ne s'y ramènent pas) et projets menés saisis dans l'admin, masqués tant
-  // qu'ils sont vides ou à 0.
+  // artisan·e·s et communes calculés (communes des artisan·e·s, des écoles
+  // formatrices et des institutions culturelles, retour du 28.09) ; métiers
+  // (nomenclature MAG, les libellés en base ne s'y ramènent pas) et projets
+  // menés saisis dans l'admin, masqués tant qu'ils sont vides ou à 0.
   const stats = [
     { value: artisansOnly.length, label: "Artisanes et artisans MAG" },
     ...(settings?.craftsCount ? [{ value: settings.craftsCount, label: "Métiers" }] : []),
-    { value: countCommunes(artisansOnly), label: "Communes" },
+    { value: countMagCommunes(allEntities), label: "Communes" },
     ...(settings?.eventsCount ? [{ value: settings.eventsCount, label: "Projets menés" }] : []),
   ];
 
   const visibleCategories = artisanCategories;
+  // Autres répertoires (ligne finale de la grille des domaines), s'ils ont des fiches
+  const visibleDirectories = directories.filter((d) => d.entities.length > 0);
 
   // Métiers uniques pour le marquee (un artisan peut en cumuler : « A • B »)
   const uniqueCrafts = [
@@ -111,10 +106,10 @@ export default async function HomePage() {
 
               <Reveal delay={0.3}>
                 <Link
-                  href="#carte"
+                  href="/repertoire"
                   className="group btn-fill mt-8 inline-flex items-center gap-2 rounded-full bg-mag-red px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-mag-red/20 hover:shadow-xl hover:shadow-mag-red/30 transition-shadow"
                 >
-                  Trouver les artisanes et artisans proches de chez vous
+                  Répertoire complet
                   <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
               </Reveal>
@@ -147,15 +142,16 @@ export default async function HomePage() {
       <Marquee items={uniqueCrafts} className="py-6 border-y border-mag-cream bg-mag-sand/50" />
 
       {/* ─── Carte interactive ──────────────────────────────────── */}
+      {/* Sans coordonnées (ex. en recherche de locaux) : hors de la carte */}
       <HomeMapSection
-        artisans={artisansOnly.map((a) => ({
+        artisans={artisansOnly.filter(hasCoords).map((a) => ({
           id: a.id,
           name: a.name,
           slug: a.slug,
           craft: a.craft,
           commune: a.commune,
-          latitude: a.latitude ?? 0,
-          longitude: a.longitude ?? 0,
+          latitude: a.latitude,
+          longitude: a.longitude,
           category: { name: a.categoryName ?? "", color: null },
         }))}
         categories={artisanCategories.map((c) => ({
@@ -273,6 +269,42 @@ export default async function HomePage() {
               );
             })}
           </div>
+
+          {/* Autres répertoires, comme sur l'ancien site (retour MAG du 28.09) */}
+          {visibleDirectories.length > 0 && (
+            <>
+              <Reveal>
+                <h3 className="mt-12 mb-5 text-xl font-bold text-mag-dark font-serif">
+                  Les autres répertoires
+                </h3>
+              </Reveal>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                {visibleDirectories.map((d, i) => {
+                  const count = d.entities.length;
+                  return (
+                    <Reveal key={d.slug} delay={0.04 * i}>
+                      <Link
+                        href={`/repertoire/${d.slug}`}
+                        className="group block rounded-2xl bg-mag-sand p-6 card-hover hover:shadow-lg hover:shadow-mag-dark/5 ring-1 ring-mag-cream/60 hover:ring-mag-red/20"
+                      >
+                        <div className="text-3xl mb-3 text-mag-red transition-transform duration-300 group-hover:scale-110" aria-hidden>
+                          <CategoryIcon icon={d.icon} />
+                        </div>
+                        <h4 className="font-semibold text-mag-dark group-hover:text-mag-red transition-colors leading-snug">
+                          {d.name}
+                        </h4>
+                        <p className="mt-1 text-xs text-mag-gray flex items-center gap-1">
+                          <span>{count}</span>
+                          <span>{d.unit[count > 1 ? 1 : 0]}</span>
+                          <span aria-hidden className="ml-auto opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 text-mag-red">→</span>
+                        </p>
+                      </Link>
+                    </Reveal>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -306,26 +338,18 @@ export default async function HomePage() {
                     >
                       Préparer ma visite <span aria-hidden>→</span>
                     </Link>
-                    <Link
-                      href="/repertoire"
-                      className="inline-flex items-center gap-2 rounded-full border-2 border-white/70 px-7 py-3.5 text-base font-semibold text-white hover:border-white hover:bg-white/10 transition-all"
-                    >
-                      Trouver un atelier
-                    </Link>
+                    {/* « Trouver un atelier » (→ /repertoire) masqué pour l'instant (MAG, 28.09) : à remettre ici. */}
                   </div>
                 </div>
-                <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[380px] bg-mag-red-dark">
+                {/* Affiche JEMA 2027 (texte inclus) : toujours entière (object-contain),
+                    sur la couleur de fond de l'affiche, jamais recadrée. */}
+                <div className="relative aspect-[3/2] lg:aspect-auto lg:min-h-[380px] bg-[#eb6a42]">
                   <Image
-                    src={jemaImage}
-                    unoptimized={!canOptimizeImage(jemaImage)}
-                    alt={
-                      jemaArtisan
-                        ? `${jemaArtisan.name}${jemaArtisan.craft ? `, ${jemaArtisan.craft.toLowerCase()}` : ""}, dans son atelier`
-                        : "Outils d'artisan sur un établi"
-                    }
+                    src="/jema-2027.png"
+                    alt="Affiche des Journées Européennes des Métiers d'Art, 19-20-21 mars 2027, manifestation gratuite"
                     fill
                     sizes="(min-width: 1280px) 608px, (min-width: 1024px) 50vw, 100vw"
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               </div>

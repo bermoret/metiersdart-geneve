@@ -1,21 +1,24 @@
 import Link from "next/link";
-import { getArtisansOnly, getAllCategories } from "@/lib/db-data";
+import { getArtisansOnly } from "@/lib/db-data";
+import { pickByNames } from "@/lib/utils";
+
+/** Participant·e·s 2026 du domaine de la pierre (retour MAG du 28.09), dans cet ordre. */
+const PIERRE_PARTICIPANTS_2026 = [
+  "Atelier Cal'As",
+  "Atelier Comte",
+  "Philippe Cartan",
+  "Daniel Estevez",
+  "Michel Gillabert",
+  "Mello & Fils SA",
+];
 
 /**
  * Focus « Le domaine de la pierre se mobilise » (JEMA 2026).
- * Composant serveur : lit lui-même les artisan·e·s du domaine de la pierre.
+ * Composant serveur : retrouve lui-même les fiches des participant·e·s 2026
+ * dans le répertoire (un nom sans fiche publiée n'est pas affiché).
  */
 export async function PierreFocus() {
-  const [artisanList, categories] = await Promise.all([
-    getArtisansOnly(),
-    getAllCategories(),
-  ]);
-
-  // Artisans du domaine de la pierre
-  const pierreCategory = categories.find((c) => c.name === "Art de la pierre");
-  const pierreArtisans = pierreCategory
-    ? artisanList.filter((a) => a.categoryName === pierreCategory.name)
-    : [];
+  const pierreArtisans = pickByNames(await getArtisansOnly(), PIERRE_PARTICIPANTS_2026);
 
   return (
     <section className="py-16 sm:py-24">
@@ -62,7 +65,7 @@ export async function PierreFocus() {
             le prochain tailleur ou la prochaine tailleuse de pierre, c&apos;était toi ?
           </p>
 
-          {/* Artisans du domaine pierre — lus depuis la base */}
+          {/* Participant·e·s 2026 — fiches lues depuis la base */}
           {pierreArtisans.length > 0 && (
             <div className="mt-8">
               <h3 className="font-semibold text-mag-dark mb-3">
