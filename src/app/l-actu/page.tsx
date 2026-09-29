@@ -45,17 +45,6 @@ const actualites: ActuCard[] = [
       "https://docs.google.com/forms/d/e/1FAIpQLSdRv72gXhfyU__rhqUBWLrga2OtfZiQv-_LEf_Tv7BoNmOpBQ/viewform?usp=header",
   },
   {
-    image: "https://metiersdart-geneve.ch/images/2026/08/31/112060-011.png",
-    date: "25 septembre",
-    time: "8h-10h30",
-    title: "TRANSMISSION D'ENTREPRISE : SÉCURISEZ VOTRE AVENIR",
-    source: "FER Genève",
-    description:
-      "Ce Petit déjeuner des PME et des start-up permettra de décrypter les enjeux, de maîtriser les risques et de découvrir des solutions concrètes pour les TPE ainsi que les cas de Management Buy Out.",
-    linkText: "Plus d'info",
-    linkHref: "https://www.evenements.fer-ge.ch/reprise_cession_entreprise",
-  },
-  {
     image:
       "https://metiersdart-geneve.ch/images/2026/02/03/pexels-fauxels-3183172.jpg",
     date: "14 octobre",

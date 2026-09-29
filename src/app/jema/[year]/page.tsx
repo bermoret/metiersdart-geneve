@@ -58,8 +58,8 @@ const editionExtras: Record<string, EditionExtras> = {
       },
       {
         platform: "vimeo",
-        videoId: "1191922591",
-        title: "Focus Léman Bleu : le domaine de la pierre se mobilise",
+        videoId: "1182668251",
+        title: "JEMA 2026 - Focus Léman Bleu",
       },
     ],
     programmeUrl: "https://issuu.com/bermoret/docs/programme_jema_2026_4a618116f09eec",

@@ -2,6 +2,28 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-09-29 — Derniers retours MAG + validation de la mise en ligne
+
+MAG valide la mise en ligne une fois ces deux points faits (branche `fix/retours-mag-29-09`) :
+- Focus Léman Bleu 2026 → vimeo 1182668251 (le lien du 28.09 était une capsule pierre).
+- /l-actu : événement FER du 25 septembre retiré.
+
+### 🚩 Avant la bascule DNS de metiersdart-geneve.ch (bloquant)
+- Images servies par le Joomla (`metiersdart-geneve.ch/images/…`) encore en dur dans
+  `src/app/l-actu/page.tsx`, `src/app/medias/page.tsx`, `src/components/ui/PoinconBadge.tsx`,
+  `src/lib/artisan-details.ts` : à la bascule, ce domaine pointe sur Vercel → images cassées.
+  À migrer sur Blob (comme les 155 photos du 27.09). Idem en base : 128
+  `artisans.poincon_modal_link`, 2 `medias.external_url`.
+- Redirections 301 des anciennes URLs Joomla (`src/lib/redirects.ts`, fiches artisans et
+  domaines) : à compléter.
+
+### À décider (Bernard)
+- **Accès admin de MAG** : `contact@metiersdart-geneve.ch` existe en base avec le rôle `user`
+  (connexion OK mais renvoi vers l'accueil). Passer en `admin` = décision d'accès.
+- **/l-actu et /medias codées en dur** : l'admin Actualités / Médias écrit en base, mais les
+  pages publiques ne la lisent pas (`src/lib/queries.ts` non branché). MAG ne peut donc pas
+  modifier l'Actu ni les Médias elle-même. À brancher (avant ou après ouverture).
+
 ## 2026-09-28 — Retours de MAG avant ouverture (mail « Re: MAG: Retour nouveau site internet »)
 
 Branche `feat/retours-mag-28-09`.
@@ -22,9 +44,8 @@ JEMA 2022 = 1er – 3 avril 2022 ; Orthethic `jema_participant = false` ; Maïa 
 coordonnées. **À lancer avec `--apply` après le deploy du code `hasCoords`, accord Bernard.**
 
 ### À vérifier / décider
-- Titres Vimeo sans mention de Léman Bleu (« Art de la pierre : Le domaine de la pierre se
-  mobilise ! », « Capsule - Journées Européennes des Métiers d'Art 2025 ») ; la vidéo 2026 est
-  aussi dans /medias — demandé à MAG.
+- ~~Titres Vimeo sans mention de Léman Bleu~~ : MAG (29.09) s'était trompée de lien pour 2026 →
+  vimeo 1182668251 (« Capsule - JEMA 2026 ») ; 2025 inchangé.
 - Noms des 6 participants pierre : présents dans les données statiques, non vérifiés en base
   (un nom sans fiche est ignoré silencieusement). Liste dupliquée dans `PierreFocus.tsx` et son test.
 - Maïa Kvasnikova : remettre ses coordonnées quand elle aura ses nouveaux locaux. Son
@@ -222,7 +243,7 @@ Focus Léman Bleu 2025 / 2026 (URLs à obtenir, déjà listé plus bas). Constat
 - ~~/jema, « Merci à nos partenaires » : logos ?~~ MAG (28.09) : pas de logo pour le moment.
 - Stat_GLOBALES vs site : « Au Bon Relieur » (Charles Duch, Vernier) absent du site ;
   « Duo d'art » (Vernier) absent du tableau. Même entité ? — MAG (28.09) : Au Bon Relieur =
-  Atelier ABR ; Duo d'art « visible dans le tableau » de leur côté → redemander leur dernière version.
+  Atelier ABR ; ~~Duo d'art~~ : bien dans Stat_GLOBALES (feuille Artisan·e·s, Vernier), version reçue le 29.09.
 - Filtre commune du répertoire affiche « Perly » (alias `communeKey`, voir plus bas).
 
 ## 2026-09-24 — Code review (xhigh) du chantier « retours MAG » : reports
