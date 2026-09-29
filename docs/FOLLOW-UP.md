@@ -24,10 +24,10 @@ MAG valide la mise en ligne une fois ces deux points faits (branche `fix/retours
   l'admin (direct navigateur → Blob, 50 Mo, `/api/admin/upload/pdf`).
 
 ### À vérifier / décider
-- Page « Poinçons MAG » (Joomla id=630) : lien retiré, l'ancienne URL → /repertoire. Recréer
-  une page `/poincons` ? Question posée à Bernard.
-- Actus passées masquées automatiquement (dernier jour < aujourd'hui, Europe/Zurich) : à
-  confirmer avec MAG. Actus sans date : ordre d'ajout (pas de tri manuel).
+- ~~Page « Poinçons MAG » (Joomla id=630)~~ : lien retiré, l'ancienne URL → /repertoire.
+  Pas de page `/poincons` (décision Bernard, 29.09).
+- ~~Actus passées masquées automatiquement~~ (dernier jour < aujourd'hui, Europe/Zurich) :
+  validé par Bernard (29.09). Actus sans date : ordre d'ajout (pas de tri manuel).
 - Envoi PDF : contrôle `%PDF-` côté navigateur seulement (le fichier ne passe pas par le
   serveur) ; test d'un vrai envoi > 30 Mo à faire en prod par un admin.
 - Redirections : Next recopie les paramètres Joomla sur la destination (`?catid=2&Itemid=…`),
