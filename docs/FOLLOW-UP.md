@@ -9,8 +9,17 @@ Reports, points à vérifier et décisions ouvertes, par chantier (plus récent 
 - Domaine principal = **apex** (`www` → apex en 308 via l'API Vercel), aligné sur
   `metadataBase`, sitemap et robots. Redirections Joomla vérifiées via l'IP Vercel.
 
+### 🚩 CookieScript inactif → GA4 ne collecte rien (constaté le 29.09 après bascule)
+- GTM (`GTM-M6497K4X`) et le loader Stape se chargent sur le domaine ; le conteneur contient
+  GA4 `G-S9P7VJHKRL`, déclenché par les variables de consentement CookieScript.
+- Le script CookieScript (`cdn.cookie-script.com/s/d598deab…js`) répond **vide** (`;`, 1 octet,
+  `last-modified` 27.04.2026), quel que soit le domaine : pas de bannière, pas de
+  consentement, donc aucun hit GA4. Antérieur à la migration (le Joomla chargeait le même).
+- À régler dans le compte CookieScript (titulaire à identifier : MAG ?) : abonnement /
+  limite de pages vues, bannière publiée, domaine `metiersdart-geneve.ch` autorisé. Puis
+  revérifier bannière + GA4 temps réel.
+
 ### À vérifier
-- CookieScript, GTM et GA4 temps réel sur le domaine (voir « Suivi : GTM » plus bas).
 - Search Console : soumettre `https://metiersdart-geneve.ch/sitemap.xml`, surveiller les 404.
 - Retirer l'hôte Joomla de `next.config.ts` (`remotePatterns`, CSP) et de `canOptimizeImage`
   quand plus rien n'y pointe ; relire les rapports CSP avant de passer en bloquant.
