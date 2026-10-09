@@ -127,7 +127,6 @@ export default async function QuiSommesNousPage() {
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <h2 className="h-section mb-8">Comité</h2>
-          <p className="text-sm text-mag-gray mb-6">au 04.06.25</p>
           <div className="overflow-x-auto rounded-xl border border-mag-cream shadow-sm">
             <table className="w-full text-left text-sm">
               <thead className="bg-mag-cream/50 text-mag-dark/80">
