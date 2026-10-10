@@ -2,6 +2,17 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-10-10 — LOT E2 : pages JEMA, cadrage (branche `docs/lot-e2-jema-cadrage`, sur C)
+
+Pas de développement (décision du 09.10). `docs/jema-edition.md` compare l'admin actuel
+(dates, titre, description, programme, bascule passée) au contenu codé en dur (chapô, trois
+parcours, intro et récit par édition, vidéos, chiffres libellés, focus pierre 2026), décrit le
+cycle d'une édition (3-4 interventions de Jooce par an, concentrées sur février-mars) et chiffre
+trois options : A gabarit Word (0,25 j + 3-5 h par édition), B interface complète (2 j), **C
+hybride recommandée (1,5 j)** : interface pour le contenu récurrent, gabarit Word pour le focus
+thématique. Plan : décision en novembre, développement en janvier 2027, saisie de l'édition 2027
+par MAG en février. Trois questions posées à MAG (§ 8).
+
 ## 2026-10-10 — LOT C : espace Communauté, photo et modification (branche `feat/lot-c-communaute`, sur A1)
 
 Code écrit, revue de code (3 retouches) et revue de sécurité (aucune vulnérabilité) faites,
