@@ -192,11 +192,8 @@ export type JournalType = (typeof JOURNAL_TYPES)[number]["value"];
 /** Types qu'un admin peut ajouter à la main (les autres viennent des actions). */
 export const MANUAL_JOURNAL_TYPES: readonly JournalType[] = JOURNAL_TYPES.filter((t) => t.manual).map((t) => t.value);
 
-export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export function isUuid(value: unknown): value is string {
-  return typeof value === "string" && UUID_RE.test(value);
-}
+import { isUuid } from "./utils";
+export { UUID_RE, isUuid } from "./utils";
 
 export const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 

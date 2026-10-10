@@ -186,6 +186,15 @@ export function canOptimizeImage(src: string): boolean {
   }
 }
 
+// ─── Identifiants ──────────────────────────────────────────────
+
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Identifiant de ligne (uuid) : évite une 500 Postgres sur un paramètre d'URL mal formé. */
+export function isUuid(value: unknown): value is string {
+  return typeof value === "string" && UUID_RE.test(value);
+}
+
 // ─── Chiffres saisis dans l'admin ──────────────────────────────
 
 /** Plus grand entier d'une colonne Postgres `integer`. */

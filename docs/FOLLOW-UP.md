@@ -2,6 +2,32 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-10-10 — LOT C : espace Communauté, photo et modification (branche `feat/lot-c-communaute`, sur A1)
+
+Code écrit, revue de code (3 retouches) et revue de sécurité (aucune vulnérabilité) faites,
+232 tests, lint et build OK. Branche empilée sur `feat/lot-a1-onboarding-artisans` (helpers
+partagés) ; migration `annonces.image_url` à passer avec celle du LOT A1.
+
+### Fait
+- Photo facultative par annonce : réduite dans le navigateur (1600 px, JPEG 85 %,
+  `src/lib/image-resize.ts`), envoyée en multipart avec les champs, contrôlée côté serveur par
+  octets magiques (JPEG, PNG, WebP) et taille (4 Mo), déposée en Blob public avec suffixe
+  aléatoire ; affichée dans les cartes de l'espace et dans la modération ; effacée avec
+  l'annonce ou sur « Retirer ».
+- Modification par MAG depuis l'admin : titre, catégorie, auteur, e-mail, contenu (formulaire
+  en place dans la carte), remplacement ou retrait de la photo (`/api/admin/annonces/[id]/photo`).
+- Catégorie validée côté serveur contre la liste partagée `src/lib/annonces.ts` (soumission des
+  membres, création et modification admin) : lève le report du 27.09. Bornes et e-mail
+  vérifiés au même endroit, testés (`annonces.test.ts`).
+- Ordre d'affichage : plus récente d'abord (inchangé). Pas de champs par type d'annonce, pas de
+  filtres (décision du 09.10).
+- Quota de soumission : une photo refusée (format, taille) ne consomme pas le quota.
+
+### À vérifier en conditions réelles (avec la base de dev, puis prod)
+- Soumission avec photo depuis un téléphone (HEIC converti par Safari, refusé proprement par
+  Chrome), e-mail de notification avec lien photo, modification depuis l'admin.
+- Ne pas tester la soumission en prod sans prévenir MAG (e-mail + annonce en attente).
+
 ## 2026-10-10 — LOT A1 : onboarding et suivi des artisans (branche `feat/lot-a1-onboarding-artisans`)
 
 Mapping validé par Bernard le 10.10 (`docs/plateforme-gestion.md`, § 2 à 9). État : code écrit,

@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
+import { ANNONCE_CATEGORIES as CATEGORIES, ANNONCE_PHOTO_TYPES } from "@/lib/annonces";
+import { downscaleImage } from "@/lib/image-resize";
+import { canOptimizeImage } from "@/lib/utils";
 
 type Annonce = {
   id: string;
@@ -9,20 +13,9 @@ type Annonce = {
   category: string;
   authorName: string;
   content: string;
+  imageUrl: string | null;
   publishedAt: string | null;
 };
-
-const CATEGORIES = [
-  "Vente de matériel",
-  "Recherche d'artisan",
-  "Opportunités professionnelles",
-  "Collaborations",
-  "Événements",
-  "Expositions",
-  "Conseils et ressources",
-  "Retours d'expérience",
-  "Entraide",
-];
 
 export default function CommunautePage() {
   const [status, setStatus] = useState<"checking" | "anon" | "authed">("checking");
@@ -36,7 +29,11 @@ export default function CommunautePage() {
 
   // Formulaire de soumission
   const [fTitle, setFTitle] = useState("");
-  const [fCategory, setFCategory] = useState(CATEGORIES[0]);
+  const [fCategory, setFCategory] = useState<string>(CATEGORIES[0]);
+  // Photo facultative : réduite dans le navigateur, aperçu local
+  const [fPhoto, setFPhoto] = useState<{ blob: Blob; type: string; name: string; preview: string } | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [fAuthor, setFAuthor] = useState("");
   const [fEmail, setFEmail] = useState("");
   const [fContent, setFContent] = useState("");
@@ -116,22 +113,48 @@ export default function CommunautePage() {
     setAuthError(null);
   };
 
+  const handlePhoto = async (file: File | undefined) => {
+    setPhotoError(null);
+    if (fPhoto) URL.revokeObjectURL(fPhoto.preview);
+    setFPhoto(null);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Choisissez une image (JPEG, PNG ou WebP).");
+      return;
+    }
+    const reduced = await downscaleImage(file);
+    if (!(reduced.type in ANNONCE_PHOTO_TYPES)) {
+      setPhotoError("Format non pris en charge par votre navigateur : utilisez une photo JPEG ou PNG.");
+      return;
+    }
+    if (reduced.blob.size > 4 * 1024 * 1024) {
+      setPhotoError("Photo trop volumineuse (4 Mo maximum).");
+      return;
+    }
+    setFPhoto({ ...reduced, preview: URL.createObjectURL(reduced.blob) });
+  };
+
+  const clearPhoto = () => {
+    if (fPhoto) URL.revokeObjectURL(fPhoto.preview);
+    setFPhoto(null);
+    setPhotoError(null);
+    if (photoInputRef.current) photoInputRef.current.value = "";
+  };
+
   const handleSubmit = async () => {
     if (!fTitle.trim() || !fContent.trim() || !fAuthor.trim()) return;
     setSubmitting(true);
     setSubmitMsg(null);
     try {
-      const res = await fetch("/api/annonces", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: fTitle,
-          category: fCategory,
-          authorName: fAuthor,
-          authorEmail: fEmail,
-          content: fContent,
-        }),
-      });
+      // multipart : champs texte + photo réduite (facultative)
+      const fd = new FormData();
+      fd.append("title", fTitle);
+      fd.append("category", fCategory);
+      fd.append("authorName", fAuthor);
+      fd.append("authorEmail", fEmail);
+      fd.append("content", fContent);
+      if (fPhoto) fd.append("photo", fPhoto.blob, fPhoto.name);
+      const res = await fetch("/api/annonces", { method: "POST", body: fd });
       if (res.status === 401) {
         setStatus("anon");
         setAuthError("Session expirée, saisissez à nouveau le mot de passe");
@@ -146,10 +169,14 @@ export default function CommunautePage() {
         setFAuthor("");
         setFEmail("");
         setFContent("");
+        clearPhoto();
         setShowForm(false);
       } else {
         const data = await res.json().catch(() => ({}));
-        setSubmitMsg({ text: data.error || "Erreur lors de la soumission.", error: true });
+        setSubmitMsg({
+          text: data.error || (res.status === 413 ? "Photo trop volumineuse pour l'envoi." : "Erreur lors de la soumission."),
+          error: true,
+        });
       }
     } catch {
       setSubmitMsg({ text: "Erreur de connexion", error: true });
@@ -323,6 +350,31 @@ export default function CommunautePage() {
                       className="w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20"
                     />
                   </label>
+                  <div className="col-span-2">
+                    <span className="text-xs font-medium text-mag-gray mb-1 block">Photo (facultative)</span>
+                    <div className="flex items-center gap-4">
+                      {fPhoto && (
+                        // eslint-disable-next-line @next/next/no-img-element -- aperçu local (blob:) avant envoi
+                        <img src={fPhoto.preview} alt="Aperçu de la photo" className="h-20 w-20 rounded-lg object-cover border border-mag-cream" />
+                      )}
+                      <input
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => void handlePhoto(e.target.files?.[0])}
+                        className="text-sm text-mag-dark/70 file:mr-3 file:rounded-full file:border-0 file:bg-mag-cream file:px-4 file:py-2 file:text-sm file:font-medium file:text-mag-dark hover:file:bg-mag-cream/70"
+                      />
+                      {fPhoto && (
+                        <button type="button" onClick={clearPhoto} className="text-xs text-mag-gray hover:text-red-700 cursor-pointer">
+                          Retirer
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-mag-gray">
+                      JPEG, PNG ou WebP. La photo est réduite avant l&apos;envoi (1600 px maximum).
+                    </p>
+                    {photoError && <p className="mt-1 text-xs text-red-700">{photoError}</p>}
+                  </div>
                 </div>
                 <button
                   onClick={handleSubmit}
@@ -349,6 +401,18 @@ export default function CommunautePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {annonces.map((a) => (
                 <div key={a.id} className="rounded-xl border border-mag-cream bg-white p-6 card-hover">
+                  {a.imageUrl && (
+                    <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-lg bg-mag-cream/40">
+                      <Image
+                        src={a.imageUrl}
+                        unoptimized={!canOptimizeImage(a.imageUrl)}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <span className="inline-block rounded-full bg-mag-cream/60 px-3 py-1 text-xs font-medium text-mag-dark/80 mb-3">
                     {a.category}
                   </span>

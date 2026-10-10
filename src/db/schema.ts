@@ -280,6 +280,7 @@ export const annonces = pgTable(
     authorName: varchar("author_name", { length: 255 }).notNull(),
     authorEmail: varchar("author_email", { length: 255 }),
     content: text("content").notNull(),
+    imageUrl: varchar("image_url", { length: 500 }), // photo facultative (Vercel Blob public, suffixe aléatoire)
     status: annonceStatusEnum("status").default("pending"),
     publishedAt: timestamp("published_at"),
     expiresAt: timestamp("expires_at"),

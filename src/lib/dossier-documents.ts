@@ -5,7 +5,7 @@
 // Les pièces sont des blobs PRIVÉS : la base ne garde que le chemin, jamais
 // une URL, et seule la route admin de téléchargement les sert.
 
-import { UUID_RE } from "./dossier-fields";
+import { UUID_RE } from "./utils";
 
 /** 10 Mo : attestations, extraits et CV scannés. */
 export const DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
