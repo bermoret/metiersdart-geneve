@@ -2,6 +2,136 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-10-09 — Séance MAG du 09.10 : gestion des artisans, Communauté, écoles, JEMA (offre par lots)
+
+Source : PV de la séance hebdo MAG du 09.10 (Sandra Torres, Elsa Monteiro ; enregistrement
+Plaud, 25 min) et proposition commerciale du 09.10. Prompt de travail hors dépôt :
+`~/Desktop/PROMPT_CLAUDE_CODE_MAG_09102026.md`. Les lots suivent les tiroirs de l'offre ; MAG
+priorise selon les financements des communes, en commençant par le module artisans.
+**Aucun lot n'est encore retenu : décision Bernard** avant de coder quoi que ce soit.
+
+### Constat
+- Onboarding actuel en trois supports : formulaire d'éligibilité papier (A4 recto verso, rempli
+  à la main en visite d'atelier), gros fichier Excel (une dizaine d'onglets, statistiques
+  annuelles pour l'AG, l'État, le canton et les sponsors), puis fiche du site. La double saisie
+  crée des écarts chiffrés et des repointages. Cible : **saisie unique dans l'admin**, dont
+  découlent la page publique, les compteurs et l'export Excel.
+- Prérequis à fournir par MAG (Sandra, Elsa) : le formulaire d'éligibilité (PDF ou Word) et le
+  fichier Excel de gestion, à déposer dans `docs/mag-inputs/` (dossier à ajouter au
+  `.gitignore` s'il contient des données personnelles). Sans eux, le LOT A1 ne démarre pas.
+
+### LOT A1 — onboarding et suivi des artisans (2 j)
+- Mapping définitif formulaire / colonne Excel → champ en base (public ou interne) à écrire
+  dans `docs/plateforme-gestion.md` (cadrage de septembre à mettre à jour), validé par Bernard
+  avant toute migration.
+- Schéma Drizzle : champs internes de l'artisan (statut d'entreprise, fabrication
+  majoritairement manuelle, caisse de pension et laquelle, parcours de formation, consentement
+  newsletter, contact privé, date de visite, visité par, champ « divers ») ; statut de suivi
+  `en_evaluation | eligible | actif | desactive` ; tables `artisan_documents` (pièces : nom,
+  URL, type, date, auteur) et `artisan_journal` (remarque, changement d'adresse, fermeture,
+  activation, désactivation ; texte, motif, auteur, date). Champs explicites pour ce qui sert
+  aux stats, `jsonb` pour le reste : le formulaire évoluera.
+- Écran « Onboarding » (ou onglet « Fiche interne » de la fiche artisan) dans l'ordre du
+  formulaire papier, pour saisie pendant la visite ; brouillon sauvegardé automatiquement.
+- Pièces justificatives (PDF, images) **non publiques** : vérifier si la version installée de
+  `@vercel/blob` offre un stockage privé, sinon les servir via une route admin authentifiée ;
+  sans option propre, s'arrêter et proposer une solution.
+- Bouton « Éligible » : statut `eligible`, fiche publique pré-remplie (nom, métier, domaine,
+  commune, coordonnées publiques, poinçon) en `published = false`, action journalisée.
+- Cycle de vie : activer / désactiver avec motif et date (faillite, fermeture d'atelier) ; une
+  désactivation dépublie la fiche et la retire des compteurs. Changement d'adresse :
+  re-géocodage existant + entrée datée au journal.
+- Reprise de l'historique : `scripts/import-excel-mag.ts` (à blanc par défaut, `--apply` pour
+  écrire), rapprochement des artisans existants par nom / slug sans doublon, rapport (importées,
+  ignorées, rapprochées, ambiguës), sauvegarde dans `backups/` avant `--apply`.
+- Tests : statuts et transitions, journal, non-exposition des champs internes (routes
+  publiques, sitemap, pages).
+
+### LOT A2 — statistiques et export Excel (1,5 j, après A1)
+- Bouton « Télécharger au format Excel » dans l'admin, reproduisant **à l'identique** le fichier
+  de MAG (onglets, colonnes, ordre). Librairie xlsx à choisir et justifier dans le commit.
+- Tableau de bord `/admin/stats` : artisans par domaine, par commune, par année d'intégration,
+  sorties par année et motif, évolution depuis 2022 (36 → 50 → 70 → 100). Agrégats SQL, pas de
+  table dédiée.
+- Vue par commune (ex. Lancy) : artisans, écoles formatrices, institutions, avec export.
+- Compteur « Métiers » (`site_settings.crafts_count`, « MAG en chiffres », saisi à la main) :
+  à calculer depuis la base selon la nomenclature MAG ; demander la règle si elle n'est pas
+  déductible, garder la saisie manuelle en repli.
+- Script de contrôle croisé base / Excel de référence listant les écarts, à lancer aux
+  premiers exports. Tests sur les fonctions de comptage.
+- Lève le 🚩 du 23.09 « statistiques du site reliées au fichier Stat_GLOBALES » (demandes hors
+  périmètre) : désormais demandé explicitement par MAG.
+
+### LOT C — espace Communauté (0,5 j)
+- Photo facultative par annonce (upload Blob, contrôle type et taille), affichée dans la liste
+  et dans l'admin.
+- Modification par MAG depuis l'admin (titre, catégorie, contenu, photo) ; publier / refuser /
+  supprimer existent déjà (`/admin/annonces`).
+- Catégorie validée côté serveur contre la liste (report du 27.09, aujourd'hui côté client).
+- Ordre d'affichage : plus récente d'abord. **Pas** de champs par type d'annonce ni de filtres
+  par catégorie (à revoir au-delà de ~50 annonces).
+- Tests internes MAG : mot de passe commun convenu en séance, à saisir dans l'admin (ne pas le
+  versionner) ; 2-3 annonces test (ex. vente d'un établi). Ne pas tester la soumission en prod
+  sans prévenir MAG (e-mail + annonce en attente). Elsa prépare un bref message au Conseil des
+  artisans (14.10) annonçant l'espace sans détail tant que les tests ne sont pas finis.
+
+### LOT D — inscriptions des écoles en ligne (1,5 j)
+- 2026 : Google Forms conservé (~40 inscrits attendus, géré à la main). Bascule sur le site
+  l'année suivante selon retours et charge.
+- **Bloqué** tant que le brief de Sandra (contenus, disposition, informations demandées aux
+  écoles) n'est pas dans `docs/mag-inputs/`. Une activité ouverte pourrait servir de test.
+- Ensuite : page publique (image ou vidéo, texte, boutons d'inscription par classe), formulaire
+  avec anti-spam léger, e-mail de confirmation Resend à l'école + notification MAG, liste des
+  inscriptions dans l'admin avec export Excel. Aucune donnée d'élève (école, classe,
+  enseignant·e, contact seulement).
+
+### LOT E2 — interface JEMA (cadrage d'abord)
+- Pas de développement direct : comparer la structure des pages JEMA et ce que `/admin/jema`
+  permet déjà, puis proposer dans `docs/jema-edition.md` ce qu'il faudrait rendre éditable et
+  une estimation. Cible : avant les JEMA de mars 2027.
+- Alternative discutée : gabarit Word avec la mise en page cible, intégré par le développeur.
+  Décision quand les contenus seront prêts, selon charge et budget.
+
+### Décisions de séance et hors périmètre
+- Hébergement : données en Europe suffisent (Neon `eu-central-1`) ; pas d'hébergement en Suisse
+  requis (pas de mineurs, pas de données sensibles). À vérifier : région d'exécution des
+  fonctions Vercel, proposer `fra1` si besoin, sans changer la config sans accord de Bernard.
+  CG internes à mettre à jour (collecte, finalités, conservation, partage) : Bernard + Elsa.
+- Carte des communes : **rien à développer** (tiroir B). La case « Commune partenaire » de
+  l'admin suffit, le statut « en recherche d'artisan·e·s » est calculé. Sandra actualise la
+  commune partenaire manquante avant le RDV de novembre (Chêne-Bougeries) pour aligner
+  communication et financement.
+- Inversion des blocs mobile « offres d'emploi / service recrutement » : site ECC, pas ce dépôt.
+- Écartés : saisie du formulaire par l'artisan lui-même, comptes individuels pour les artisans,
+  filtres par catégorie dans la Communauté, version tablette de l'admin (usage ordinateur).
+
+### Règles de travail pour ces lots
+- Une branche et un commit par lot, messages en français ; livrer et faire valider un lot
+  avant le suivant. Pas de déploiement prod ni de `db:push` prod sans accord de Bernard ;
+  `npm run db:push:dry` d'abord, sauvegarde dans `backups/` avant toute écriture en prod.
+- Les champs internes ne sortent jamais hors des routes `/api/admin/*` (`requireAdminApi`),
+  test à l'appui. Nouveaux tests ajoutés au script `npm test`. Si une information manque
+  (champs, colonnes, règle de comptage), s'arrêter et demander : rien n'est inventé.
+
+### Critères d'acceptation
+- MAG onboarde un artisan de bout en bout dans l'admin (formulaire, pièces, éligible, fiche
+  publiée) sans toucher à l'Excel ; désactivation et changement d'adresse journalisés, datés,
+  visibles dans la fiche.
+- L'export Excel s'ouvre au format habituel de MAG et ses chiffres concordent avec le site.
+- Aucun champ interne ni pièce justificative accessible publiquement (test à l'appui).
+- Annonces Communauté avec photo, modifiables par MAG.
+- `npm test`, `npm run lint` et `npm run build` passent ; ce fichier à jour.
+
+### 🚩 Points non conclus en séance
+- Aucune date cible pour la v1 du module artisans, pour la mise à jour de la carte avant
+  novembre, ni pour l'ouverture contrôlée de l'espace Communauté : planning et jalons à poser.
+- Spécification figée du formulaire d'éligibilité numérique (champs obligatoires, pièces
+  requises, règle « éligible », mapping vers le site et l'export) : à verrouiller avant A1.
+- Stratégie JEMA (Word ou interface dédiée) : critères de décision à définir (volume de mises
+  à jour, stabilité de la mise en page, ressources).
+- Plan de migration des inscriptions écoles (exigences de données, validation, exports, date
+  cible après la saison 2026) : non planifié.
+
 ## 2026-09-29 — Bascule DNS de metiersdart-geneve.ch vers Vercel
 
 - Zone Infomaniak mise à jour par Bernard (apex A 216.150.1.1, `www` CNAME Vercel ; `nlpd`
