@@ -2,6 +2,73 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-10-10 — LOT A2 : statistiques et export Excel (branche `feat/lot-a2-stats-export`, sur E2)
+
+Code écrit, revue de code interne et revue de sécurité (aucune vulnérabilité dans le lot ; a
+révélé l'incident ci-dessous), 243 tests, lint et build OK. Dépend du LOT A1 (dossiers) : sans
+dossiers en base, l'export et les statistiques sont vides ; à vérifier après migration et import.
+
+### Fait
+- **Export `Stat_GLOBALES`** (`/api/admin/export/stat-globales`, bouton de la page Statistiques) :
+  le classeur de MAG sert de gabarit (`src/data/stat-globales-template.xlsx`, 20 onglets,
+  construit par `scripts/build-excel-template.ts` à partir du fichier original vidé de toute
+  donnée personnelle : lignes, colonnes téléphone/mail/adresse, notes de cellule, métadonnées ;
+  contrôle automatique qui refuse un e-mail ou un téléphone résiduel). Onglets régénérés depuis
+  la base : Artisan·e·s (actifs par date d'intégration, puis section « Retiré du répertoire »),
+  GLOBAL (noms, poinçon, caisse AVS, listes métiers / communes / écoles / institutions /
+  associations), Cartographie artisans, Cartographie métiers, Entreprises formatrices, Métiers,
+  Communes (partenaires avec dates gardées du gabarit, comptes par commune). Formules COUNTA
+  recalées sur les plages réelles, « Dernière MàJ » datée, recalcul à l'ouverture. Les autres
+  onglets (INMA, ASMA, RECAP, Capsules, Événements, listes historiques) sont ceux du 01.09.26.
+  Libellés de domaine remis dans la graphie du classeur (« Art de l'horlogerie / bijouterie »).
+- **Statistiques** (`/admin/stats`, menu « Statistiques ») : dossiers par statut, fiches
+  publiées, évolution par année (intégrations, sorties, actifs au 31.12 depuis 2021), actifs par
+  domaine et par commune, sorties par année et motif, écarts (actifs sans fiche publiée, fiches
+  sans dossier), compteur « Métiers » saisi à côté des métiers distincts cités par les fiches
+  (indicatif). Agrégats SQL et calculs purs (`src/lib/stats.ts`), aucune table dédiée.
+- **Vue par commune** : fiches publiées par type, avec statut et date du dossier, et export
+  Excel de la commune (`/api/admin/export/commune?commune=`).
+- **Compteur « Métiers »** : règle non déductible (68 dans l'onglet Métiers, 72 dans GLOBAL,
+  53 sur le site, ~110 métiers distincts dans les fiches) → saisie manuelle conservée, indicateur
+  affiché sur le tableau de bord et dans les statistiques. **Règle à donner par Bernard / MAG.**
+- `scripts/check-excel-vs-db.ts` : contrôle croisé Excel ↔ base (effectifs, par domaine, par
+  commune, lignes sans dossier, dossiers absents de l'Excel), lecture seule.
+- `scripts/export-stat-globales.ts` (`--offline` : vérification du gabarit sans base, faite).
+- Lecture du classeur factorisée (`scripts/lib/mag-workbook.ts`), partagée avec l'import.
+
+### À vérifier avec une base
+- Export réel après import A1 : ouvrir dans Excel, comparer avec le fichier de MAG (onglet par
+  onglet), lancer `check-excel-vs-db.ts`.
+- Région des fonctions `fra1` et lecture du gabarit embarqué (`outputFileTracingIncludes`).
+
+## 2026-10-10 — 🚩 Incident : documents MAG poussés sur le dépôt public (corrigé, suites à donner)
+
+**Ce qui s'est passé.** Le dossier `docs/mag-inputs/` (Excel complet des artisans avec
+téléphones, e-mails, adresses, caisses AVS et commentaires ; formulaire ; PV ; offre) était exclu
+de git par la règle posée sur la branche du LOT A1. La branche du LOT C a été créée depuis
+`main`, qui n'avait pas encore cette règle : un `git add -A` a embarqué les quatre fichiers dans
+le commit `a296e1f` (LOT C), poussé vers 09:00 sur `feat/lot-c-communaute` puis repris par
+`docs/lot-e2-jema-cadrage`. Le dépôt GitHub est public. Détecté par la revue de sécurité du
+LOT A2 vers 09:55.
+
+**Fait immédiatement (09:55-10:05).** Branches distantes supprimées ; historique local réécrit
+sans les fichiers (C `e1bb44c`, E2 `a540a4e`, A2 rebasé) ; branches propres repoussées ; règle
+`/docs/mag-inputs/` ajoutée sur `main` ; test `src/lib/repo-hygiene.test.ts` qui échoue si un
+fichier de `docs/mag-inputs` ou `backups` est suivi. Vérifié : aucun fork, aucun abonné, aucune
+étoile ; les nouvelles branches répondent 404 sur ces chemins.
+
+**Reste exposé.** GitHub sert encore le commit retiré à qui connaît son SHA
+(`raw.githubusercontent.com/…/a296e1f/docs/mag-inputs/Stat_GLOBALES.xlsx` répond 200). Il
+n'apparaît plus dans aucune branche ni page du dépôt, mais seul GitHub peut le purger.
+
+### À faire par Bernard
+- Demander la purge à GitHub Support (« remove sensitive data », commit `a296e1f` et les deux
+  branches supprimées), ou passer le dépôt en privé, ce qui coupe l'accès anonyme aussitôt.
+- Apprécier l'obligation d'annonce nLPD : données de contact professionnelles d'artisans,
+  fenêtre d'exposition d'environ une heure sur une branche non référencée, aucun indice d'accès
+  (pas de fork ni de téléchargement connu, mais GitHub ne fournit pas de journal des accès
+  anonymes). Décision à prendre avec MAG, responsable du traitement.
+
 ## 2026-10-10 — LOT E2 : pages JEMA, cadrage (branche `docs/lot-e2-jema-cadrage`, sur C)
 
 Pas de développement (décision du 09.10). `docs/jema-edition.md` compare l'admin actuel

@@ -14,7 +14,7 @@
     "db:push:dry": "bash scripts/db-push-dry.sh",
     "db:seed": "tsx src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "test": "tsx --test src/lib/data.test.ts src/lib/db-data.test.ts src/lib/utils.test.ts src/lib/map-marker.test.ts src/lib/communaute-token.test.ts src/lib/settings-input.test.ts src/lib/url.test.ts src/lib/commune-match.test.ts src/lib/html.test.ts src/lib/db-data-error.test.ts src/lib/redirects.test.ts src/lib/actu-medias.test.ts src/lib/actu-medias-input.test.ts src/lib/actu-medias-sync.test.ts src/lib/pdf-upload.test.ts src/lib/dossier-fields.test.ts src/lib/dossier-rules.test.ts src/lib/dossier-documents.test.ts src/lib/mag-excel.test.ts src/lib/dossiers-exposure.test.ts src/lib/annonces.test.ts"
+    "test": "tsx --test src/lib/data.test.ts src/lib/db-data.test.ts src/lib/utils.test.ts src/lib/map-marker.test.ts src/lib/communaute-token.test.ts src/lib/settings-input.test.ts src/lib/url.test.ts src/lib/commune-match.test.ts src/lib/html.test.ts src/lib/db-data-error.test.ts src/lib/redirects.test.ts src/lib/actu-medias.test.ts src/lib/actu-medias-input.test.ts src/lib/actu-medias-sync.test.ts src/lib/pdf-upload.test.ts src/lib/dossier-fields.test.ts src/lib/dossier-rules.test.ts src/lib/dossier-documents.test.ts src/lib/mag-excel.test.ts src/lib/dossiers-exposure.test.ts src/lib/annonces.test.ts src/lib/excel-export-rules.test.ts src/lib/stats.test.ts src/lib/repo-hygiene.test.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

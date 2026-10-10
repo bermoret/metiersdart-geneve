@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin";
 import { KeyFiguresEditor } from "@/components/admin/KeyFiguresEditor";
 import { CommunautePasswordEditor } from "@/components/admin/CommunautePasswordEditor";
 import { countDossiersByStatus } from "@/lib/dossiers-db";
+import { getDistinctCraftsCount } from "@/lib/stats-db";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function AdminDashboard() {
     [missingAbout],
     [settings],
     dossiers,
+    distinctCrafts,
   ] = await Promise.all([
     db.select({ count: count() }).from(artisans),
     db.select({ count: count() }).from(categories),
@@ -50,6 +52,8 @@ export default async function AdminDashboard() {
       .limit(1),
     // Dossiers d'onboarding (LOT A1) : en évaluation + éligibles = en cours.
     countDossiersByStatus(),
+    // Métiers distincts des fiches publiées (LOT A2), à côté du chiffre saisi.
+    getDistinctCraftsCount(),
   ]);
   const dossiersEnCours = dossiers.en_evaluation + dossiers.eligible;
 
@@ -97,6 +101,10 @@ export default async function AdminDashboard() {
           initialCraftsCount={settings?.craftsCount ?? null}
           initialEventsCount={settings?.eventsCount ?? 0}
         />
+        <p className="text-xs text-mag-gray">
+          Indicatif : {distinctCrafts} métiers distincts cités par les fiches publiées (la nomenclature MAG fait foi,{" "}
+          <a href="/admin/stats" className="underline hover:text-mag-red">voir les statistiques</a>).
+        </p>
         <CommunautePasswordEditor initialPassword={settings?.communautePassword ?? ""} />
       </div>
     </div>

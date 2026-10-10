@@ -10,10 +10,10 @@ import { join, relative } from "node:path";
 
 const ROOT = join(process.cwd(), "src");
 const INTERNAL_TABLES = ["artisanDossiers", "artisanDocuments", "artisanJournal", "dossierStatusEnum", "journalTypeEnum"];
-const INTERNAL_MODULES = ["@/lib/dossiers-db", "./dossiers-db", "../dossiers-db"];
+const INTERNAL_MODULES = ["@/lib/dossiers-db", "./dossiers-db", "../dossiers-db", "@/lib/stats-db", "./stats-db", "../stats-db"];
 
 /** Emplacements autorisés à lire les tables internes. */
-const ALLOWED = [/^app\/admin\//, /^app\/api\/admin\//, /^components\/admin\//, /^lib\/dossiers-db\.ts$/, /^db\//];
+const ALLOWED = [/^app\/admin\//, /^app\/api\/admin\//, /^components\/admin\//, /^lib\/dossiers-db\.ts$/, /^lib\/stats-db\.ts$/, /^db\//];
 
 /** Source sans commentaires : une mention dans un commentaire n'est pas une exposition. */
 function stripComments(src: string): string {

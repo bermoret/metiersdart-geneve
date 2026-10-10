@@ -8,6 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin", label: "Tableau de bord", icon: "fas fa-home" },
     { href: "/admin/artisans", label: "Artisans", icon: "fas fa-hammer" },
     { href: "/admin/onboarding", label: "Onboarding", icon: "fas fa-clipboard-check" },
+    { href: "/admin/stats", label: "Statistiques", icon: "fas fa-chart-bar" },
     { href: "/admin/categories", label: "Catégories", icon: "fas fa-tags" },
     { href: "/admin/actualites", label: "Actualités", icon: "fas fa-newspaper" },
     { href: "/admin/jema", label: "JEMA", icon: "fas fa-award" },

@@ -82,6 +82,10 @@ const nextConfig: NextConfig = {
   // l'ancien fallback webpack (`pg-native: false`) est devenu inutile, et
   // Next 16 (Turbopack par défaut) refuse de builder avec une clé `webpack`.
   serverExternalPackages: ["pg"],
+  // Gabarit de l'export Excel (LOT A2) : embarqué avec la fonction de la route.
+  outputFileTracingIncludes: {
+    "/api/admin/export/stat-globales": ["./src/data/stat-globales-template.xlsx"],
+  },
 
   images: {
     remotePatterns: [
