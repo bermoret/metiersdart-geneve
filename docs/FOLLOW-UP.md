@@ -2,6 +2,54 @@
 
 Reports, points à vérifier et décisions ouvertes, par chantier (plus récent en haut).
 
+## 2026-10-10 — LOT A1 : onboarding et suivi des artisans (branche `feat/lot-a1-onboarding-artisans`)
+
+Mapping validé par Bernard le 10.10 (`docs/plateforme-gestion.md`, § 2 à 9). État : code écrit,
+revue de code (niveau high, 9 constats corrigés) et revue de sécurité (aucune vulnérabilité)
+faites, 226 tests, lint et build OK. **Pas encore migré ni vérifié sur une base** : en attente
+d'un `.env.local` (branche Neon de développement, jamais la prod).
+
+### Fait
+- Schéma : `artisan_dossiers` (1:1 avec `artisans`, `artisan_id` nullable), `artisan_documents`,
+  `artisan_journal`, enums `dossier_status` et `journal_type` (`src/db/schema.ts`).
+- Modules purs testés : `dossier-fields.ts` (45 questions du formulaire papier, sections, liste
+  blanche et typage du PATCH), `dossier-rules.ts` (transitions, nom public, fiche créée depuis le
+  dossier, slug unique), `dossier-documents.ts` (chemins Blob, types, Content-Disposition),
+  `mag-excel.ts` (cellules Excel, commentaires datés, sorties, rapprochement),
+  `dossiers-exposure.test.ts` (garde-fou statique : les tables internes ne sortent pas de l'admin).
+- Routes `/api/admin/dossiers…` : liste et recherche, création (vide ou depuis une fiche),
+  PATCH auto-enregistré, actions éligible / activer / désactiver en transaction (fiche créée
+  non publiée, publiée, dépubliée), journal en ajout seul, pièces (jeton d'envoi direct en
+  Blob **privé**, enregistrement après relecture `head()` et sonde d'accès public, téléchargement
+  en flux par l'admin seulement, suppression). Fiche artisan : `dossierId` dans la liste, entrée
+  de journal automatique au changement d'adresse.
+- Admin : menu « Onboarding », liste filtrée par statut avec recherche, page dossier (sections
+  du papier, enregistrement 1,5 s après la frappe et à la sortie du formulaire, actions,
+  pièces, journal, questions complémentaires en `jsonb`), lien « Fiche interne » dans la modale
+  artisan, carte « Dossiers en cours » du tableau de bord.
+- `scripts/import-excel-mag.ts` : à blanc par défaut, `--apply --backup`, `--rollback`,
+  `--confirm-surname`, `--link ligne=slug`, `--offline` (fiches des données statiques). Essai hors
+  ligne sur `Stat_GLOBALES.xlsx` : 108 lignes liées, 6 sorties (section « Retiré du répertoire »,
+  lignes 120-125), 3 homonymes à confirmer (Schott, Buckel, Blandenier), 2 sans fiche (Giglio
+  Orthopédie, Au Bon Relieur), ICI Céramique via `--link 112=ici-ceramique-elise-naville`.
+- `exceljs` 4.4.0 ajouté (lecture, et écriture pour le LOT A2) ; hérite d'une vulnérabilité
+  modérée de `uuid` sans impact (pas d'entrée utilisateur).
+
+### À faire avant la mise en prod
+- `.env.local` de dev → `npm run db:push:dry`, migration, `npm run dev`, parcours complet dans
+  l'admin (dossier, éligible, activer, pièce PDF ouverte et téléchargée, désactiver, journal),
+  import à blanc puis `--apply --backup`.
+- Vérifier en conditions réelles : le jeton Blob ne peut pas imposer `access: "private"` (SDK
+  2.8), seule la sonde de l'enregistrement le garantit ; rendu inline des PDF depuis la route.
+- Prod : migration `db:push` (accord Bernard), import avec `--confirm-surname` et `--link` une
+  fois les 3 homonymes et les 2 sans fiche tranchés par MAG, merge dans `main`.
+- Région des fonctions Vercel `fra1` (validée le 10.10) : `vercel.json` à ajouter au merge.
+
+### Décisions (validées par Bernard le 10.10)
+- Table séparée plutôt que des colonnes sur `artisans` ; type de journal `eligibilite` ajouté ;
+  coordonnées copiées sur la fiche seulement avec consentement ; désactiver = dépublier, jamais
+  supprimer ; `exceljs`.
+
 ## 2026-10-09 — Séance MAG du 09.10 : gestion des artisans, Communauté, écoles, JEMA (offre par lots)
 
 Source : PV de la séance hebdo MAG du 09.10 (Sandra Torres, Elsa Monteiro ; enregistrement

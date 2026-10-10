@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { findCommuneName } from "@/lib/commune-match";
+import { DOSSIER_STATUSES } from "@/lib/dossier-fields";
 
 type Category = { id: string; name: string };
 
@@ -71,7 +74,12 @@ const EMPTY: ArtisanData = {
 };
 
 export function ArtisanModal({ open, artisan, categories, communes, isNew, onClose, onSaved }: Props) {
+  const router = useRouter();
   const [form, setForm] = useState<ArtisanData>(EMPTY);
+  const [creatingDossier, setCreatingDossier] = useState(false);
+  // Dossier interne lié (LOT A1), lu depuis la liste des artisans
+  const dossierId = typeof artisan?.dossierId === "string" ? artisan.dossierId : null;
+  const dossierStatus = DOSSIER_STATUSES.find((s) => s.value === artisan?.dossierStatus);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -194,6 +202,26 @@ export function ArtisanModal({ open, artisan, categories, communes, isNew, onClo
     }
   };
 
+  // Créer le dossier interne d'une fiche existante (pré-rempli depuis la fiche)
+  const handleCreateDossier = async () => {
+    if (!form.id) return;
+    setCreatingDossier(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/dossiers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artisanId: form.id }),
+      });
+      const data = await res.json();
+      if (!res.ok && res.status !== 409) throw new Error(data.error || "Création du dossier impossible");
+      router.push(`/admin/onboarding/${data.id}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur inconnue");
+      setCreatingDossier(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!form.id) return;
     if (!confirm(`Supprimer "${form.name}" ? Cette action est irréversible.`)) return;
@@ -226,6 +254,33 @@ export function ArtisanModal({ open, artisan, categories, communes, isNew, onClo
             <i className="fas fa-times text-lg" />
           </button>
         </div>
+
+        {/* Dossier interne (onboarding, suivi, pièces) */}
+        {!isNew && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-mag-cream bg-mag-sand/30 px-4 py-3 text-sm">
+            <span className="flex items-center gap-2 text-mag-dark">
+              <i className="fas fa-clipboard-check text-mag-red" aria-hidden />
+              Fiche interne
+              {dossierStatus && (
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${dossierStatus.color}`}>{dossierStatus.label}</span>
+              )}
+            </span>
+            {dossierId ? (
+              <Link href={`/admin/onboarding/${dossierId}`} className="font-medium text-mag-red hover:underline">
+                Ouvrir le dossier →
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCreateDossier}
+                disabled={creatingDossier}
+                className="font-medium text-mag-red hover:underline disabled:opacity-50 cursor-pointer"
+              >
+                {creatingDossier ? "Création…" : "Créer le dossier interne"}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Form */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

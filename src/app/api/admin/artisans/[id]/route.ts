@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { requireAdminApi } from "@/lib/admin";
+import { requireAdminApi, sessionAuthor } from "@/lib/admin";
+import { addressChangeText } from "@/lib/dossier-rules";
+import { journalAddressChange } from "@/lib/dossiers-db";
 import { resolveArtisanCommune } from "@/lib/artisan-commune";
 import { isPublicHref } from "@/lib/url";
 
@@ -84,6 +86,11 @@ export async function PATCH(
     commune = { commune: undefined };
   }
 
+  // Adresse avant modification : un changement est inscrit au journal du
+  // dossier interne lié, s'il existe (LOT A1).
+  const [before] = await db.select({ address: artisans.address }).from(artisans).where(eq(artisans.id, id)).limit(1);
+  if (!before) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+
   let categoryId = body.categoryId;
   if (categoryId === undefined && body.categoryName) {
     const cat = await db
@@ -125,6 +132,14 @@ export async function PATCH(
     .returning();
 
   if (!updated) return NextResponse.json({ error: "Introuvable" }, { status: 404 });
+
+  const oldAddress = (before.address ?? "").trim();
+  const newAddress = (updated.address ?? "").trim();
+  if (body.address !== undefined && oldAddress !== newAddress) {
+    await journalAddressChange(id, addressChangeText(before.address, updated.address), sessionAuthor(session)).catch((e) =>
+      console.error("journal changement d'adresse:", e),
+    );
+  }
   return NextResponse.json(updated);
 }
 

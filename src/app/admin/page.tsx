@@ -4,6 +4,7 @@ import { and, count, eq, sql } from "drizzle-orm";
 import { requireAdmin } from "@/lib/admin";
 import { KeyFiguresEditor } from "@/components/admin/KeyFiguresEditor";
 import { CommunautePasswordEditor } from "@/components/admin/CommunautePasswordEditor";
+import { countDossiersByStatus } from "@/lib/dossiers-db";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function AdminDashboard() {
     [mediaCount],
     [missingAbout],
     [settings],
+    dossiers,
   ] = await Promise.all([
     db.select({ count: count() }).from(artisans),
     db.select({ count: count() }).from(categories),
@@ -46,10 +48,14 @@ export default async function AdminDashboard() {
       .from(siteSettings)
       .where(eq(siteSettings.id, "default"))
       .limit(1),
+    // Dossiers d'onboarding (LOT A1) : en évaluation + éligibles = en cours.
+    countDossiersByStatus(),
   ]);
+  const dossiersEnCours = dossiers.en_evaluation + dossiers.eligible;
 
   const stats = [
     { label: "Artisans", value: artisanCount.count, href: "/admin/artisans", icon: "fas fa-hammer", color: "text-mag-red" },
+    { label: "Dossiers en cours", value: dossiersEnCours, href: "/admin/onboarding", icon: "fas fa-clipboard-check", color: "text-mag-red" },
     { label: "Catégories", value: categoryCount.count, href: "/admin/categories", icon: "fas fa-tags", color: "text-mag-red" },
     { label: "Actualités", value: actuCount.count, href: "/admin/actualites", icon: "fas fa-newspaper", color: "text-mag-red" },
     { label: "Éditions JEMA", value: jemaCount.count, href: "/admin/jema", icon: "fas fa-award", color: "text-mag-red" },
@@ -59,7 +65,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-mag-dark font-serif mb-6">Tableau de bord</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {stats.map((s) => (
           <a
             key={s.label}

@@ -22,3 +22,11 @@ export async function requireAdminApi() {
   }
   return session;
 }
+
+/** Auteur inscrit dans les journaux (nom, sinon e-mail) pour une session admin. */
+export function sessionAuthor(session: { user?: object | null } | null): string {
+  const u = (session?.user ?? {}) as { name?: unknown; email?: unknown };
+  const name = typeof u.name === "string" ? u.name.trim() : "";
+  const email = typeof u.email === "string" ? u.email.trim() : "";
+  return (name || email || "admin").slice(0, 255);
+}

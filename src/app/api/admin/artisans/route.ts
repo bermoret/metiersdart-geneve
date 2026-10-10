@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { artisans, categories } from "@/db/schema";
+import { artisanDossiers, artisans, categories } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminApi } from "@/lib/admin";
 import { resolveArtisanCommune } from "@/lib/artisan-commune";
@@ -37,9 +37,13 @@ export async function GET() {
       poinconType: artisans.poinconType,
       poinconModalText: artisans.poinconModalText,
       poinconModalLink: artisans.poinconModalLink,
+      // Dossier interne lié (LOT A1) : lien « Fiche interne » dans la modale
+      dossierId: artisanDossiers.id,
+      dossierStatus: artisanDossiers.status,
     })
     .from(artisans)
     .leftJoin(categories, eq(artisans.categoryId, categories.id))
+    .leftJoin(artisanDossiers, eq(artisanDossiers.artisanId, artisans.id))
     .orderBy(artisans.name);
 
   return NextResponse.json(all);

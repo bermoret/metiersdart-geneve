@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 
+/** Classe commune des champs de saisie de l'admin. */
+export const ADMIN_INPUT_CLASS =
+  "w-full rounded-lg border border-mag-field bg-white px-3 py-2 text-sm focus:border-mag-red focus:outline-none focus:ring-2 focus:ring-mag-red/20";
+
 type Column = {
   key: string;
   label: string;

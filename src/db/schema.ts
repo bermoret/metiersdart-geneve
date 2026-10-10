@@ -11,6 +11,7 @@ import {
   boolean,
   jsonb,
   doublePrecision,
+  date,
   index,
 } from "drizzle-orm/pg-core";
 
@@ -286,4 +287,151 @@ export const annonces = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [index("annonces_status_idx").on(table.status)],
+);
+
+// ─── Dossiers artisans (LOT A1 : onboarding et suivi) ───────────
+// Fiche INTERNE d'un artisan : formulaire d'éligibilité, pièces, journal.
+// Table séparée de `artisans` (jamais sélectionnée par le code public,
+// voir docs/plateforme-gestion.md § 2 et src/lib/dossiers-exposure.test.ts).
+// Le dossier précède la fiche : artisan_id reste NULL jusqu'au passage
+// « Éligible », qui crée la fiche publique non publiée.
+
+export const dossierStatusEnum = pgEnum("dossier_status", [
+  "en_evaluation",
+  "eligible",
+  "actif",
+  "desactive",
+]);
+
+export const journalTypeEnum = pgEnum("journal_type", [
+  "remarque",
+  "changement_adresse",
+  "fermeture",
+  "activation",
+  "desactivation",
+  "eligibilite",
+]);
+
+export const artisanDossiers = pgTable(
+  "artisan_dossiers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    artisanId: uuid("artisan_id")
+      .references(() => artisans.id, { onDelete: "set null" })
+      .unique(),
+    status: dossierStatusEnum("status").notNull().default("en_evaluation"),
+    // En-tête du formulaire
+    source: text("source"),
+    firstName: varchar("first_name", { length: 255 }),
+    lastName: varchar("last_name", { length: 255 }),
+    workshopName: varchar("workshop_name", { length: 500 }),
+    categoryId: uuid("category_id").references(() => categories.id),
+    craft: varchar("craft", { length: 255 }),
+    phone: varchar("phone", { length: 100 }),
+    email: varchar("email", { length: 255 }),
+    street: varchar("street", { length: 500 }),
+    postalCode: varchar("postal_code", { length: 20 }),
+    city: varchar("city", { length: 255 }),
+    commune: varchar("commune", { length: 255 }),
+    // Répertoire
+    inmaRecognized: boolean("inma_recognized"),
+    asmaMember: boolean("asma_member"),
+    contactPublicConsent: boolean("contact_public_consent"),
+    // Critères d'intégration MAG
+    activityInGeneva: boolean("activity_in_geneva"),
+    mainlyManual: boolean("mainly_manual"),
+    mainIncome: boolean("main_income"),
+    selfTaught: boolean("self_taught"),
+    companyDedicatedSector: boolean("company_dedicated_sector"),
+    companyName: varchar("company_name", { length: 255 }),
+    rcRegistered: boolean("rc_registered"),
+    legalForm: varchar("legal_form", { length: 100 }),
+    rcRegisteredAt: date("rc_registered_at", { mode: "string" }),
+    avsAffiliated: boolean("avs_affiliated"),
+    avsFund: varchar("avs_fund", { length: 255 }),
+    recognizedInField: boolean("recognized_in_field"),
+    hasWebsite: boolean("has_website"),
+    website: varchar("website", { length: 500 }),
+    hasSocialMedia: boolean("has_social_media"),
+    socialLinks: jsonb("social_links").$type<Record<string, string>>(),
+    // Éligibilité
+    workshopVisitAt: date("workshop_visit_at", { mode: "string" }),
+    visitedBy: varchar("visited_by", { length: 255 }),
+    // Formations
+    hasTraining: boolean("has_training"),
+    trainingDetails: text("training_details"),
+    awardWinner: boolean("award_winner"),
+    awardDetails: text("award_details"),
+    trainerCompany: boolean("trainer_company"),
+    trainerCompanyNote: text("trainer_company_note"),
+    // Divers projets
+    classVisits: boolean("class_visits"),
+    classVisitsMin: integer("class_visits_min"),
+    classVisitsMax: integer("class_visits_max"),
+    publicVisits: boolean("public_visits"),
+    publicVisitsMin: integer("public_visits_min"),
+    publicVisitsMax: integer("public_visits_max"),
+    talkConference: boolean("talk_conference"),
+    talkRoundTable: boolean("talk_round_table"),
+    talkClass: boolean("talk_class"),
+    jemaInterest: boolean("jema_interest"),
+    ecolesArtisansInterest: boolean("ecoles_artisans_interest"),
+    // Fin de formulaire
+    poinconType: varchar("poincon_type", { length: 50 }),
+    professionalAssociation: boolean("professional_association"),
+    professionalAssociations: text("professional_associations"),
+    newsletterConsent: boolean("newsletter_consent"),
+    notes: text("notes"),
+    extra: jsonb("extra").$type<Record<string, string | number | boolean | null>>(),
+    // Suivi
+    integratedAt: date("integrated_at", { mode: "string" }),
+    deactivatedAt: date("deactivated_at", { mode: "string" }),
+    deactivationReason: varchar("deactivation_reason", { length: 100 }),
+    createdBy: varchar("created_by", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("artisan_dossiers_status_idx").on(table.status),
+    index("artisan_dossiers_last_name_idx").on(table.lastName),
+  ],
+);
+
+// Pièces justificatives : blobs PRIVÉS (jamais d'URL publique en base,
+// seulement le chemin ; servies par la route admin de téléchargement).
+export const artisanDocuments = pgTable(
+  "artisan_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    dossierId: uuid("dossier_id")
+      .notNull()
+      .references(() => artisanDossiers.id, { onDelete: "cascade" }),
+    label: varchar("label", { length: 255 }).notNull(),
+    kind: varchar("kind", { length: 50 }).notNull().default("autre"),
+    pathname: varchar("pathname", { length: 500 }).notNull().unique(),
+    contentType: varchar("content_type", { length: 100 }).notNull(),
+    size: integer("size").notNull(),
+    uploadedBy: varchar("uploaded_by", { length: 255 }),
+    uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+  },
+  (table) => [index("artisan_documents_dossier_idx").on(table.dossierId)],
+);
+
+// Journal de suivi, en ajout seul : remarques datées, changements
+// d'adresse, fermetures, activations / désactivations, éligibilité.
+export const artisanJournal = pgTable(
+  "artisan_journal",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    dossierId: uuid("dossier_id")
+      .notNull()
+      .references(() => artisanDossiers.id, { onDelete: "cascade" }),
+    type: journalTypeEnum("type").notNull(),
+    occurredAt: date("occurred_at", { mode: "string" }).notNull(),
+    text: text("text"),
+    motif: varchar("motif", { length: 100 }),
+    author: varchar("author", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("artisan_journal_dossier_idx").on(table.dossierId, table.occurredAt)],
 );

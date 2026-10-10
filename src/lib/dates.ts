@@ -26,6 +26,12 @@ const zurichParts = new Intl.DateTimeFormat("en-US", {
 });
 
 /** Jour civil à Genève (« AAAA-MM-JJ »), comparable comme chaîne. */
+/** « YYYY-MM-DD… » (date ou timestamp ISO) → « JJ.MM.AAAA » ; « — » si absent. */
+export function formatDay(iso: string | null | undefined): string {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return "—";
+  return iso.slice(0, 10).split("-").reverse().join(".");
+}
+
 export function zurichDay(d: Date): string {
   const p = Object.fromEntries(zurichParts.formatToParts(d).map((x) => [x.type, x.value]));
   return `${p.year}-${p.month}-${p.day}`;
